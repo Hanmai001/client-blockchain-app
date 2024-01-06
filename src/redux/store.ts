@@ -3,7 +3,7 @@ import { TypedUseSelectorHook, useSelector as useReduxSelector } from "react-red
 
 //combine many reducers into one reducer
 const reducer = combineReducers({
-
+  
 })
 
 export const store = configureStore({reducer, devTools: true})

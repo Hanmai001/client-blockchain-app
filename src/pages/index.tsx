@@ -1,4 +1,4 @@
-import { MarketplaceScreen } from "@/components/marketplace";
+import { MarketplaceScreen } from "@/screens/marketplace";
 
 export default function Page() {
   return (

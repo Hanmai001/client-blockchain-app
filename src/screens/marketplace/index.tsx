@@ -1,4 +1,6 @@
+import { blockChainContext, useBlockChain } from '@/share/blockchain/context';
 import { Card, Image, Text, Badge, Button, Group, useMantineColorScheme } from '@mantine/core';
+import { useContext } from 'react';
 
 export const MarketplaceScreen = () => {
   const { setColorScheme, clearColorScheme } = useMantineColorScheme();
