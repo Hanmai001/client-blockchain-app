@@ -5,17 +5,17 @@ import { ContractERC20 } from "@/share/blockchain/contracts/ERC20"
 import { ContractERC721 } from "@/share/blockchain/contracts/ERC721"
 import { MantineColorScheme } from '@mantine/core'
 
+//CONFIGS
 export type EnvConfigs = {
   [key in AppEnv]: Configs
 }
-
 export type Configs = {
-  URL_CROSS_STORAGE: string
+  URL_CROSS_STORAGE: string,
+  URL_MAIN_API: string,
   chains: {
     [key in ChainId]?: ChainConfig
   }
 }
-
 export type GetConfig = (key: keyof Configs) => any;
 
 export interface ChainConfig {
@@ -49,8 +49,4 @@ export interface Contracts {
   isAbleToWrite: boolean,
   erc20s: ERC20Contracts<ContractERC20>,
   erc721s: ERC721Contracts<ContractERC721>,
-}
-
-export interface FeatureContracts<T> {
-
 }

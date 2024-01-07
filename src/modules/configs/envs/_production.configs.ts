@@ -3,6 +3,7 @@ import { Configs } from "../type";
 
 export const productionConfigs: Configs = {
   URL_CROSS_STORAGE: 'http://localhost:5500',
+  URL_MAIN_API: 'http://localhost:4000',
   chains: {
     [ChainId.BSC_TESTNET]: {
       erc20s: {

@@ -1,6 +1,7 @@
+import { getWallet } from "@/share/blockchain/context";
 import { CrossStorageModule } from "../cross-storage/modules";
 import { CrossStorageKey } from "../cross-storage/types";
-
+import { decodeJwt } from 'jose';
 
 export class AccountAccessToken {
   static async getList() {
@@ -18,7 +19,7 @@ export class AccountAccessToken {
   }
 
   static async remove(accessToken: string) {
-    const temp = await this.getList()
+    const temp = await this.getList();
     let listTokens = [accessToken, ...temp]
     listTokens = listTokens.filter((v) => v.toLowerCase() !== accessToken.toLowerCase())
     await CrossStorageModule.set(CrossStorageKey.USER_ACCESS_TOKENS, listTokens.toString())
@@ -35,9 +36,11 @@ export class AccountAccessToken {
 
   static async get(wallet?: string) {
     try {
-      const walletAddress = wallet || getWallet()
-      if (!walletAddress) return
-      const listTokens = await this.getList()
+      const walletAddress = wallet || getWallet();
+      if (!walletAddress) return;
+      const listTokens = await this.getList();
+      
+      //Find accessToken in list tokens from Cross-storage
       const token = listTokens.find((token) => {
         try {
           const tokenPayload = decodeJwt(token) as { wallet: string }
