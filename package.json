@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
+    "@emotion/react": "^11.11.3",
     "@emotion/server": "^11.11.0",
     "@mantine/core": "^7.3.2",
     "@mantine/hooks": "^7.3.2",
@@ -19,6 +19,7 @@
     "@tabler/icons-react": "^2.44.0",
     "axios": "^1.6.5",
     "cross-storage": "^1.0.0",
+    "ethereumjs-util": "^7.1.5",
     "ethers": "^6.9.2",
     "jose": "^5.2.0",
     "next": "14.0.4",
@@ -26,7 +27,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.0.4",
-    "web3": "^4.3.0",
+    "sass": "^1.69.7",
     "web3-core": "^4.3.2"
   },
   "devDependencies": {

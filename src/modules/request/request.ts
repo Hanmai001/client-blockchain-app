@@ -1,9 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { getChainId, getConfig } from "../configs";
+import { getChainId, getConfig } from "../configs/context";
 import { AccountAccessToken } from "../account/acess-token";
 import { ObjectUtils } from "@/share/utils";
-import { Axios } from "axios";
-
 
 export class RequestModule {
   static getURL(subURL: string) {
@@ -16,6 +14,7 @@ export class RequestModule {
 
     if (typeof window !== undefined) {
       const accessToken = await AccountAccessToken.get();
+      console.log("accessToken: ", accessToken)
       if (accessToken) {
         headers['Authorization'] = `Bearer ${accessToken}`;
       }
@@ -43,8 +42,9 @@ export class RequestModule {
     if (headers) {
       configs.headers = {...configs.headers, headers};
     }
-    try {
-      const res = await axios.post(subURL, ObjectUtils.cleanObj(payload), configs);
+    
+    try { 
+      const res = await axios.post(this.getURL(subURL), ObjectUtils.cleanObj(payload), configs);
       return res.data;
     } catch (error) {
       throw error;
@@ -64,7 +64,7 @@ export class RequestModule {
   static async put(subURL: string, payload = {}) {
     const configs = await this.getConfigs();
     try {
-      const res = await axios.put(subURL, ObjectUtils.cleanObj(payload), configs);
+      const res = await axios.put(this.getURL(subURL), ObjectUtils.cleanObj(payload), configs);
       return res.data;
     } catch (error) {
       throw error;
@@ -74,7 +74,7 @@ export class RequestModule {
   static async patch(subURL: string, payload = {}) {
     const configs = await this.getConfigs();
     try {
-      const res = await axios.patch(subURL, ObjectUtils.cleanObj(payload), configs);
+      const res = await axios.patch(this.getURL(subURL), ObjectUtils.cleanObj(payload), configs);
       return res.data;
     } catch (error) {
       throw error;

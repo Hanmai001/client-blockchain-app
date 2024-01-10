@@ -1,6 +1,6 @@
 import {CrossStorageClient} from 'cross-storage';
 import {CrossStorageKey} from './types'
-import { ENV, getConfig } from '../configs';
+import { ENV, getConfig } from '../configs/context';
 
 export class CrossStorageModule {
   static isConnected = false
@@ -12,8 +12,8 @@ export class CrossStorageModule {
       : ({} as any)
 
   static async initStorage() {
-    if (this.isConnected) return
-    await this.storage.onConnect()
+    if (this.isConnected) return;
+    await this.storage.onConnect();
   }
 
   static getKey(key: CrossStorageKey) {
@@ -21,7 +21,8 @@ export class CrossStorageModule {
   }
 
   static async get(key: CrossStorageKey): Promise<string | null> {
-    await this.initStorage()
+    await this.initStorage();
+    console.log("storage: ", this.storage)
     const data = await this.storage
       .get(this.getKey(key))
       .then((res: any) => res || null)

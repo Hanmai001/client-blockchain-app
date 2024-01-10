@@ -1,5 +1,5 @@
-import { ConfigsProvider, PRIMARY_COLOR, PRIMARY_DARK_COLOR, useConfig } from '@/modules/configs'
-import '@/styles/globals.css'
+import { ConfigsProvider, PRIMARY_COLOR, PRIMARY_DARK_COLOR, useConfig } from '@/modules/configs/context'
+import '@/styles/globals.scss'
 import '@mantine/core/styles.css';
 import type { AppProps } from 'next/app'
 import { FC, PropsWithChildren } from 'react'
@@ -8,17 +8,20 @@ import { Provider } from 'react-redux'
 import { store } from '@/redux/store'
 import { AppModule } from '@/modules/app/modules'
 import { BlockChainProvider } from '@/share/blockchain/context';
+import { AccountProvider } from '@/modules/account/context';
+import { ErrorModal } from '@/components/modals/modal-error';
 
 const App: FC<PropsWithChildren> = (props) => {
 
   return (
-    <>
+    <AccountProvider>
       <main>
         {props.children}
 
         {/* APP MODALS */}
+        <ErrorModal />
       </main>
-    </>
+    </AccountProvider>
   )
 }
 

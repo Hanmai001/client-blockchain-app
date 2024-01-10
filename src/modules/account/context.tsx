@@ -1,9 +1,12 @@
-import { FC, PropsWithChildren, createContext, useContext, useState } from "react";
+import { FC, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
 import { AccountContext, AccountInformation, SignIn, SignOut } from "./types";
 import { UserInformation, UserSignInPayload, UserSignInResponse } from "../user/types";
 import { useBlockChain } from "@/share/blockchain/context";
 import { AccountAccessToken } from "./acess-token";
 import { UserModule } from "../user/modules";
+import { ethers } from "ethers";
+import { onError } from "@/components/modals/modal-error";
+import * as EthereumjsUtil from "ethereumjs-util";
 
 
 const accountContext = createContext<AccountContext>({} as any);
@@ -23,11 +26,12 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
   const authenticate = async () => {
     try {
       setInformation(undefined);
-      const accessToken = await AccountAccessToken.get(blockchain.wallet);
+      //const accessToken = await AccountAccessToken.get(blockchain.wallet);
+      //console.log("accessToken: ", accessToken);
 
-      if (accessToken) {
-        await UserModule.authenticate().then(v => setInformation(s => ({ ...s, ...v }))).catch((err) => false);
-      }
+      // if (accessToken) {
+      //   await UserModule.authenticate().then(v => setInformation(s => ({ ...s, ...v }))).catch((err) => false);
+      // }
       setIsInitialized(true);
     } catch (error) {
       throw error;
@@ -49,11 +53,12 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
       });
 
       const payload: UserSignInPayload = {
-        wallet,
+        address: wallet,
         signature,
       }
 
       const response = await UserModule.signInWithMetamask(payload);
+      console.log("response: ", response);
 
       if (response) {
         await AccountAccessToken.save(response.accessToken);
@@ -62,6 +67,7 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
 
       return response.user;
     } catch (error) {
+      onError(error);
       throw error;
     }
   }
@@ -77,6 +83,19 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
   const isSigned = !!information;
   const isDappConnected = !!blockchain.wallet;
   const isReady = isSigned && isDappConnected;
+
+  useEffect(() => {
+    if (blockchain.isInitialized) {
+      //check if user have connected before
+      if (blockchain.wallet) {
+        authenticate();
+      }
+      else {
+        setInformation(undefined)
+        setIsInitialized(true)
+      }
+    }
+  }, [blockchain.isInitialized, blockchain.wallet])
 
   const context: AccountContext = {
     signIn,

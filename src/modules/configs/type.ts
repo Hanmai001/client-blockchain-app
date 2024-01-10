@@ -50,3 +50,14 @@ export interface Contracts {
   erc20s: ERC20Contracts<ContractERC20>,
   erc721s: ERC721Contracts<ContractERC721>,
 }
+
+export enum CollectionTyle {
+  ALL = 'Tất cả',
+  TOURISM = 'Du lịch',
+  GAME = 'Trò chơi',
+  LIFE = 'Đời sống',
+  EDUCATION = 'Giáo dục',
+  FAMILY = 'Gia đình',
+  FILM = 'Phim ảnh',
+  COOK = 'Nấu ăn'
+}

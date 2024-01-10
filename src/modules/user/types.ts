@@ -10,7 +10,7 @@ export interface UserInformation {
   username?: string,
   avatar?: string,
   cover?: string,
-  createAt: number,
+  createdAt: number,
   roles: Roles[]
 }
 
@@ -20,7 +20,7 @@ export interface UserSignInResponse {
 }
 
 export interface UserSignInPayload {
-  wallet: string,
+  address: string,
   signature: string,
 }
 

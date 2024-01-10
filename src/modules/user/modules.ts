@@ -14,11 +14,15 @@ export class UserModule {
     return user;
   }
 
+  static async getMessage() {
+    return RequestModule.get(``);
+  }
+
   static async authenticate(): Promise<UserInformation> {
     return RequestModule.get(``);
   }
 
   static async signInWithMetamask(payload: UserSignInPayload): Promise<UserSignInResponse> {
-    return RequestModule.post(``, payload)
+    return RequestModule.post(`/api/v1/users/login`, payload)
   }
 }

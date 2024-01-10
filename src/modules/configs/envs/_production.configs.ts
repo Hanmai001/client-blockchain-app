@@ -2,7 +2,7 @@ import { ChainId } from "@/share/blockchain/types";
 import { Configs } from "../type";
 
 export const productionConfigs: Configs = {
-  URL_CROSS_STORAGE: 'http://localhost:5500',
+  URL_CROSS_STORAGE: 'http://127.0.0.1:5500/hub.html',
   URL_MAIN_API: 'http://localhost:4000',
   chains: {
     [ChainId.BSC_TESTNET]: {

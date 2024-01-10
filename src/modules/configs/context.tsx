@@ -22,6 +22,7 @@ export const getChainConfig = (chainId?: ChainId) => {
   if (!chainConfig) throw Error('Chain is not supported')
   return chainConfig
 }
+
 export let getContracts: () => Contracts;
 
 export const ConfigsContext = createContext<any>({} as any);

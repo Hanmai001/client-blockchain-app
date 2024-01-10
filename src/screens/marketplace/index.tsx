@@ -1,41 +1,98 @@
-import { blockChainContext, useBlockChain } from '@/share/blockchain/context';
-import { Card, Image, Text, Badge, Button, Group, useMantineColorScheme } from '@mantine/core';
-import { useContext } from 'react';
+import { AppWrapper } from '@/components/app/app-wrapper';
+import { CollectionTyle } from '@/modules/configs/type';
+import { Box, Combobox, ComboboxData, Grid, Group, InputBase, Select, Stack, Tabs, rem, useCombobox, useMantineTheme } from '@mantine/core';
+import { useState } from 'react';
+import classes from '../../styles/Marketplace.module.scss';
+import { useResponsive } from '@/modules/app/hooks';
+import { BannerSection } from './banner-section';
 
 export const MarketplaceScreen = () => {
-  const { setColorScheme, clearColorScheme } = useMantineColorScheme();
-  
+  // const { setColorScheme, clearColorScheme } = useMantineColorScheme();
+  const [activeTab, setActiveTab] = useState<string | null>(CollectionTyle.ALL);
+  const theme = useMantineTheme();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
+
   return (
-    <>
-      <Group>
-        <Button onClick={() => setColorScheme('light')}>Light</Button>
-        <Button onClick={() => setColorScheme('dark')}>Dark</Button>
-        <Button onClick={() => setColorScheme('auto')}>Auto</Button>
-        <Button onClick={clearColorScheme}>Clear</Button>
-      </Group>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Card.Section>
-          <Image
-            src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
-            height={160}
-            alt="Norway"
-          />
-        </Card.Section>
+    <AppWrapper>
+      <Box p={theme.spacing.md}>
+        <Stack className='Marketplace' w={'100%'}>
+          <Tabs value={activeTab} onChange={setActiveTab} maw={isDesktop ? '66.3%' : '100%'} visibleFrom='sm' classNames={{
+            root: classes.tabRoot,
+            list: classes.tabList,
+            tab: classes.tabButton,
+          }}>
+            <Tabs.List grow>
+              {Object.values(CollectionTyle).map((v, k) => (
+                <Tabs.Tab value={v} key={k}>{v}</Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs>
 
-        <Group justify="space-between" mt="md" mb="xs">
-          <Text fw={500}>Norway Fjord Adventures</Text>
-          <Badge color="pink">On Sale</Badge>
-        </Group>
+          {isMobile && <MyCombobox />}
+          
+          <Grid w={'100%'}>
+            <Grid.Col span={{base: 12, md: 8, lg: 8}}>
+              <Stack>
+                <BannerSection />
+              </Stack>
+            </Grid.Col>
 
-        <Text size="sm">
-          With Fjord Tours you can explore more of the magical fjord landscapes with tours and
-          activities on and around the fjords of Norway
-        </Text>
-
-        <Button color="blue" fullWidth mt="md" radius="md">
-          Book classic tour now
-        </Button>
-      </Card>
-    </>
+          </Grid>
+          
+        </Stack>
+      </Box>
+    </AppWrapper>
   )
+}
+
+
+const MyCombobox = () => {
+  const combobox = useCombobox({
+    onDropdownClose: () => combobox.resetSelectedOption(),
+  });
+  const [value, setValue] = useState<string | null>(CollectionTyle.ALL);
+
+  const options = Object.values(CollectionTyle).map((v, k) => (
+    <Combobox.Option py={12} className={v === value ? classes.comboboxOptionSelected : classes.comboboxOption} value={v} key={k}>
+      {v}
+    </Combobox.Option>
+  ))
+
+  return <Combobox
+    store={combobox}
+    onOptionSubmit={(val) => {
+      setValue(val);
+      combobox.closeDropdown();
+    }}
+    styles={{
+      dropdown: {
+        height: rem(200),
+        overflow: 'hidden',
+        overflowY: 'auto',
+      }
+    }}
+    classNames={{
+      dropdown: classes.hiddenScrollBar
+    }}
+    >
+    <Combobox.Target>
+      <InputBase
+        component="button"
+        type="button"
+        pointer
+        rightSection={<Combobox.Chevron />}
+        rightSectionPointerEvents="none"
+        onClick={() => combobox.toggleDropdown()}
+        classNames={{
+          input: classes.comboboxInput
+        }}
+      >
+        {value}
+      </InputBase>
+    </Combobox.Target>
+
+    <Combobox.Dropdown>
+      <Combobox.Options>{options}</Combobox.Options>
+    </Combobox.Dropdown>
+  </Combobox>
 }

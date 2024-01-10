@@ -31,28 +31,27 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
   getWallet = () => status.wallet;
   getProvider = () => status.provider;
 
-  const setup = async (provider: any, providerType: ProviderType, forceChainId?: ChainId) => {
-    const providerUse = new ethers.JsonRpcProvider(provider);
-    let chainId = await providerUse.send('net_version', []) as ChainId;
+  const setup = async (provider: ethers.Eip1193Provider, providerType: ProviderType, forceChainId?: ChainId) => {
+    const providerUse = new ethers.BrowserProvider(provider);
+    let currentChainId = (await providerUse.getNetwork()).chainId.toString() as ChainId;
 
-    const accounts = await providerUse.listAccounts();
-    console.log("accounts: ", accounts)
+    const accounts = await provider.request({ method: 'eth_requestAccounts'});
     const wallet = ethers.getAddress(accounts[0].toString());
-    console.log("account0: ", wallet)
 
-    if (forceChainId && forceChainId !== chainId) {
+    //if user want to connect to another chain
+    if (forceChainId && forceChainId !== currentChainId) {
       try {
         await connectChain(forceChainId);
       } catch (error) {
         return false;
       }
-      chainId = (await providerUse.getNetwork()).chainId.toString() as ChainId;
+      currentChainId = (await providerUse.getNetwork()).chainId.toString() as ChainId;
     }
 
-    setStatus(s => ({ ...s, chainId, wallet, provider, providerType }));
+    setStatus(s => ({ ...s, chainId: currentChainId, wallet, provider, providerType }));
     setIsInitialized(true);
 
-    return { chainId, wallet, provider, providerType };
+    return { chainId: currentChainId, wallet, provider, providerType };
   }
 
   const initProvider = async (providerType: ProviderType) => {
@@ -60,15 +59,16 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
 
     if ((!providerType || providerType === 'metamask') && !metamask_logout) {
       const { ethereum } = window as any;
-      if (ethereum) return setup(ethereum, 'metamask');
+      if (ethereum) {
+        return setup(ethereum, 'metamask');
+      };
     }
   }
 
   const initialize = async () => {
     try {
       const myWallet = localStorage.getItem('my_wallet')
-      await initProvider(myWallet as ProviderType);
-
+      const res = await initProvider(myWallet as ProviderType);
       return setIsInitialized(true);
     } catch (error) {
       setIsInitialized(true);
@@ -103,7 +103,7 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     }
   }
 
-  connectChain = async (chainId) => {
+  connectChain = async (chainId: any) => {
     const chain = chains.find(v => v.chainId === chainId);
     if (!chain) throw Error("Chain does not supported yet");
 
@@ -213,12 +213,13 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
       }
 
       const handleChangeChain = async () => {
-        const web3 = new ethers.JsonRpcProvider(provider);
+        const web3 = new ethers.BrowserProvider(provider);
         const chainId = (await web3.getNetwork()).chainId.toString() as ChainId;
         setStatus(s => ({ ...s, chainId }));
         forceUpdate();
       }
 
+      //add events for provider
       provider.on("accountsChanged", handleChangeAccount);
       provider.on("chainChanged", handleChangeChain);
 
@@ -228,9 +229,10 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
         provider.removeListener("chainChanged", handleChangeChain);
       }
     }
-  }, [version, isInitialized, status]);
+  }, [version, isInitialized, status.provider]);
 
   useEffect(() => {
+    //check if user have connected with provider before or connect to default metamask 
     initialize();
     //Add fields for window object
     (window as any).blockchainConfig = props;
