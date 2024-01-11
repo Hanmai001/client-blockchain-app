@@ -1,3 +1,5 @@
+$border-color: #d3b0ff;
+
 .headerNormal {
   position: fixed;
   z-index: 999;
@@ -25,7 +27,7 @@
   top: 0;
   right: 1rem;
   border-bottom: 2px solid var(--mantine-color-gray-2);
-  box-shadow: var(--mantine-shadow-xs);
+  // box-shadow: var(--mantine-shadow-xs);
   height: unset;
   backdrop-filter: blur(15px);
   border-bottom-left-radius: 10px;
@@ -43,4 +45,27 @@
 
 .connectWallet {
   height: 45px;
+}
+
+.avatar {
+  border: 2px solid transparent;
+  border-radius: 50%;
+  animation: bounceOut 2s linear infinite;
+}
+
+@keyframes bounceOut {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px $border-color;
+  }
+
+  20%,
+  60% {
+    box-shadow: 0 0 0 2px $border-color;
+  }
+
+  40%,
+  80% {
+    box-shadow: 0 0 0 1px $border-color;
+  }
 }

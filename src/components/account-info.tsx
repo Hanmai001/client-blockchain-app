@@ -2,36 +2,39 @@ import { useAccount } from "@/modules/account/context"
 import { Group, Stack, Text } from "@mantine/core"
 import { useClipboard } from "@mantine/hooks"
 import { ethers } from "ethers"
-import { FC } from "react"
+import { FC, useEffect, useState } from "react"
 import { AccountAvatar } from "./account-avatar"
 import { StringUtils } from "@/share/utils"
+import { AccountInformation } from "@/modules/account/types"
+import { UserInformation } from "@/modules/user/types"
 
 
 interface AccountInfoProps {
-  wallet: string
+  account: AccountInformation
 }
 
 export const AccountInfo: FC<AccountInfoProps> = (props) => {
-  const account = useAccount();
   const clipboard = useClipboard({ timeout: 2000 });
+  const [information, setInformation] = useState<UserInformation | undefined>(props.account);
 
-  const copyWallet = () => clipboard.copy(props.wallet);
+  const copyWallet = () => clipboard.copy(props.account.wallet);
 
-  const isValid = account.wallet === ethers.getAddress(props.wallet);
+  useEffect(() => {
+    setInformation(props.account);
+  }, [props.account]);
 
-  if (isValid) return <Group onClick={copyWallet}>
-    <AccountAvatar src={account.information?.avatar} size={48} />
-    <Stack>
-      <Text size="12">{StringUtils.compact(props.wallet, 2, 5)}</Text>
-      <Text size="12">{account.information?.username ? account.information?.username : 'unknown'}</Text>
-    </Stack>
-  </Group>
+  if (information) {
+    return (
+      <Group gap={6} onClick={copyWallet}>
+        <AccountAvatar src={information.avatar} size={48} />
+        <Stack gap={0}>
+          <Text style={{ fontSize: '12px' }} fw='bold'>{StringUtils.compact(information.wallet, 2, 5)}</Text>
+          <Text style={{ fontSize: '12px' }}>{information.username ? StringUtils.compact(information.username, 2, 5) : 'unknown'}</Text>
+        </Stack>
+      </Group>
+    )
+  }
 
-  return (
-    <Group onClick={copyWallet}>
-      <Text size="12">{StringUtils.compact(props.wallet, 2, 5)}</Text>
-      <Text size="12">{account.information?.username ? account.information?.username : 'unknown'}</Text>
-    </Group>
-  )
+  return null;
 
 }

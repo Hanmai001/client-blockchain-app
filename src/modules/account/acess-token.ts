@@ -6,7 +6,6 @@ import { decodeJwt } from 'jose';
 export class AccountAccessToken {
   static async getList() {
     const str = await CrossStorageModule.get(CrossStorageKey.USER_ACCESS_TOKENS);
-    console.log("str", str)
     const listTokens = (str || '').split(',').filter(v => !!v);
     return listTokens;
   }
@@ -38,7 +37,6 @@ export class AccountAccessToken {
   static async get(wallet?: string) {
     try {
       const walletAddress = wallet || getWallet();
-      console.log("wallet", walletAddress);
       if (!walletAddress) return;
       const listTokens = await this.getList();
       console.log("listTokens: ", listTokens);
@@ -46,8 +44,9 @@ export class AccountAccessToken {
       //Find accessToken in list tokens from Cross-storage
       const token = listTokens.find((token) => {
         try {
-          const tokenPayload = decodeJwt(token) as { wallet: string }
-          return tokenPayload.wallet.toLowerCase() === walletAddress.toLowerCase()
+          const tokenPayload = decodeJwt(token) as any;
+          console.log("Token decoded: ", tokenPayload)
+          return tokenPayload.userWallet.toLowerCase() === walletAddress.toLowerCase()
         } catch (error) {
           return false
         }

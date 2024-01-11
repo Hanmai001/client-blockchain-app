@@ -5,6 +5,7 @@ import { useState } from 'react';
 import classes from '../../styles/Marketplace.module.scss';
 import { useResponsive } from '@/modules/app/hooks';
 import { BannerSection } from './banner-section';
+import { ListCollections } from './list-collections-section';
 
 export const MarketplaceScreen = () => {
   // const { setColorScheme, clearColorScheme } = useMantineColorScheme();
@@ -34,6 +35,8 @@ export const MarketplaceScreen = () => {
             <Grid.Col span={{base: 12, md: 8, lg: 8}}>
               <Stack>
                 <BannerSection />
+
+                <ListCollections />
               </Stack>
             </Grid.Col>
 

@@ -18,20 +18,22 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
   const blockchain = useBlockChain();
   const [isInitialized, setIsInitialized] = useState(false);
   const [information, setInformation] = useState<AccountInformation | undefined>(undefined);
-  const wallet = information?.wallet;
+  // const wallet = information?.wallet;
 
   getAccount = () => information;
-  getWallet = () => wallet;
+  getWallet = () => information?.wallet;
 
   const authenticate = async () => {
     try {
       setInformation(undefined);
-      //const accessToken = await AccountAccessToken.get(blockchain.wallet);
-      //console.log("accessToken: ", accessToken);
+      const accessToken = await AccountAccessToken.get(blockchain.wallet);
+      console.log("accessToken: ", accessToken);
 
-      // if (accessToken) {
-      //   await UserModule.authenticate().then(v => setInformation(s => ({ ...s, ...v }))).catch((err) => false);
-      // }
+      if (accessToken) {
+        const res = await UserModule.authenticate();
+        console.log("res with access token: ", res)
+        setInformation(s => ({ ...s, ...res.data[0] }))
+      }
       setIsInitialized(true);
     } catch (error) {
       throw error;
@@ -52,8 +54,10 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
         params: ['Sign in to BlockClip', wallet]
       });
 
+      console.log(wallet)
+
       const payload: UserSignInPayload = {
-        address: wallet,
+        wallet,
         signature,
       }
 
@@ -61,11 +65,11 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
       console.log("response: ", response);
 
       if (response) {
-        await AccountAccessToken.save(response.accessToken);
-        setInformation(s => ({ ...s, ...response.user }));
+        await AccountAccessToken.save(response.auth_token);
+        setInformation(s => ({ ...s, ...response.data }));
       }
 
-      return response.user;
+      return response.data;
     } catch (error) {
       onError(error);
       throw error;
@@ -102,7 +106,6 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
     signOut,
     isInitialized,
     information,
-    wallet,
     isDappConnected,
     isReady,
     isSigned

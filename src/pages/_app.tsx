@@ -32,7 +32,6 @@ export default function ({ Component, pageProps }: AppProps) {
   return <BlockChainProvider>
     <MantineProvider
       theme={{
-        fontFamily: 'Roboto, sans-serif',
         colors: {
           ...themeColors,
           text: ['#F8F9FA', '#364145']

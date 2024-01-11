@@ -18,6 +18,7 @@ const collection = {
   totalItems: 12,
   averagePrice: "0.56 BNB"
 }
+
 export const BannerSection: FC = () => {
   const test = {
     _id: 'afdsf',
@@ -36,7 +37,7 @@ export const BannerSection: FC = () => {
   const { isMobile } = useResponsive();
 
   return (
-    <AspectRatio ratio={820 / 300} ref={ref}>
+    <AspectRatio ratio={820 / 300} ref={ref} style={{overflow: 'hidden', borderRadius: rem(10)}}>
       {function () {
         // if (collection.isFetching || !collection.data) return <Skeleton />
 
@@ -44,7 +45,7 @@ export const BannerSection: FC = () => {
           <AppImage src={collection.data.bannerUrl} alt=""
             style={{ 
               transition: '0.2s', 
-              transform: `scale(${hovered ? 1.01 : 1})`,
+              transform: `scale(${hovered ? 1.05 : 1})`,
               borderRadius: rem(10)
             }}
             className={ClassNames({

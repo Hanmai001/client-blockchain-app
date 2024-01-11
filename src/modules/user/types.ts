@@ -15,12 +15,13 @@ export interface UserInformation {
 }
 
 export interface UserSignInResponse {
-  user: UserInformation,
-  accessToken: string
+  message?: string,
+  data: UserInformation,
+  auth_token: string
 }
 
 export interface UserSignInPayload {
-  address: string,
+  wallet: string,
   signature: string,
 }
 

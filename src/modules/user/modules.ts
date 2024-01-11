@@ -14,12 +14,8 @@ export class UserModule {
     return user;
   }
 
-  static async getMessage() {
-    return RequestModule.get(``);
-  }
-
-  static async authenticate(): Promise<UserInformation> {
-    return RequestModule.get(``);
+  static async authenticate(): Promise<{message?: string, data: UserInformation[]}> {
+    return RequestModule.get(`/api/v1/users/details`);
   }
 
   static async signInWithMetamask(payload: UserSignInPayload): Promise<UserSignInResponse> {

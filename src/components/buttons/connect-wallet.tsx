@@ -16,8 +16,9 @@ export const ConnectWallet: FC = () => {
   const handleConnectWallet = async (providerType: ProviderType) => {
     try {
       const user = await account.signIn(providerType);
+      console.log("user: ", user)
     } catch (error) {
-
+      throw error;
     }
   }
 
