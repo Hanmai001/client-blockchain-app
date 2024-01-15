@@ -27,7 +27,9 @@
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.0.4",
+    "react-slick": "^0.29.0",
     "sass": "^1.69.7",
+    "slick-carousel": "^1.8.1",
     "web3-core": "^4.3.2"
   },
   "devDependencies": {

@@ -8,7 +8,6 @@ import { BannerSection } from './banner-section';
 import { ListCollections } from './list-collections-section';
 
 export const MarketplaceScreen = () => {
-  // const { setColorScheme, clearColorScheme } = useMantineColorScheme();
   const [activeTab, setActiveTab] = useState<string | null>(CollectionTyle.ALL);
   const theme = useMantineTheme();
   const { isMobile, isTablet, isDesktop } = useResponsive();
@@ -31,11 +30,11 @@ export const MarketplaceScreen = () => {
 
           {isMobile && <MyCombobox />}
           
+          <BannerSection />
+          
           <Grid w={'100%'}>
             <Grid.Col span={{base: 12, md: 8, lg: 8}}>
               <Stack>
-                <BannerSection />
-
                 <ListCollections />
               </Stack>
             </Grid.Col>

@@ -72,3 +72,13 @@ a {
     color-scheme: dark;
   }
 }
+
+.app-card {
+  padding: var(--mantine-spacing-xs) !important;
+  transition: 0.1s;
+  
+  &:hover {
+    cursor: pointer;
+    transform: translateY(-5px);
+  }
+}
