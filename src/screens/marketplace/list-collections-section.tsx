@@ -14,7 +14,7 @@ const listcollections = [
     totalViews: 12345,
     totalItems: 12,
     averagePrice: 0.56,
-    paymentType: "3",
+    paymentType: "0",
     description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
   },
   {
@@ -26,7 +26,7 @@ const listcollections = [
     title: "Hình nền đẹp",
     totalViews: 12345,
     totalItems: 12,
-    paymentType: "3",
+    paymentType: "0",
     averagePrice: 0.56,
     description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
   },
@@ -39,7 +39,7 @@ const listcollections = [
     title: "Hình nền đẹp",
     totalViews: 12345,
     totalItems: 12,
-    paymentType: "3",
+    paymentType: "0",
     averagePrice: 0.56,
     description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
   },
@@ -64,7 +64,7 @@ export const ListCollections: FC = () => {
 
   return (
     <Stack>
-      <Title c={theme.colors.text[1]} size={theme.fontSizes.md}>
+      <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
         Bộ sưu tập Du lịch nổi bật
       </Title>
 
@@ -90,7 +90,7 @@ export const ListCollections: FC = () => {
         </Grid>
       }()}
 
-      <Title c={theme.colors.text[1]} size={theme.fontSizes.md}>
+      <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
         Bộ sưu tập Du lịch nổi bật
       </Title>
 
@@ -116,7 +116,7 @@ export const ListCollections: FC = () => {
         </Grid>
       }()}
 
-      <Title c={theme.colors.text[1]} size={theme.fontSizes.md}>
+      <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
         Bộ sưu tập Du lịch nổi bật
       </Title>
 
@@ -142,7 +142,7 @@ export const ListCollections: FC = () => {
         </Grid>
       }()}
 
-      <Title c={theme.colors.text[1]} size={theme.fontSizes.md}>
+      <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
         Bộ sưu tập Du lịch nổi bật
       </Title>
 
@@ -168,7 +168,7 @@ export const ListCollections: FC = () => {
         </Grid>
       }()}
 
-      <Title c={theme.colors.text[1]} size={theme.fontSizes.md}>
+      <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
         Bộ sưu tập Du lịch nổi bật
       </Title>
 
@@ -194,7 +194,7 @@ export const ListCollections: FC = () => {
         </Grid>
       }()}
 
-      <Title c={theme.colors.text[1]} size={theme.fontSizes.md}>
+      <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
         Bộ sưu tập Du lịch nổi bật
       </Title>
 
@@ -220,7 +220,7 @@ export const ListCollections: FC = () => {
         </Grid>
       }()}
 
-      <Title c={theme.colors.text[1]} size={theme.fontSizes.md}>
+      <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
         Bộ sưu tập Du lịch nổi bật
       </Title>
 

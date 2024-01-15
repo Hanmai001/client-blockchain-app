@@ -3,6 +3,7 @@ import { FC, PropsWithChildren } from "react";
 import { AppHeader } from "./app-header";
 import { AppNavBar } from "./app-navbar";
 import { useDisclosure } from "@mantine/hooks";
+import { AppTitle } from "./app-title";
 
 export const AppWrapper: FC<PropsWithChildren> = (props) => {
   const theme = useMantineTheme();
@@ -23,6 +24,7 @@ export const AppWrapper: FC<PropsWithChildren> = (props) => {
       //   }
       // }}
     >
+      <AppTitle />
       <AppShell.Header style={{ zIndex: 99 }}>
         <AppHeader/>
       </AppShell.Header>

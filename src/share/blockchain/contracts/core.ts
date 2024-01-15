@@ -55,9 +55,9 @@ export class Contract {
             type: "READ",
             method: options.method,
             args,
-          }))
+        }))
 
-        return read(...(options.args || args)).call()
+        return read(...(options.args || args))
             .then((res: any) => resolve(res))
             .catch((error: any) => {
               const e = parseBlockchainError({
@@ -197,7 +197,7 @@ export class Contract {
       }
 
       func(...(options.args || args))
-        .send({
+        .sendTransaction({
           from: wallet,
           gas: gasLimit.toString(),
           gasPrice: gasPrice,

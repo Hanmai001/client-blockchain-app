@@ -126,6 +126,35 @@ export function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
+export const getBalanceOfEth = (chainId: ChainId, wallet: string): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const chain = chains.find(v => v.chainId === chainId);
+    if (!chain || !wallet || !ethers.getAddress(wallet)) return resolve(0);
+    let rpcURL = '';
+
+    const action = async () => {
+      if (!rpcURL) rpcURL = chain.rpcURLs[0];
+      else rpcURL = chain.rpcURLs.filter(v => v !== rpcURL)[randomInt(0, chain.rpcURLs.length - 2)];
+      const provider = new ethers.JsonRpcProvider(rpcURL);
+
+      await provider.getBalance(wallet)
+        .then((balance) => {
+          resolve(+ethers.formatEther(balance));
+        })
+        .catch((error) => {
+          const e = parseBlockchainError({ error, method: `provider.getBalance(${wallet})`, type: 'READ', provider });
+          if (e.code === BlockchainErrorCode.AR_CANNOT_CONNECT_RPC_URL) {
+            action();
+          } else {
+            reject(e);
+          }
+        })
+    }
+
+    action();
+  })
+}
+
 export function getAvailableWeb3(chainId: ChainId, ignoreRpcUrl?: string): Promise<{provider: ethers.BrowserProvider | ethers.JsonRpcProvider, rpc: string}> {
   const maxLoop = 30;
   let currentLoop = 0;

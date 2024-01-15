@@ -6,6 +6,7 @@ import classes from '../../styles/Marketplace.module.scss';
 import { useResponsive } from '@/modules/app/hooks';
 import { BannerSection } from './banner-section';
 import { ListCollections } from './list-collections-section';
+import { CollectionsRanking } from './collections-ranking';
 
 export const MarketplaceScreen = () => {
   const [activeTab, setActiveTab] = useState<string | null>(CollectionTyle.ALL);
@@ -39,6 +40,9 @@ export const MarketplaceScreen = () => {
               </Stack>
             </Grid.Col>
 
+            <Grid.Col span={{ base: 4 }}>
+                <CollectionsRanking />
+            </Grid.Col>
           </Grid>
           
         </Stack>

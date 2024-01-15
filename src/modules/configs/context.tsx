@@ -13,6 +13,7 @@ export const PRIMARY_COLOR: DefaultMantineColor = 'dark';
 export const PRIMARY_DARK_COLOR: DefaultMantineColor = 'primary';
 
 //Define development environment
+export const PUBLIC_URL = 'http://localhost:3000';
 export const ENV = `${AppEnv.PRODUCTION}`.toUpperCase() as AppEnv;
 export const appConfigs = configs[ENV];
 export const getConfig: GetConfig = (key: keyof Configs) => appConfigs[key];

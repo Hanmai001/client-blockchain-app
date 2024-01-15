@@ -112,14 +112,14 @@ const CustomedPrevArrow: FC<any> = ({onClick}) => {
 export const BannerSection: FC = () => {
   const [collections, setCollections] = useState<ListLoadState<any>>({ isFetching: true, data: listcollections });
   const theme = useMantineTheme();
-  const { isMobile } = useResponsive();
+  const { isMobile, isTablet } = useResponsive();
 
   const settings = {
     // dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 3,
+    slidesToShow: isMobile ? 1 : isTablet ? 2 : 3,
+    slidesToScroll: isMobile ? 1 : isTablet ? 2 : 3,
     autoplay: true,
     autoplaySpeed: 2000,
     nextArrow: <CustomedNextArrow />,
@@ -173,7 +173,7 @@ const BannerSlide: FC<{collection: Collection}> = (props) => {
         <AppImage src={props.collection.bannerUrl} alt="" className={classes.bannerImage} />
 
         <Group
-          // bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0))`}
+          //bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0))`}
           style={{
             alignItems: 'flex-end',
             justifyContent: 'flex-start',

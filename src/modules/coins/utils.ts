@@ -1,7 +1,9 @@
 import { chains } from "@/share/blockchain/chain"
 import { AppPayment } from "../../../types"
-import { getChainId } from "../configs/context"
+import { getChainConfig, getChainId } from "../configs/context"
 import { ChainId } from "@/share/blockchain/types"
+import { ContractERC20 } from "@/share/blockchain/contracts/ERC20"
+import { getProvider } from "@/share/blockchain/context"
 
 export const renderPayment = (payment: AppPayment, specificChainId?: ChainId) => {
   const chainId = specificChainId || getChainId();
@@ -20,4 +22,32 @@ export const renderPayment = (payment: AppPayment, specificChainId?: ChainId) =>
     image: `/images/coins/${symbol.toLowerCase()}.png`,
     symbol,
   }
+}
+
+export const getPaymentContract = (payment: AppPayment, specificChainId?: ChainId): ContractERC20 | undefined => {
+  const chainId = specificChainId || getChainId()
+  if (!chainId) return undefined
+  //Already defined
+  if (payment === AppPayment.ETH) return;
+
+  let address = '';
+
+  const chainConfig = getChainConfig(chainId);
+
+  if (payment === AppPayment.USDM) address = chainConfig.erc20s.USDM;
+  else if (payment === AppPayment.USDT)
+    address = chainConfig.erc20s.USDT;
+  else if (payment === AppPayment.BCT)
+    address = chainConfig.erc20s.BCT;
+
+  // console.log("address: ", address)
+
+  if (!address) return;
+
+  return new ContractERC20({
+    address,
+    name: payment,
+    chainId: chainId,
+    provider: getProvider(),
+  })
 }

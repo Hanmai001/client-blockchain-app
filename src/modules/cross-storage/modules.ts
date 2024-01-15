@@ -22,7 +22,6 @@ export class CrossStorageModule {
 
   static async get(key: CrossStorageKey): Promise<string | null> {
     await this.initStorage();
-    console.log("storage: ", this.storage)
     const data = await this.storage
       .get(this.getKey(key))
       .then((res: any) => res || null)

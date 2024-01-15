@@ -42,7 +42,7 @@ export interface ERC20Contracts<T> {
 }
 
 export interface ERC721Contracts<T> {
-  VIDEO_NFT: T
+  BLOCKCLIP_NFT: T
 }
 
 export interface Contracts {

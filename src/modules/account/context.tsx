@@ -7,6 +7,7 @@ import { UserModule } from "../user/modules";
 import { ethers } from "ethers";
 import { onError } from "@/components/modals/modal-error";
 import * as EthereumjsUtil from "ethereumjs-util";
+import { CoinsModule } from "../coins/modules";
 
 
 const accountContext = createContext<AccountContext>({} as any);
@@ -27,12 +28,10 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
     try {
       setInformation(undefined);
       const accessToken = await AccountAccessToken.get(blockchain.wallet);
-      console.log("accessToken: ", accessToken);
 
       if (accessToken) {
         const res = await UserModule.authenticate();
-        console.log("res with access token: ", res)
-        setInformation(s => ({ ...s, ...res.data[0] }))
+        setInformation(s => ({ ...s, ...res.data[0]}))
       }
       setIsInitialized(true);
     } catch (error) {
@@ -62,7 +61,6 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
       }
 
       const response = await UserModule.signInWithMetamask(payload);
-      console.log("response: ", response);
 
       if (response) {
         await AccountAccessToken.save(response.auth_token);
@@ -84,6 +82,18 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
     setInformation(undefined);
   }
 
+  const fetchBalances = async () => {
+    try {
+      const balances = await Promise.all([
+        CoinsModule.fetchUserBalance()
+      ]);
+
+      console.log("balances: ", balances);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const isSigned = !!information;
   const isDappConnected = !!blockchain.wallet;
   const isReady = isSigned && isDappConnected;
@@ -93,6 +103,7 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
       //check if user have connected before
       if (blockchain.wallet) {
         authenticate();
+        fetchBalances();
       }
       else {
         setInformation(undefined)

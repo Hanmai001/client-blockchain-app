@@ -1,9 +1,9 @@
-import { ActionIcon, Text, Box, Burger, Divider, Drawer, Group, HoverCard, Image, Menu, ScrollArea, Skeleton, TextInput, rem, useMantineTheme, UnstyledButton, useMantineColorScheme, Switch } from "@mantine/core";
+import { ActionIcon, Text, Box, Burger, Divider, Drawer, Group, HoverCard, Image, Menu, ScrollArea, Skeleton, TextInput, rem, useMantineTheme, UnstyledButton, useMantineColorScheme, Switch, Avatar, Stack } from "@mantine/core";
 import { FC, useState } from "react";
 import { ConnectWallet } from "../buttons/connect-wallet";
 import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import classes from "../../styles/app/AppHeader.module.scss";
-import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconNotification, IconSearch, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconNotification, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import { useAccount } from "@/modules/account/context";
 import { useConfig } from "@/modules/configs/context";
 import { useBlockChain } from "@/share/blockchain/context";
@@ -11,6 +11,10 @@ import { useRouter } from "next/router";
 import { AppButton } from "./app-button";
 import { useResponsive } from "@/modules/app/hooks";
 import { AccountInfo } from "../account-info";
+import { AppPayment } from "../../../types";
+import { useSelector } from "@/redux/store";
+import { renderPayment } from "@/modules/coins/utils";
+import { NumberUtils } from "@/share/utils";
 
 export const AppHeader: FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -39,6 +43,8 @@ export const AppHeader: FC = () => {
             }
           }} />
         </Group>
+
+        <Balances />
 
         <Group gap={theme.spacing.sm} justify="flex-end">
           <ActionIcon variant="light" color={theme.colors.primary[5]} size={28} h={40} w={42}>
@@ -149,5 +155,65 @@ const Account: FC = () => {
       }()}
 
     </Menu>
+  )
+}
+
+const Balances: FC = () => {
+  const account = useAccount();
+  const balances = useSelector(s => s.coinBalances);
+  const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
+  const theme = useMantineTheme();
+  const { isDarkMode } = useConfig();
+  const { image, symbol } = renderPayment(selectedToken);
+
+  if (!account.information?.wallet) return; 
+
+  return (
+    <>
+      {function() {
+        if (balances.isFetching) return <Skeleton height={35} width={100} />
+        if (!balances.data) return null;
+
+        return (
+          <Group gap={10}>
+            <Menu shadow="md" openDelay={100} closeDelay={200}>
+              <Menu.Target>
+                <UnstyledButton w={150} style={(theme) => ({
+                  borderRadius: "24px",
+                  backgroundColor: theme.colors.primary[0]
+                })}>
+                  <Group gap={4} justify="space-between">
+                    <Avatar size={38} src={image} />
+                    <Text c={isDarkMode ? 'white' : 'dark'} size="sm" style={{ lineHeight: 1 }}>{NumberUtils.round(balances.data[selectedToken], 3)}</Text>
+                    <IconSelector color={theme.colors.primary[5]} />
+                  </Group>
+                </UnstyledButton>
+              </Menu.Target>
+
+
+              <Menu.Dropdown miw={150}>
+                <Menu.Label>
+                  Balances
+                </Menu.Label>
+                {Object.keys(balances.data).map((key) => {
+                  return <Menu.Item
+                    key={key}
+                    onClick={() => (setSelectedToken(key as AppPayment))}
+                  >
+                    <Group gap={8}>
+                      <Avatar size={30} src={renderPayment(key as any).image} />
+                      <Stack gap={0}>
+                        <Text c={isDarkMode ? 'white' : 'dark'} opacity={0.7} size={'xs'}>{renderPayment(key as any).symbol}</Text>
+                        <Text c={isDarkMode ? 'white' : 'dark'} size={"sm"} style={{ lineHeight: 1 }}>{NumberUtils.round(balances.data[key], 3)}</Text>
+                      </Stack>
+                    </Group>
+                  </Menu.Item>
+                })}
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+        )
+      }()}
+    </>
   )
 }

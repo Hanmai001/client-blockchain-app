@@ -7,11 +7,10 @@ export enum AppEnv {
 }
 
 export enum AppPayment {
-  USDM = '0',
-  USDT = '1',
-  ETH = '3',
-  BNB = '4',
-  BCT = '5'
+  ETH = '0',
+  USDM = '1',
+  USDT = '2',
+  BCT = '3',
 }
 
 export interface Query {

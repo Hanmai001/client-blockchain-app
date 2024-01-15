@@ -39,13 +39,11 @@ export class AccountAccessToken {
       const walletAddress = wallet || getWallet();
       if (!walletAddress) return;
       const listTokens = await this.getList();
-      console.log("listTokens: ", listTokens);
       
       //Find accessToken in list tokens from Cross-storage
       const token = listTokens.find((token) => {
         try {
           const tokenPayload = decodeJwt(token) as any;
-          console.log("Token decoded: ", tokenPayload)
           return tokenPayload.userWallet.toLowerCase() === walletAddress.toLowerCase()
         } catch (error) {
           return false
