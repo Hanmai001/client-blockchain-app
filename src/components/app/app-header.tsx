@@ -5,7 +5,7 @@ import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import classes from "../../styles/app/AppHeader.module.scss";
 import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconNotification, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import { useAccount } from "@/modules/account/context";
-import { useConfig } from "@/modules/configs/context";
+import { getChainId, useConfig } from "@/modules/configs/context";
 import { useBlockChain } from "@/share/blockchain/context";
 import { useRouter } from "next/router";
 import { AppButton } from "./app-button";
@@ -161,13 +161,16 @@ export const Account: FC = () => {
 
 const Balances: FC = () => {
   const account = useAccount();
+  const blockchain = useBlockChain();
   const balances = useSelector(s => s.coinBalances);
   const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
   const theme = useMantineTheme();
   const { isDarkMode } = useConfig();
   const { image, symbol } = renderPayment(selectedToken);
 
-  if (!account.information?.wallet) return;
+  if (!account.information) return;
+
+  if (getChainId() !== blockchain.chainId) return;
 
   return (
     <>
