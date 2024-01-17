@@ -6,6 +6,7 @@ import { getPaymentContract } from "./utils"
 import { store } from "@/redux/store"
 import { SET_USER_COIN_BALANCES } from "@/reducers/coins.reducer"
 import { getWallet } from "@/share/blockchain/context";
+import { ChainId } from "@/share/blockchain/types"
 
 
 export class CoinsModule {
@@ -28,5 +29,12 @@ export class CoinsModule {
     store.dispatch({ type: SET_USER_COIN_BALANCES, data: balances })
 
     return balances;
+  }
+
+  static async getPaymentType(chainId: ChainId) {
+    if (chainId === '97') {
+      return AppPayment.ETH
+    }
+    return AppPayment.ETH
   }
 }

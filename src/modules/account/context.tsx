@@ -5,7 +5,7 @@ import { useBlockChain } from "@/share/blockchain/context";
 import { AccountAccessToken } from "./acess-token";
 import { UserModule } from "../user/modules";
 import { ethers } from "ethers";
-import { onError } from "@/components/modals/modal-error";
+import { OnErrorModal, onError } from "@/components/modals/modal-error";
 import * as EthereumjsUtil from "ethereumjs-util";
 import { CoinsModule } from "../coins/modules";
 
@@ -22,7 +22,7 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
   // const wallet = information?.wallet;
 
   getAccount = () => information;
-  getWallet = () => information?.wallet;
+  getWallet = () => information.wallet;
 
   const authenticate = async () => {
     try {
@@ -41,9 +41,9 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
 
   const signIn: SignIn = async (providerType) => {
     try {
-      if (!blockchain.provider) throw Error("Please install Metamask extension");
+      if (!blockchain.provider) throw onError("Please install Metamask extension");
 
-      let wallet = blockchain.wallet!;
+      let wallet = blockchain.wallet;
       if (!wallet) {
         wallet = (await blockchain.connectWallet(providerType)).wallet;
       }
@@ -52,8 +52,6 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
         method: 'personal_sign',
         params: ['Sign in to BlockClip', wallet]
       });
-
-      console.log(wallet)
 
       const payload: UserSignInPayload = {
         wallet,

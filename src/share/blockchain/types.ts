@@ -135,6 +135,7 @@ export class BlockchainError {
 
 export type ConnectWallet = (providerType: ProviderType, chainId?: ChainId) => Promise<any>;
 export type ConnectChain = (chainId: ChainId) => Promise<any>;
+export type SwitchChain = (chainId: ChainId) => Promise<any>;
 export type AddToken = (information: Token) => Promise<void>;
 export type GetContract = (params: { address: string, abi: any[], name?: string, chainId?: ChainId}) => Contract;
 export type GetContractERC721 = (params: { address: string, name?: string, chainId?: ChainId }) => ContractERC721;

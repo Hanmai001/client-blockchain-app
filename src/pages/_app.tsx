@@ -1,5 +1,5 @@
 import { ConfigsProvider, PRIMARY_COLOR, PRIMARY_DARK_COLOR, useConfig } from '@/modules/configs/context'
-import '@/styles/globals.scss'
+import '@/styles/globals.scss';
 import '@mantine/core/styles.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -35,24 +35,24 @@ export default function ({ Component, pageProps }: AppProps) {
   //   key: 'my-color-scheme',
   // });
 
-  return <BlockChainProvider>
-    <MantineProvider
-      theme={{
-        colors: {
-          ...themeColors,
-          text: ['#F8F9FA', '#364145']
-        },
-        primaryColor: !isDarkMode ? PRIMARY_COLOR : PRIMARY_DARK_COLOR,
-        components: {
-          Text: {
-            defaultProps: (theme: any) => ({
-              // color: colorSchemeManager.get('dark') === 'dark' ? theme.colors.text[0] : theme.colors.text[1]
-            })
-          }
+  return <MantineProvider
+    theme={{
+      colors: {
+        ...themeColors,
+        text: ['#F8F9FA', '#364145']
+      },
+      primaryColor: !isDarkMode ? PRIMARY_COLOR : PRIMARY_DARK_COLOR,
+      components: {
+        Text: {
+          defaultProps: (theme: any) => ({
+            // color: colorSchemeManager.get('dark') === 'dark' ? theme.colors.text[0] : theme.colors.text[1]
+          })
         }
+      }
 
-      }}
-    >
+    }}
+  >
+    <BlockChainProvider>
       <ConfigsProvider>
         <Provider store={store}>
           <App>
@@ -60,6 +60,6 @@ export default function ({ Component, pageProps }: AppProps) {
           </App>
         </Provider>
       </ConfigsProvider>
-    </MantineProvider>
-  </BlockChainProvider>
+    </BlockChainProvider>
+  </MantineProvider>
 }

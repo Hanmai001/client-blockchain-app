@@ -73,6 +73,35 @@ a {
   }
 }
 
+input {
+  &:focus {
+    border-color: #d3b0ff;
+  }
+}
+
+.dropzone {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+  min-height: 300px;
+  border: 1px dashed var(--mantine-color-gray-3);
+  margin: rem(14);
+  border-radius: rem(12);
+
+  &:hover {
+    cursor: pointer;
+    border-color: #d3b0ff;
+  }
+}
+
+.hidden-scroll-bar {
+  &::-webkit-scrollbar {
+    /*For WebKit Browsers*/
+    width: 0;
+  }
+}
+
 .app-card {
   padding: var(--mantine-spacing-xs) !important;
   transition: 0.1s;
@@ -80,5 +109,84 @@ a {
   &:hover {
     cursor: pointer;
     transform: translateY(-5px);
+  }
+}
+
+.app-create-button {
+  animation: bounceOut 2s linear infinite;
+
+  &:hover {
+    cursor: pointer;
+    animation: none;
+    transform: scale(1.2);
+  }
+}
+
+.create-buttons {
+  position: relative;
+  z-index: 100;
+  margin: 0 140px;
+  transform: scale(0);
+
+  &:hover {
+    transform: translateY(-3px);
+    transition: 0.5s ease-in-out;
+  }
+}
+
+.app-button-clicked {
+  animation: fadeIn 0.2s ease;
+  transform-origin: bottom right;
+  transform: scale(1);
+}
+
+.app-button-unclicked {
+  animation: fadeOut 0.2s ease;
+  transform-origin: bottom right;
+}
+
+@keyframes fadeIn {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(0.5);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.5);
+  }
+
+  100% {
+    transform: scale(0);
+  }
+}
+
+@keyframes bounceOut {
+
+  0%,
+  100% {
+    transform: scale(1.2);
+  }
+
+  20%,
+  60% {
+    transform: scale(1.1);
+  }
+
+  40%,
+  80% {
+    transform: scale(1.05);
   }
 }

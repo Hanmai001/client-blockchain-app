@@ -15,6 +15,7 @@ import { AppPayment } from "../../../types";
 import { useSelector } from "@/redux/store";
 import { renderPayment } from "@/modules/coins/utils";
 import { NumberUtils } from "@/share/utils";
+import { onError } from "../modals/modal-error";
 
 export const AppHeader: FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -64,7 +65,7 @@ export const AppHeader: FC = () => {
   );
 }
 
-const Account: FC = () => {
+export const Account: FC = () => {
   const account = useAccount();
   const config = useConfig();
   const blockchain = useBlockChain();
@@ -78,7 +79,7 @@ const Account: FC = () => {
     { label: 'Trang cá nhân', route: 'd', icon: <IconUserBolt />, },
     { label: 'Yêu thích', route: 'd', icon: <IconHeartBolt />, },
     { label: 'Cài đặt', route: 'd', icon: <IconSettings /> },
-    { label: 'Chế độ tối', icon: <IconMoonFilled />}
+    { label: 'Chế độ tối', icon: <IconMoonFilled /> }
   ];
 
   if (!account.isInitialized) return <Skeleton width={100} height={40} />
@@ -91,7 +92,7 @@ const Account: FC = () => {
     async
     leftSection={<IconWallet size={20} />}
     radius={7}
-    onClick={() => account.signIn("metamask").catch(error => { })}
+    onClick={() => account.signIn("metamask").catch(error => onError(error))}
     color={theme.colors.primary[5]}
     height={45}
     width={156}
@@ -104,12 +105,12 @@ const Account: FC = () => {
       <AppButton
         async
         leftSection={<IconNetwork size={20} />}
-        onClick={() => blockchain.connectChain(config.chainId)}
+        onClick={() => blockchain.connectChain(blockchain.chainId).catch(error => {})}
         color={theme.colors.primary[5]}
         height={45}
         width={156}
       >
-        Kết nối tới {config.chain.name}
+        Đổi mạng
       </AppButton>
     </Group>
   }
@@ -166,11 +167,11 @@ const Balances: FC = () => {
   const { isDarkMode } = useConfig();
   const { image, symbol } = renderPayment(selectedToken);
 
-  if (!account.information?.wallet) return; 
+  if (!account.information?.wallet) return;
 
   return (
     <>
-      {function() {
+      {function () {
         if (balances.isFetching) return <Skeleton height={35} width={100} />
         if (!balances.data) return null;
 

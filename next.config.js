@@ -7,7 +7,8 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: [
       '@mantine/core',
-      '@mantine/hooks'
+      '@mantine/hooks',
+      '@mantine/dropzone'
     ],
   }
 }

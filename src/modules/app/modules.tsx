@@ -13,7 +13,7 @@ export class AppModule {
     });
   }
 
-  // static onError = (error: any) => OnModalError({ error: error })
+  static onError = (error: any) => OnModalError({ error: error })
 
   static onSuccess = (msg: string) => {
     return showNotification({
@@ -61,4 +61,8 @@ export class AppModule {
 
     return colors as any
   }
+}
+
+function OnModalError(arg0: { error: any; }) {
+  throw new Error('Function not implemented.');
 }

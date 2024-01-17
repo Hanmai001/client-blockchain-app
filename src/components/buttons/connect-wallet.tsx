@@ -15,8 +15,7 @@ export const ConnectWallet: FC = () => {
 
   const handleConnectWallet = async (providerType: ProviderType) => {
     try {
-      const user = await account.signIn(providerType);
-      console.log("user: ", user)
+      await account.signIn(providerType);
     } catch (error) {
       throw error;
     }
@@ -26,14 +25,16 @@ export const ConnectWallet: FC = () => {
 
   //If user have already an account in webapp
   if (account.information) {
+    //User's connected chain is different from default chainId of webapp
     if (config.chainId !== blockchain.chainId) {
       return <Group>
         <AppButton
           color={theme.colors.primary[5]}
           height={45}
           width={156}
+          onClick={() => blockchain.connectChain(blockchain.chainId).catch(error => { })}
         >
-          Kết nối tới {config.chain.name}
+          Đổi mạng
         </AppButton>
       </Group>
     }

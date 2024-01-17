@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
 import { DefaultMantineColor, useMantineColorScheme } from '@mantine/core';
-import { ChainConfig, Configs, Contracts, ERC20Contracts, ERC721Contracts, GetConfig } from "./type";
+import { ChainConfig, Configs, Contracts, ERC20Contracts, ERC721Contracts, GetConfig, OTHERContracts } from "./type";
 import { configs } from "./envs";
 import { AppEnv } from "../../../types";
 import { ChainId } from "@/share/blockchain/types";
@@ -8,6 +8,7 @@ import { useBlockChain } from "@/share/blockchain/context";
 import { chains } from "@/share/blockchain/chain";
 import { ContractERC721 } from "@/share/blockchain/contracts/ERC721";
 import { ContractERC20 } from "@/share/blockchain/contracts/ERC20";
+import { Contract } from "@/share/blockchain/contracts/core";
 
 export const PRIMARY_COLOR: DefaultMantineColor = 'dark';
 export const PRIMARY_DARK_COLOR: DefaultMantineColor = 'primary';
@@ -70,10 +71,22 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
     return output;
   }, {} as ERC20Contracts<ContractERC20>);
 
+  const otherContracts = Object.keys(chainConfig.ercs).reduce((output, key) => {
+    output[key] = new ContractERC20({
+      address: chainConfig.ercs[key],
+      chainId: status.chainId,
+      provider: blockchain.provider,
+      name: key,
+      wallet: blockchain.wallet,
+    })
+    return output;
+  }, {} as OTHERContracts<Contract>);
+
   const contracts: Contracts = {
     isAbleToWrite: !!blockchain.provider && !!blockchain.wallet && blockchain.chainId && blockchain.chainId === status.chainId,
     erc20s: contractERC20s,
     erc721s: contractERC721s,
+    ercs: otherContracts
   }
 
   getContracts = () => contracts;

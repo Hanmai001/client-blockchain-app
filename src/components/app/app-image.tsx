@@ -14,7 +14,7 @@ export const AppImage: FC<AppImageProps> = (props) => {
 
   return <>
     {function() {
-      // if (loadImageState.isFetching) return <Skeleton width="100%" height="100%" />
+      //if (loadImageState.isFetching) return <Skeleton width="100%" height="100%" />
 
       return <img
         alt={props.alt}

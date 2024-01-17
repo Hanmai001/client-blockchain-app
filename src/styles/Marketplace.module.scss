@@ -51,15 +51,9 @@
 
 .comboboxInput {
   height: 45px;
+  
   &:focus {
     border-color: #d3b0ff;
-  }
-}
-
-.hiddenScrollBar {
-  &::-webkit-scrollbar {
-    /*For WebKit Browsers*/
-    width: 0;
   }
 }
 
@@ -68,7 +62,6 @@
   &:hover {
     cursor: pointer;
   }
-
   .bannerImage {
     z-index: 1;
     &:hover {

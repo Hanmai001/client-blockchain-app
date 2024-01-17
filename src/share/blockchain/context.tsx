@@ -1,5 +1,5 @@
 import { FC, createContext, useContext, useEffect, useState } from "react";
-import { BlockChainContext, BlockChainProviderProps, BlockchainError, BlockchainErrorCode, BlockchainStatus, ChainId, ConnectChain, ConnectWallet, GetContract, GetContractERC20, GetContractERC721, Provider, ProviderType, Token } from "./types";
+import { BlockChainContext, BlockChainProviderProps, BlockchainError, BlockchainErrorCode, BlockchainStatus, ChainId, ConnectChain, ConnectWallet, GetContract, GetContractERC20, GetContractERC721, Provider, ProviderType, SwitchChain, Token } from "./types";
 import { ethers } from "ethers";
 import { chains } from "./chain";
 import { Contract } from "./contracts/core";
@@ -10,6 +10,7 @@ export let getWallet: () => string | undefined = () => undefined;
 export let getProvider: () => Provider | undefined = () => ({} as any);
 export let connectWallet: ConnectWallet;
 export let connectChain: ConnectChain;
+export let switchChain: SwitchChain;
 export let disconnect: () => void;
 export let getContract: GetContract;
 export let getContractERC20: GetContractERC20;
@@ -20,7 +21,7 @@ export const blockChainContext = createContext({} as BlockChainContext);
 
 export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
   getBlockchainConfig = () => props;
-  const defaultChain = props.defaultChain || ChainId.BSC_TESTNET;
+  //const defaultChain = props.defaultChain || ChainId.BSC_TESTNET;
 
   const [version, update] = useState(1);
   const forceUpdate = () => update(Date.now());
@@ -110,22 +111,48 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     try {
       await status.provider.request({
         method: 'wallet_addEthereumChain',
-        params: {
-          chainId: `0x${(+chain.chainId).toString(16)}`,
-          chainName: chain.name,
-          rpcUrls: [chain.rpcURLs[0]],
-          nativeCurrency: {
-            name: chain.currency.name,
-            symbol: chain.currency.name,
-            decimals: chain.currency.decimals,
-          },
-          blockExplorerUrls: [chain.urlBlockExplorer]
-        }
+        params: [
+          {
+            chainId: `0x${(+chain.chainId).toString(16)}`,
+            chainName: chain.name,
+            rpcUrls: [chain.rpcURLs[0]],
+            nativeCurrency: {
+              name: chain.currency.name,
+              symbol: chain.currency.name,
+              decimals: chain.currency.decimals,
+            },
+            blockExplorerUrls: [chain.urlBlockExplorer]
+          }
+        ]
       })
     } catch (error) {
       throw new BlockchainError({
         code: BlockchainErrorCode.CANNOT_CONNECT_NETWORK,
         message: 'Cannot connect network',
+      });
+    }
+
+    setStatus(s => ({ ...s, chainId }));
+    forceUpdate();
+  }
+
+  switchChain = async (chainId: any) => {
+    const chain = chains.find(v => v.chainId === chainId);
+    if (!chain) throw Error("Chain does not supported yet");
+
+    try {
+      await status.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [
+          {
+            chainId: `0x${(+chain.chainId).toString(16)}`,
+          }
+        ]
+      })
+    } catch (error) {
+      throw new BlockchainError({
+        code: BlockchainErrorCode.CANNOT_CONNECT_NETWORK,
+        message: 'Cannot connect chain',
       });
     }
 
@@ -243,6 +270,7 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     ...status,
     connectWallet: connectWallet,
     connectChain: connectChain,
+    switchChain: switchChain,
     disconnect: disconnect,
     getContract,
     addErc20: addErc20,

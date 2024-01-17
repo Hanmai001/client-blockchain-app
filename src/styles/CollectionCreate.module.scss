@@ -1,0 +1,14 @@
+.comboboxInput {
+  height: 45px;
+  border-radius: 10px;
+  margin-top: 6px;
+  
+
+  &:focus {
+    border-color: #d3b0ff;
+  }
+}
+
+.comboboxRootInput {
+  min-width: 45%;
+}
