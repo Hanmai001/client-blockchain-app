@@ -25,3 +25,11 @@ export interface Nft {
   createdAt: number,
   updatedAt: number
 }
+
+export enum NftStatus {
+  ALL = 'Tất cả',
+  ISLISTING = 'Đang bán',
+  SOLD = 'Đã bán',
+  UNLISTING = 'Không bán',
+  NEREST_RECIEVE = 'Nhận gần đây'
+}

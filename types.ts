@@ -39,7 +39,6 @@ export interface DataLoadState<T = any> {
   data?: T
   error?: Error
   isInitialized?: boolean
-  total?: number
 }
 
 export interface ListLoadState<T = any> {

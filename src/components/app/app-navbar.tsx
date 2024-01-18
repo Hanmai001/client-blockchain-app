@@ -1,30 +1,33 @@
-import { IconBuildingStore, IconCameraBolt, IconFriends, IconLogout, IconSwitchHorizontal } from "@tabler/icons-react";
-import { FC, useState } from "react";
-import classes from "../../styles/app/AppNavBar.module.scss";
-import { Group, Text, Tooltip } from "@mantine/core";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
-
-const navLinks = [
-  { link: '', label: 'Cửa hàng', icon: IconBuildingStore },
-  { link: '', label: 'Bộ sưu tập của bạn', icon: IconCameraBolt },
-  { link: '', label: 'Bạn bè', icon: IconFriends },
-]
+import { Tooltip } from "@mantine/core";
+import { IconBuildingStore, IconCameraBolt, IconFriends, IconLogout } from "@tabler/icons-react";
+import { FC, useState } from "react";
+import { AppRoutes } from "../../../app-router";
+import classes from "../../styles/app/AppNavBar.module.scss";
+import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 
 export const AppNavBar: FC = () => {
-  const [active, setActive] = useState("Cửa hàng");
   const account = useAccount();
   const { isMobile, isTablet, isDesktop } = useResponsive();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const navLinks = [
+    { link: AppRoutes.root, label: 'Cửa hàng', icon: IconBuildingStore },
+    { link: `${AppRoutes.user.profile}${account.information?.wallet}`, label: 'Hồ sơ của bạn', icon: IconCameraBolt },
+    { link: '/users/friends', label: 'Bạn bè', icon: IconFriends },
+  ]
 
   const links = navLinks.map((item) => (
     <a
       className={classes.link}
-      data-active={item.label === active || undefined}
-      href={item.link}
+      data-active={pathname === item.link || undefined}
+      // href={item.link}
       key={item.label}
       onClick={(event) => {
-        event.preventDefault();
-        setActive(item.label);
+        router.push(item.link);
       }}
     >
       <Tooltip label={item.label} disabled={isDesktop ? true : false} position="right">

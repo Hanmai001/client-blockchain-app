@@ -83,7 +83,7 @@ export const CollectionCreateScreen: FC = () => {
       <form onSubmit={onSubmit}>
         <Group justify="space-between">
           <Group>
-            <AppButton radius="50%" color={theme.colors.gray[3]} height={48}>
+            <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
               <IconArrowLeft color={theme.colors.dark[5]} size={18} />
             </AppButton>
 
@@ -229,7 +229,7 @@ export const CollectionCreateScreen: FC = () => {
         </Grid>
 
         <Group my={30} justify="flex-end">
-          <AppButton type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
+          <AppButton async type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
             Tạo ngay
           </AppButton>
         </Group>

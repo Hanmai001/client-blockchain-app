@@ -16,6 +16,8 @@ import { AccountInfo } from "../account-info";
 import { ConnectWallet } from "../buttons/connect-wallet";
 import { onError } from "../modals/modal-error";
 import { AppButton } from "./app-button";
+import Link from "next/link";
+import { AppRoutes } from "../../../app-router";
 
 export const AppHeader: FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -30,7 +32,9 @@ export const AppHeader: FC = () => {
     }}>
       {/* <Text>{scroll.y}</Text> */}
       <Group justify="space-between" align="center" h="100%">
-        <Image className={classes.logo} src='/images/logo.png' />
+        <Link href={'/'}>
+          <Image className={classes.logo} src='/images/logo.png' />
+        </Link>
 
         <Group visibleFrom="sm" style={{
           width: '40%'
@@ -77,7 +81,7 @@ export const Account: FC = () => {
   const [checked, setChecked] = useState(false);
 
   const profileMenu = [
-    { label: 'Trang cá nhân', route: 'd', icon: <IconUserBolt />, },
+    { label: 'Trang cá nhân', route: `${AppRoutes.user.profile}/${account.information?.wallet}`, icon: <IconUserBolt />, },
     { label: 'Yêu thích', route: 'd', icon: <IconHeartBolt />, },
     { label: 'Cài đặt', route: 'd', icon: <IconSettings /> },
     { label: 'Chế độ tối', icon: <IconMoonFilled /> }

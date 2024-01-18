@@ -6,6 +6,7 @@ interface IButtonProps extends ButtonProps {
   async?: boolean
   height?: string | number
   width?: string | number
+  type?: string
 }
 
 export const AppButton: FC<IButtonProps> = (props) => {

@@ -29,6 +29,7 @@ export const ConnectWallet: FC = () => {
     if (config.chainId !== blockchain.chainId) {
       return <Group>
         <AppButton
+          async
           color={theme.colors.primary[5]}
           height={45}
           width={156}

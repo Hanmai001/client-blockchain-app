@@ -1,38 +1,3 @@
-.tabList {
-  border-radius: 8px;
-
-  &::before {
-    border: none;
-  }
-  // background-color: #efe3ff;
-}
-
-.tabRoot {
-  
-}
-
-.tabButton {
-  border-radius: 8px;
-  border: none;
-  padding: 16px 0;
-  font-weight: 550;
-  color: #8c36fa;
-
-  &:hover {
-    background: none;
-  }
-
-  &[data-active] {
-    background-color: #8c36fa;
-    color: var(--mantine-color-white);
-
-    &:hover {
-      background-color: #8c36fa;
-      color: var(--mantine-color-white);
-    }
-  }
-}
-
 .comboboxOption {
   &:hover {
     background-color: #efe3ff;

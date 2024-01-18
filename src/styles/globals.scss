@@ -79,6 +79,39 @@ input {
   }
 }
 
+.tab-list {
+  border-radius: 8px;
+
+  &::before {
+    border: none !important;
+  }
+
+  // background-color: #efe3ff;
+}
+
+.tab-root {}
+
+.tab-button {
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 16px 0 !important;
+  font-weight: 550;
+  color: #8c36fa !important;
+
+  &:hover {
+    background: none;
+  }
+
+  &[data-active] {
+    background-color: #8c36fa;
+    color: var(--mantine-color-white) !important;
+
+    &:hover {
+      background-color: #8c36fa;
+    }
+  }
+}
+
 .dropzone {
   display: flex;
   justify-content: center;
@@ -143,6 +176,19 @@ input {
 .app-button-unclicked {
   animation: fadeOut 0.2s ease;
   transform-origin: bottom right;
+}
+
+.combobox-input {
+  height: 45px !important;
+  border-radius: 10px !important;
+
+  &:focus {
+    border-color: #d3b0ff;
+  }
+}
+
+.combobox-root-input {
+  min-width: 20% !important;
 }
 
 @keyframes fadeIn {

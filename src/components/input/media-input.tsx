@@ -27,8 +27,8 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
         return;
       }
 
-      if (file.size > 5 * 1024 * 1024) {
-        setFileError('Kích thước file không được vượt quá 5MB');
+      if (file.size > 2 * 1024 * 1024) {
+        setFileError('Kích thước file không được vượt quá 2MB');
         return;
       }
 

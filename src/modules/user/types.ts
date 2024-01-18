@@ -30,3 +30,10 @@ export interface UserUpdatePayload {
   avatar?: string,
   cover?: string
 }
+
+export enum UserTabsProfile {
+  ALL = 'Video của bạn',
+  CREATED_COLLECTIONS = 'Bộ sưu tập',
+  FAVOURITE = 'Đã yêu thích',
+  ACTIVITY = 'Hoạt động'
+}

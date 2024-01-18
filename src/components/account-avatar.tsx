@@ -15,6 +15,8 @@ export const AccountAvatar: FC<AvatarProps> = (props) => {
       background: `${theme.colors.primary[5]}30`,
     }}
     className={classes.avatar}
-  />
+  >
+    {props.children}
+  </Avatar>
 
 }

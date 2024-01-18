@@ -19,9 +19,9 @@ export const MarketplaceScreen = () => {
       <Box p={theme.spacing.md}>
         <Stack className='Marketplace' w={'100%'}>
           <Tabs value={activeTab} onChange={setActiveTab} maw={isDesktop ? '66.3%' : '100%'} visibleFrom='sm' classNames={{
-            root: classes.tabRoot,
-            list: classes.tabList,
-            tab: classes.tabButton,
+            root: "tab-root",
+            list: "tab-list",
+            tab: "tab-button",
           }}>
             <Tabs.List grow>
               {Object.values(CollectionType).map((v, k) => (
