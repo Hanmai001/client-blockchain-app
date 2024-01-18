@@ -4,7 +4,6 @@ import { Contract } from "./contracts/core";
 
 export enum ChainId {
   BSC_TESTNET = '97',
-  GANACHE = '67'
 }
 
 export enum TokenType {

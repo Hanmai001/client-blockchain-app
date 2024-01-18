@@ -1,0 +1,92 @@
+.video {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.buyButton {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 45px;
+  text-align: center; 
+}
+
+.buttonHovered {
+  transform-origin: bottom;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.buttonUnhovered {
+  transform-origin: bottom;
+  animation: fadeOut 0.2s ease-in-out;
+}
+
+.comboboxInput {
+  height: 45px;
+  border-radius: 10px;
+
+  &:focus {
+    border-color: #d3b0ff;
+  }
+}
+
+.comboboxRootInput {
+  min-width: 20%;
+}
+
+.control {
+
+  &:hover {
+    background-color: #efe3ff;
+  }
+
+  &[data-active] {
+    background-color: #8c36fa;
+  }
+}
+@keyframes fadeIn {
+  0% {
+    transform: translateY(100%);
+  }
+
+  25% {
+    transform: translateY(75%);
+  }
+
+  50% {
+    transform: translateY(50%);
+  }
+
+  70% {
+    transform: translateY(25%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    transform: translateY(0);
+  }
+
+  25% {
+    transform: translateY(25%);
+  }
+
+  50% {
+    transform: translateY(50%);
+  }
+
+  70% {
+    transform: translateY(75%);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}

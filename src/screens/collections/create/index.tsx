@@ -15,7 +15,7 @@ import { IconArrowLeft, IconNotebook, IconPhotoVideo, IconUsersGroup } from "@ta
 import { ethers } from "ethers";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../../types";
-import classes from '../../../styles/CollectionCreate.module.scss';
+import classes from '../../../styles/collections/CollectionCreate.module.scss';
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();

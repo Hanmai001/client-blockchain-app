@@ -1,13 +1,13 @@
+import { AppCreateButton } from '@/components/app/app-create-button';
 import { AppWrapper } from '@/components/app/app-wrapper';
-import { Box, Combobox, ComboboxData, ComboboxProps, Grid, Group, InputBase, InputBaseProps, Select, Stack, Tabs, rem, useCombobox, useMantineTheme } from '@mantine/core';
+import { useResponsive } from '@/modules/app/hooks';
+import { CollectionType } from '@/modules/collection/types';
+import { Box, Combobox, ComboboxProps, Grid, InputBase, Stack, Tabs, rem, useCombobox, useMantineTheme } from '@mantine/core';
 import { FC, useState } from 'react';
 import classes from '../../styles/Marketplace.module.scss';
-import { useResponsive } from '@/modules/app/hooks';
 import { BannerSection } from './banner-section';
-import { ListCollections } from './list-collections-section';
 import { CollectionsRanking } from './collections-ranking';
-import { AppCreateButton } from '@/components/app/app-create-button';
-import { CollectionType } from '@/modules/collection/types';
+import { ListCollections } from './list-collections-section';
 
 export const MarketplaceScreen = () => {
   const [activeTab, setActiveTab] = useState<string | null>(CollectionType.ALL);

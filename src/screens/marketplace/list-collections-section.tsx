@@ -1,7 +1,8 @@
+import { Grid, Stack, Title, useMantineTheme } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
-import { Grid, Group, Skeleton, Stack, Title, rem, useMantineTheme } from "@mantine/core";
 import { CollectionCard } from "../../components/collection-card";
+import { EmptyMessage } from "@/components/empty-message";
 
 const listcollections = [
   {
@@ -49,7 +50,7 @@ export const ListCollections: FC = () => {
   const [collections, setCollections] = useState(defaultState);
   const theme = useMantineTheme();
   const gridColumns = {
-    xl: 4,
+    lg: 4,
     sm: 6,
     xs: 12
   }
@@ -79,7 +80,7 @@ export const ListCollections: FC = () => {
 
         // if (collections.error) return <Group><ErrorBox error={collections.error} /></Group>
 
-        // if (!collections.data.length) return <EmptyBox />
+        // if (!collections.data.length) return <EmptyMessage />
 
         return <Grid gutter={theme.spacing.md}>
           {collections.data!.map((v, k) => (

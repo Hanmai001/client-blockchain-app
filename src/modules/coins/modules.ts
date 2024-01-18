@@ -16,7 +16,6 @@ export class CoinsModule {
       getBalanceOfEth(getChainId(), specialWallet || getWallet()!),
       getPaymentContract(AppPayment.USDT)!.balanceOf(specialWallet || getWallet()!),
       getPaymentContract(AppPayment.USDM)!.balanceOf(specialWallet || getWallet()!),
-      // missing usdm
     ])
 
     const balances: CoinsType<number> = {

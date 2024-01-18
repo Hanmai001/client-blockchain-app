@@ -1,33 +1,34 @@
-import { ActionIcon, Text, Box, Burger, Divider, Drawer, Group, HoverCard, Image, Menu, ScrollArea, Skeleton, TextInput, rem, useMantineTheme, UnstyledButton, useMantineColorScheme, Switch, Avatar, Stack } from "@mantine/core";
-import { FC, useState } from "react";
-import { ConnectWallet } from "../buttons/connect-wallet";
-import { useDisclosure, useWindowScroll } from "@mantine/hooks";
-import classes from "../../styles/app/AppHeader.module.scss";
-import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconNotification, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import { useAccount } from "@/modules/account/context";
-import { getChainId, useConfig } from "@/modules/configs/context";
-import { useBlockChain } from "@/share/blockchain/context";
-import { useRouter } from "next/router";
-import { AppButton } from "./app-button";
 import { useResponsive } from "@/modules/app/hooks";
-import { AccountInfo } from "../account-info";
-import { AppPayment } from "../../../types";
-import { useSelector } from "@/redux/store";
 import { renderPayment } from "@/modules/coins/utils";
+import { getChainId, useConfig } from "@/modules/configs/context";
+import { useSelector } from "@/redux/store";
+import { useBlockChain } from "@/share/blockchain/context";
 import { NumberUtils } from "@/share/utils";
+import { ActionIcon, Avatar, Group, Image, Menu, Skeleton, Stack, Switch, Text, TextInput, UnstyledButton, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { useDisclosure, useWindowScroll } from "@mantine/hooks";
+import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import { useRouter } from "next/router";
+import { FC, useState } from "react";
+import { AppPayment } from "../../../types";
+import classes from "../../styles/app/AppHeader.module.scss";
+import { AccountInfo } from "../account-info";
+import { ConnectWallet } from "../buttons/connect-wallet";
 import { onError } from "../modals/modal-error";
+import { AppButton } from "./app-button";
 
 export const AppHeader: FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const theme = useMantineTheme();
-  const [scroll] = useWindowScroll();
+  const [scroll, scrollTo] = useWindowScroll();
   const { isDarkMode } = useConfig();
 
   return (
     <header className={scroll.y <= 10 ? classes.headerNormal : classes.headerScroll} style={{
       backgroundColor: isDarkMode ? theme.colors.dark[7] : theme.white,
     }}>
+      {/* <Text>{scroll.y}</Text> */}
       <Group justify="space-between" align="center" h="100%">
         <Image className={classes.logo} src='/images/logo.png' />
 

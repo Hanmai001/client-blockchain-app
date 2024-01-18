@@ -1,10 +1,10 @@
+import { AppImage } from "@/components/app/app-image";
+import { renderPayment } from "@/modules/coins/utils";
+import { Collection } from "@/modules/collection/types";
+import { StringUtils } from "@/share/utils";
+import { AspectRatio, Group, Stack, Text, Title, useMantineTheme } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
-import { Collection } from "@/modules/collection/types";
-import { AspectRatio, Text, Group, Skeleton, Stack, Title, useMantineTheme } from "@mantine/core";
-import { AppImage } from "@/components/app/app-image";
-import { StringUtils } from "@/share/utils";
-import { renderPayment } from "@/modules/coins/utils";
 
 const listcollections = [
   {

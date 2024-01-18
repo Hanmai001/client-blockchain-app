@@ -1,16 +1,15 @@
-import React, { useEffect } from 'react';
-import { AspectRatio, Box, Grid, Group, Skeleton, Stack, Text, Title, rem, useMantineTheme } from "@mantine/core";
-import { FC, useState } from "react";
-import { DataLoadState, ListLoadState } from "../../../types";
 import { AppImage } from "@/components/app/app-image";
-import { useHover } from "@mantine/hooks";
-import classes from '../../styles/Marketplace.module.scss';
-import { StringUtils } from "@/share/utils";
 import { useResponsive } from "@/modules/app/hooks";
-import Slider from "react-slick";
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { Collection } from '@/modules/collection/types';
 import { renderPayment } from '@/modules/coins/utils';
+import { Collection } from '@/modules/collection/types';
+import { StringUtils } from "@/share/utils";
+import { AspectRatio, Box, Group, Stack, Text, Title, rem, useMantineTheme } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import Link from 'next/link';
+import { FC, useEffect, useState } from 'react';
+import Slider from "react-slick";
+import { ListLoadState } from "../../../types";
+import classes from '../../styles/Marketplace.module.scss';
 
 const listcollections = [
   {
@@ -93,18 +92,18 @@ const listcollections = [
   },
 ]
 
-const CustomedNextArrow: FC<any> = ({onClick}) => {
+const CustomedNextArrow: FC<any> = ({ onClick }) => {
   return (
     <div className={classes.nextArrow} onClick={onClick}>
-      <IconChevronRight size={32}/>
+      <IconChevronRight size={32} />
     </div>
   )
 }
 
-const CustomedPrevArrow: FC<any> = ({onClick}) => {
+const CustomedPrevArrow: FC<any> = ({ onClick }) => {
   return (
     <div className={classes.prevArrow} onClick={onClick}>
-      <IconChevronLeft size={32}/>
+      <IconChevronLeft size={32} />
     </div>
   )
 }
@@ -144,9 +143,9 @@ export const BannerSection: FC = () => {
         // </Grid>
 
         return <Slider {...settings}>
-            {collections.data!.map((v, k) => (
-              <BannerSlide collection={v} key={k}/>
-            ))}
+          {collections.data!.map((v, k) => (
+            <BannerSlide collection={v} key={k} />
+          ))}
         </Slider>
       }()}
     </>
@@ -154,7 +153,7 @@ export const BannerSection: FC = () => {
 }
 
 
-const BannerSlide: FC<{collection: Collection}> = (props) => {
+const BannerSlide: FC<{ collection: Collection }> = (props) => {
   const { image, symbol } = renderPayment(props.collection.paymentType);
   const [totalItems, setTotalItems] = useState(0);
   const theme = useMantineTheme();
@@ -168,30 +167,32 @@ const BannerSlide: FC<{collection: Collection}> = (props) => {
   }, [])
 
   return (
-    <Box px={theme.spacing.xs} className={classes.banner}>
-      <AspectRatio ratio={820 / 600} style={{ overflow: 'hidden', borderRadius: rem(10) }}>
-        <AppImage src={props.collection.bannerUrl} alt="" className={classes.bannerImage} />
+    <Link href={`/collections/${props.collection._id}`}>
+      <Box px={theme.spacing.xs} className={classes.banner}>
+        <AspectRatio ratio={820 / 600} style={{ overflow: 'hidden', borderRadius: rem(10) }}>
+          <AppImage src={props.collection.bannerUrl} alt="" className={classes.bannerImage} />
 
-        <Group
-          //bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0))`}
-          style={{
-            alignItems: 'flex-end',
-            justifyContent: 'flex-start',
-            borderRadius: '12px',
-          }}
-        >
-          <Stack color={theme.white} gap={4} m={theme.spacing.lg} style={{ zIndex: 2 }}>
-            <Title size={18} c={theme.colors.text[0]}>
-              {props.collection.title}
-            </Title>
-            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creator, 2, 5)}</Text>
-            <Group justify="space-between" mt={4}>
-              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems} items</Text>
-              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
-            </Group>
-          </Stack>
-        </Group>
-      </AspectRatio>
-    </Box>
+          <Group
+            //bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0))`}
+            style={{
+              alignItems: 'flex-end',
+              justifyContent: 'flex-start',
+              borderRadius: '12px',
+            }}
+          >
+            <Stack color={theme.white} gap={4} m={theme.spacing.lg} style={{ zIndex: 2 }}>
+              <Title size={18} c={theme.colors.text[0]}>
+                {props.collection.title}
+              </Title>
+              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creator, 2, 5)}</Text>
+              <Group justify="space-between" mt={4}>
+                <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems} items</Text>
+                <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
+              </Group>
+            </Stack>
+          </Group>
+        </AspectRatio>
+      </Box>
+    </Link>
   )
 }
