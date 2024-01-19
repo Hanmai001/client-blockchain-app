@@ -35,7 +35,7 @@ export const UserProfileScreen: FC = () => {
         averagePrice: 0.56,
         paymentType: '0'
       },
-      owner: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
+      owner: '0x6aaef57a890743e6322feb3275e4006b3ecb8cb5',
       chainId: '97',
       title: 'Cậu học trò chứng minh bài học vật lý',
       description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
@@ -60,7 +60,7 @@ export const UserProfileScreen: FC = () => {
         averagePrice: 0.56,
         paymentType: '0'
       },
-      owner: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
+      owner: '0x6aaef57a890743e6322feb3275e4006b3ecb8cb5',
       chainId: '97',
       title: 'Cậu học trò chứng minh bài học vật lý',
       description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
@@ -180,7 +180,7 @@ export const UserProfileScreen: FC = () => {
   const [items, setItems] = useState<ListLoadState<any>>({ isFetching: true, data: nfts, count: nfts.length });
   const theme = useMantineTheme();
   const [activeTab, setActiveTab] = useState<string | null>(UserTabsProfile.ALL);
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ wallet: string }>();
   const [user, setUser] = useState<UserInformation>();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState(NftStatus.ALL);
@@ -226,7 +226,7 @@ export const UserProfileScreen: FC = () => {
     // fetchUser();
     setUser({
       _id: "dfsdfsdf",
-      wallet: "0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5",
+      wallet: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
       username: "Unknown",
       avatar: '',
       cover: '',
@@ -587,7 +587,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   return (
     <Stack gap={6}>
-      <Group ref={ref} style={{
+      <Group style={{
         borderRadius: '50%',
         width: rem(98),
         height: rem(98),
@@ -625,22 +625,22 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
             color={theme.colors.text[0]}
           />
         </div>}
+      </Group>
 
-        <Group miw={300} gap={4} style={{
-          position: "absolute",
-          left: rem(110),
-          bottom: rem(20)
-        }}>
-          <Text c={theme.colors.gray[7]}>{StringUtils.compact(props.user.wallet, 6, 5)}</Text>
-          <ActionIcon
-            c={theme.colors.gray[7]}
-            variant="transparent"
-            onClick={() => clipboard.copy(props.user.wallet)}
-          >
-            <IconCopy size={20} stroke={1.5} />
-          </ActionIcon>
-          {clipboard.copied && <Text c={theme.colors.gray[7]}>Đã sao chép</Text>}
-        </Group>
+      <Group miw={300} gap={4} style={{
+        position: "absolute",
+        left: rem(110),
+        top: rem(60)
+      }}>
+        <Text c={theme.colors.gray[7]}>{StringUtils.compact(props.user.wallet, 6, 5)}</Text>
+        <ActionIcon
+          c={theme.colors.gray[7]}
+          variant="transparent"
+          onClick={() => clipboard.copy(props.user.wallet)}
+        >
+          <IconCopy size={20} stroke={1.5} />
+        </ActionIcon>
+        {clipboard.copied && <Text c={theme.colors.gray[7]}>Đã sao chép</Text>}
       </Group>
 
       {previewImage && <Group ml={14}>

@@ -1,3 +1,5 @@
+import { AppPayment } from "../../../types"
+
 export enum FilterOptions {
   PRICE_TO_LOW = 'Giá từ thấp đến cao',
   PRICE_TO_HIGH = "Giá từ cao đến thấp",
@@ -24,6 +26,19 @@ export interface Nft {
   totalShare: number,
   createdAt: number,
   updatedAt: number
+}
+
+export interface NftPayload {
+  creator: string,
+  owner: string,
+  collection: {
+    chainId: string,
+    tokenId: string,
+    paymentType: string
+  } | null,
+  title: string,
+  description: string
+  sourceFile: File | null
 }
 
 export enum NftStatus {

@@ -73,7 +73,7 @@ a {
   }
 }
 
-input {
+input, textarea {
   &:focus {
     border-color: #d3b0ff;
   }
@@ -117,10 +117,11 @@ input {
   justify-content: center;
   align-content: center;
   flex-wrap: wrap;
-  min-height: 300px;
+  height: 90%;
+  width: 100%;
   border: 1px dashed var(--mantine-color-gray-3);
-  margin: rem(14);
   border-radius: rem(12);
+  margin: auto 20px;
 
   &:hover {
     cursor: pointer;

@@ -30,8 +30,12 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
       const accessToken = await AccountAccessToken.get(blockchain.wallet);
 
       if (accessToken) {
-        const res = await UserModule.authenticate();
-        setInformation(s => ({ ...s, ...res.data[0]}))
+        try {
+          const res = await UserModule.authenticate();
+          setInformation(s => ({ ...s, ...res.data[0] }))
+        } catch (error) {
+          await AccountAccessToken.remove(accessToken);
+        }
       }
       setIsInitialized(true);
     } catch (error) {

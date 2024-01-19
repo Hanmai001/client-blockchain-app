@@ -1,18 +1,29 @@
-import { Group, Image, Text } from "@mantine/core";
+import { Group, Image, Text, useMantineTheme } from "@mantine/core";
 import { forwardRef } from "react";
 
 interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
   image: string;
   label: string;
+  width?: string;
+  height?: string;
+  fontsize?: string
 }
 
 export const SelectInputItem = forwardRef<HTMLDivElement, ItemProps>(
-  ({ image, label, ...others }: ItemProps, ref) => (
-    <div ref={ref} {...others}>
-      <Group gap={5} style={{flexWrap: "nowrap"}}>
-        <Image src={image} width={20} height={20} />
-        <Text fw="bold" size="sm">{label}</Text>
-      </Group>
-    </div>
-  )
+  ({ image, label, width, height, fontsize, ...others }: ItemProps, ref) => {
+    const theme = useMantineTheme();
+
+    return (
+      <div ref={ref} {...others}>
+        <Group gap="lg" bg={theme.colors.gray[1]} p={15} style={{
+          flexWrap: "nowrap",
+          borderRadius: '10px',
+          cursor: "pointer"
+        }}>
+          <Image src={image} width={width} height={height} radius={12} />
+          <Text fw="bold" size={fontsize} c={theme.colors.text[1]}>{label}</Text>
+        </Group>
+      </div>
+    )
+  }
 );

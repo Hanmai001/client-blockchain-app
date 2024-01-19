@@ -9,6 +9,7 @@ interface MediaInputProps extends InputBaseProps {
   onChange: (file: File) => any,
   onRemove: () => any,
   width?: number | string,
+  height?: number | string,
   value?: any,
   initialValue?: string
 }
@@ -18,6 +19,8 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [isImage, setIsImage] = useState<boolean>(false);
+  const [isVideo, setIsVideo] = useState<boolean>(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -34,26 +37,37 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
 
       setFileError(null);
       setFileName(file.name);
-      props.onChange(file);
 
-      // Tạo một đường dẫn URL cho hình ảnh và đặt nó trong state để hiển thị trước
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setPreviewImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+        setIsImage(true);
+      } else if (file.type.startsWith('video/')) {
+        // Đối với video, hiển thị như là <video />
+        setPreviewImage(URL.createObjectURL(file));
+        setIsVideo(true);
+      } else {
+        setFileError('Loại file không được hỗ trợ');
+      }
+
+      props.onChange(file);
     }
   }, [props.onChange]);
 
   const removeImage = (e: any) => {
     setPreviewImage(null);
     setFileName(null);
+    setIsImage(false);
+    setIsVideo(false);
     props.onRemove();
     e.stopPropagation();
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: { 'image/jpeg': [], 'image/png': [] },
+    accept: { 'image/jpeg': [], 'image/png': [], 'video/mp4': [] },
     maxFiles: 1,
     onDrop,
   });
@@ -64,10 +78,12 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
       {props.withAsterisk && <span style={{ color: 'red' }}>*</span>}
     </label>
 
-    <Box style={{
+    <Box w={props.width} h={props.height} style={{
       borderRadius: props.radius,
       overflow: 'hidden',
       border: `1px solid ${theme.colors.gray[3]}`,
+      display: 'flex',
+      justifyContent: 'center',
     }}>
       <div
         {...getRootProps({
@@ -76,7 +92,13 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
       >
         <input {...getInputProps()} />
         {previewImage && <Group pos="relative">
-          <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+          {isImage ? <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px' }} /> : <video
+            controls
+            controlsList="nodownload"
+            src={previewImage}
+            style={{ maxWidth: '100%', maxHeight: '420px' }}
+          />}
+
           <UnstyledButton
             style={{
               position: 'absolute',
@@ -94,7 +116,7 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
             }}
             onClick={removeImage}
           >
-            <IconX color={theme.colors.dark[5]}/>
+            <IconX color={theme.colors.dark[5]} />
           </UnstyledButton>
         </Group>}
         {!previewImage && <Group>
@@ -104,16 +126,19 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
           />
           <Stack gap={2}>
             <Text size="xl" c={theme.colors.text[1]} inline>
-              Kéo hoặc thả ảnh
+              Kéo hoặc thả file
             </Text>
             <Text size="sm" c="dimmed" inline mt={7}>
-              Kích thước ảnh không quá 5MB
+              Kích thước file không quá 5MB
+            </Text>
+            <Text size="sm" c="dimmed" inline mt={7}>
+              JPG, PNG, MP4
             </Text>
           </Stack>
         </Group>}
       </div>
     </Box>
-    
+
     {fileName && <Text mt={8} fw={500} size="14px">{fileName}</Text>}
     {fileError && !previewImage && <Text size="sm" c="red">{fileError}</Text>}
   </Box>

@@ -75,7 +75,7 @@ interface MyComboBox extends ComboboxProps {
   initialValue: string,
   options: Object,
   value?: string,
-  onChange?: () => any,
+  onChange?: (v: any) => any,
 }
 
 export const MyCombobox: FC<MyComboBox> = (props) => {

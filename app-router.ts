@@ -3,6 +3,9 @@ export const AppRoutes = {
   collection: {
     create: '/collections/create'
   },
+  nft: {
+    create: '/nfts/create'
+  },
   user: {
     profile: '/users/'
   }

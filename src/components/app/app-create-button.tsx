@@ -56,7 +56,7 @@ export const AppCreateButton: FC = () => {
           <Text mr={10} c={theme.colors.primary[5]} fw="bold" size="sm">Tạo bộ sưu tập mới</Text>
         </UnstyledButton>
 
-        <UnstyledButton className={`create-buttons ${clicked ? 'app-button-clicked' : 'app-button-unclicked'}`} style={{
+        <UnstyledButton onClick={() => router.push(AppRoutes.nft.create)} className={`create-buttons ${clicked ? 'app-button-clicked' : 'app-button-unclicked'}`} style={{
           width: "250px",
           height: "70px",
           borderRadius: "10px",

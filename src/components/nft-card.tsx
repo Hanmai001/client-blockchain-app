@@ -39,7 +39,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
           <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.nft.description, 100)}</Text>
         </Stack>
 
-        {hovered && <AppButton async color={theme.colors.primary[5]} className={ClassNames({
+        {hovered && account.information?.wallet?.toLowerCase() !== props.nft.owner && <AppButton async color={theme.colors.primary[5]} className={ClassNames({
           [classes.buyButton]: true,
           [classes.buttonUnhovered]: !hovered ? true : false,
           [classes.buttonHovered]: hovered

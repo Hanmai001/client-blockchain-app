@@ -157,7 +157,8 @@ export const CollectionCreateScreen: FC = () => {
                       borderRadius: '10px'
                     },
                     input: {
-                      marginTop: '6px'
+                      marginTop: '6px',
+                      borderRadius: '10px'
                     }
                   }}
                   {...form.getInputProps('description')}

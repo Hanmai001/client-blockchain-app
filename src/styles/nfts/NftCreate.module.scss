@@ -1,0 +1,22 @@
+$bg: #efe3ff;
+$bg-active: #8c36fa;
+
+.item {
+  border-radius: '12px' !important;
+  padding: '12px 12px' !important;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $bg !important;
+  }
+}
+
+.itemActive {
+  border-radius: '12px' !important;
+  padding: '12px 12px' !important;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $bg-active !important;
+  }
+}
