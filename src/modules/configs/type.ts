@@ -37,8 +37,8 @@ export interface ConfigsContext extends Configs {
 }
 
 export interface ERC20Contracts<T> {
-  USDM: T
-  USDT: T
+  // USDM: T
+  // USDT: T
   BCT: T
 }
 

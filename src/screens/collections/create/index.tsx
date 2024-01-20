@@ -16,6 +16,7 @@ import { ethers } from "ethers";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../../types";
 import classes from '../../../styles/collections/CollectionCreate.module.scss';
+import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();
@@ -79,162 +80,165 @@ export const CollectionCreateScreen: FC = () => {
   })
 
   return (
-    <Stack px={40} mt={20}>
-      <form onSubmit={onSubmit}>
-        <Group justify="space-between">
-          <Group>
-            <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
-              <IconArrowLeft color={theme.colors.dark[5]} size={18} />
-            </AppButton>
+    <BoundaryConnectWallet>
+      <Stack px={40} mt={20}>
+        <form onSubmit={onSubmit}>
+          <Group justify="space-between">
+            <Group>
+              <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
+                <IconArrowLeft color={theme.colors.dark[5]} size={18} />
+              </AppButton>
 
-            <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
+              <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
 
-            {/* <Image src='/images/logo.png' w={128} /> */}
+              {/* <Image src='/images/logo.png' w={128} /> */}
+            </Group>
+
+            <Account />
           </Group>
 
-          <Account />
-        </Group>
-
-        <Grid mt={20} gutter={80}>
-          <Grid.Col span={{ base: 12, md: 7, lg: 7 }}>
-            <Stack>
-              <MediaInput
-                label="Hình nền"
-                withAsterisk
-                width={"100%"}
-                h={300}
-                radius={10}
-                onChange={(file) => form.setFieldValue('bannerFile', file)}
-                onRemove={() => form.setFieldValue('bannerFile', null)}
-              />
-
-              <Group mt={20} justify="space-between">
-                <TextInput
-                  label="Tên bộ sưu tập"
-                  placeholder="My Collection"
+          <Grid mt={20} gutter={80}>
+            <Grid.Col span={{ base: 12, md: 7, lg: 7 }}>
+              <Stack>
+                <MediaInput
+                  label="Hình nền"
                   withAsterisk
-                  styles={{
-                    root: {
-                      width: '45%',
-                    },
-                    input: {
-                      height: '45px',
-                      borderRadius: '10px',
-                      marginTop: "6px"
-                    },
-                  }}
-                  {...form.getInputProps('title')}
+                  width={"100%"}
+                  height={300}
+                  radius={10}
+                  acceptance="image"
+                  onChange={(file) => form.setFieldValue('bannerFile', file)}
+                  onRemove={() => form.setFieldValue('bannerFile', null)}
                 />
 
-                <MyCombobox
-                  initialValue={CollectionType.TOURISM}
-                  options={CollectionType}
-                  label="Thể loại"
-                  styles={{
-                    dropdown: {
-                      maxHeight: '200px',
-                      overflow: 'hidden',
-                      overflowY: 'auto',
-                    },
-                  }}
-                  classNames={{
-                    dropdown: 'hidden-scroll-bar'
-                  }}
-                  classNamesInput={classes.comboboxInput}
-                  classNamesRoot={classes.comboboxRootInput}
-                  onChange={(value: CollectionType) => form.setFieldValue("type", value)}
-                />
+                <Group mt={20} justify="space-between">
+                  <TextInput
+                    label="Tên bộ sưu tập"
+                    placeholder="My Collection"
+                    withAsterisk
+                    styles={{
+                      root: {
+                        width: '45%',
+                      },
+                      input: {
+                        height: '45px',
+                        borderRadius: '10px',
+                        marginTop: "6px"
+                      },
+                    }}
+                    {...form.getInputProps('title')}
+                  />
 
-                <Textarea
-                  label="Mô tả"
-                  withAsterisk
-                  placeholder="Mô tả bộ sưu tập"
-                  autosize
-                  minRows={3}
-                  styles={{
-                    root: {
-                      width: '100%',
-                      borderRadius: '10px'
-                    },
-                    input: {
-                      marginTop: '6px',
-                      borderRadius: '10px'
-                    }
-                  }}
-                  {...form.getInputProps('description')}
-                />
+                  <MyCombobox
+                    initialValue={CollectionType.TOURISM}
+                    options={CollectionType}
+                    label="Thể loại"
+                    styles={{
+                      dropdown: {
+                        maxHeight: '200px',
+                        overflow: 'hidden',
+                        overflowY: 'auto',
+                      },
+                    }}
+                    classNames={{
+                      dropdown: 'hidden-scroll-bar'
+                    }}
+                    classNamesInput={classes.comboboxInput}
+                    classNamesRoot={classes.comboboxRootInput}
+                    onChange={(value: CollectionType) => form.setFieldValue("type", value)}
+                  />
 
-                <Select
-                  label="Blockchain"
-                  placeholder="Chọn chain"
-                  data={chains!.map((v) => ({ label: v.name, value: v.chainId }))}
-                  styles={{
-                    dropdown: {
-                      maxHeight: '200px',
-                      overflow: 'hidden',
-                      overflowY: 'auto',
-                    },
-                    option: {
+                  <Textarea
+                    label="Mô tả"
+                    withAsterisk
+                    placeholder="Mô tả bộ sưu tập"
+                    autosize
+                    minRows={3}
+                    styles={{
+                      root: {
+                        width: '100%',
+                        borderRadius: '10px'
+                      },
+                      input: {
+                        marginTop: '6px',
+                        borderRadius: '10px'
+                      }
+                    }}
+                    {...form.getInputProps('description')}
+                  />
 
-                    },
-                    root: {
-                      width: '100%'
-                    },
-                    input: {
-                      height: '45px',
-                      borderRadius: '10px',
-                      marginTop: '6px'
-                    }
-                  }}
-                  classNames={{
-                    dropdown: 'hidden-scroll-bar'
-                  }}
-                  {...form.getInputProps('chainId')}
-                />
-              </Group>
-            </Stack>
-          </Grid.Col>
+                  <Select
+                    label="Blockchain"
+                    placeholder="Chọn chain"
+                    data={chains!.map((v) => ({ label: v.name, value: v.chainId }))}
+                    styles={{
+                      dropdown: {
+                        maxHeight: '200px',
+                        overflow: 'hidden',
+                        overflowY: 'auto',
+                      },
+                      option: {
 
-          <Grid.Col span={{ base: 12, md: 5, lg: 5 }}>
-            <Stack mt={isMobile ? 0 : 30} px={30} py={30} justify="center" bg={theme.colors.gray[1]}
-              style={{
-                borderRadius: '10px'
-              }}
-            >
-              <Title order={4} c={theme.colors.text[1]}>Sau khi tạo Bộ sưu tập thành công:</Title>
-              <Group>
-                <IconNotebook color={theme.colors.gray[8]} />
-                <Stack gap={2}>
-                  <Text fw="bold" c={theme.colors.gray[8]}>Quản lý bộ sưu tập</Text>
-                  <Text c={theme.colors.gray[7]}>Chỉnh sửa thông tin bộ sưu tập, xem tiền kiếm được,...</Text>
-                </Stack>
-              </Group>
+                      },
+                      root: {
+                        width: '100%'
+                      },
+                      input: {
+                        height: '45px',
+                        borderRadius: '10px',
+                        marginTop: '6px'
+                      }
+                    }}
+                    classNames={{
+                      dropdown: 'hidden-scroll-bar'
+                    }}
+                    {...form.getInputProps('chainId')}
+                  />
+                </Group>
+              </Stack>
+            </Grid.Col>
 
-              <Group>
-                <IconPhotoVideo color={theme.colors.gray[8]} />
-                <Stack gap={2}>
-                  <Text fw="bold" c={theme.colors.gray[8]}>Quản lý Video dễ dàng</Text>
-                  <Text c={theme.colors.gray[7]}>Xem thông tin các Video của bạn, truy cập nhanh chóng</Text>
-                </Stack>
-              </Group>
+            <Grid.Col span={{ base: 12, md: 5, lg: 5 }}>
+              <Stack mt={isMobile ? 0 : 30} px={30} py={30} justify="center" bg={theme.colors.gray[1]}
+                style={{
+                  borderRadius: '10px'
+                }}
+              >
+                <Title order={4} c={theme.colors.text[1]}>Sau khi tạo Bộ sưu tập thành công:</Title>
+                <Group>
+                  <IconNotebook color={theme.colors.gray[8]} />
+                  <Stack gap={2}>
+                    <Text fw="bold" c={theme.colors.gray[8]}>Quản lý bộ sưu tập</Text>
+                    <Text c={theme.colors.gray[7]}>Chỉnh sửa thông tin bộ sưu tập, xem tiền kiếm được,...</Text>
+                  </Stack>
+                </Group>
 
-              <Group>
-                <IconUsersGroup color={theme.colors.gray[8]} />
-                <Stack gap={2}>
-                  <Text fw="bold" c={theme.colors.gray[8]}>Cộng đồng</Text>
-                  <Text c={theme.colors.gray[7]}>Mọi người có thể xem bộ sưu tập của bạn</Text>
-                </Stack>
-              </Group>
-            </Stack>
-          </Grid.Col>
-        </Grid>
+                <Group>
+                  <IconPhotoVideo color={theme.colors.gray[8]} />
+                  <Stack gap={2}>
+                    <Text fw="bold" c={theme.colors.gray[8]}>Quản lý Video dễ dàng</Text>
+                    <Text c={theme.colors.gray[7]}>Xem thông tin các Video của bạn, truy cập nhanh chóng</Text>
+                  </Stack>
+                </Group>
 
-        <Group my={30} justify="flex-end">
-          <AppButton async type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
-            Tạo ngay
-          </AppButton>
-        </Group>
-      </form>
-    </Stack>
+                <Group>
+                  <IconUsersGroup color={theme.colors.gray[8]} />
+                  <Stack gap={2}>
+                    <Text fw="bold" c={theme.colors.gray[8]}>Cộng đồng</Text>
+                    <Text c={theme.colors.gray[7]}>Mọi người có thể xem bộ sưu tập của bạn</Text>
+                  </Stack>
+                </Group>
+              </Stack>
+            </Grid.Col>
+          </Grid>
+
+          <Group my={30} justify="flex-end">
+            <AppButton async type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
+              Tạo ngay
+            </AppButton>
+          </Group>
+        </form>
+      </Stack>
+    </BoundaryConnectWallet>
   )
 }

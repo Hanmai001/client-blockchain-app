@@ -7,8 +7,8 @@ export const productionConfigs: Configs = {
   chains: {
     [ChainId.BSC_TESTNET]: {
       erc20s: {
-        USDM: '0x85eB2c83f72613B7beCbd8b78f2f89df326744Bf',
-        USDT: '0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684',
+        // USDM: '0x85eB2c83f72613B7beCbd8b78f2f89df326744Bf',
+        // USDT: '0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684',
         BCT: '0xd0eB9bAD76Eb3386805558e284481F978B5e03A0',
       },
       erc721s: {

@@ -23,10 +23,12 @@ export interface BlockChainContext extends BlockchainStatus {
   isInitialized: boolean;
   connectWallet: ConnectWallet,
   connectChain: ConnectChain,
+  switchChain: SwitchChain,
   addErc20: AddToken,
   disconnect: () => void,
   configs: BlockChainProviderProps,
   providerType?: ProviderType,
+  getChain: GetChain,
   getContract: GetContract,
 }
 
@@ -139,6 +141,7 @@ export type AddToken = (information: Token) => Promise<void>;
 export type GetContract = (params: { address: string, abi: any[], name?: string, chainId?: ChainId}) => Contract;
 export type GetContractERC721 = (params: { address: string, name?: string, chainId?: ChainId }) => ContractERC721;
 export type GetContractERC20 = (params: { address: string, name?: string, chainId?: ChainId }) => ContractERC20;
+export type GetChain = (chainId: ChainId) => Chain;
 
 export enum TokenUnit {
   /**

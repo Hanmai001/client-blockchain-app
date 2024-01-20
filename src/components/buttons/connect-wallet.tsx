@@ -17,7 +17,7 @@ export const ConnectWallet: FC = () => {
     try {
       await account.signIn(providerType);
     } catch (error) {
-      throw error;
+      
     }
   }
 

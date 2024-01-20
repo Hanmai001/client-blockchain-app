@@ -1,0 +1,18 @@
+.iconButtonLiked {
+  // color: #d65076;
+  animation: liked .4s ease;
+}
+
+@keyframes liked {
+  0% {
+    transform: scale(.8);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}

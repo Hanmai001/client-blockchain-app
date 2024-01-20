@@ -17,6 +17,7 @@ import { AppRoutes } from "../../../../app-router";
 import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/nfts/NftCreate.module.scss';
 import { ethers } from "ethers";
+import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 
 const listcollections = [
   {
@@ -133,150 +134,153 @@ export const CreateNftScreen: FC = () => {
   }, [])
 
   return (
-    <Stack px={40} mt={20}>
-      <form onSubmit={onSubmit}>
-        <Group justify="space-between">
-          <Group>
-            <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
-              <IconArrowLeft color={theme.colors.dark[5]} size={18} />
-            </AppButton>
+    <BoundaryConnectWallet>
+      <Stack px={40} mt={20}>
+        <form onSubmit={onSubmit}>
+          <Group justify="space-between">
+            <Group>
+              <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
+                <IconArrowLeft color={theme.colors.dark[5]} size={18} />
+              </AppButton>
 
-            <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
+              <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
 
-            {/* <Image src='/images/logo.png' w={128} /> */}
+              {/* <Image src='/images/logo.png' w={128} /> */}
+            </Group>
+
+            <Account />
           </Group>
 
-          <Account />
-        </Group>
+          <Grid mt={20} gutter={isDesktop ? 40 : 0}>
+            <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+              <MediaInput
+                label="Video"
+                withAsterisk
+                width={"95%"}
+                height={500}
+                radius={10}
+                acceptance="video"
+                onChange={(file) => form.setFieldValue('sourceFile', file)}
+                onRemove={() => form.setFieldValue('sourceFile', null)}
+              />
+            </Grid.Col>
 
-        <Grid mt={20} gutter={isDesktop ? 40 : 0}>
-          <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-            <MediaInput
-              label="Video"
-              withAsterisk
-              width={"95%"}
-              height={500}
-              radius={10}
-              onChange={(file) => form.setFieldValue('sourceFile', file)}
-              onRemove={() => form.setFieldValue('sourceFile', null)}
-            />
-          </Grid.Col>
-
-          <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-            <Stack pos="relative" my={isMobile ? 0 : 30} justify="center"
-              style={{
-                borderRadius: '10px'
-              }}
-            >
-              <Stack gap={14}>
-                <Text mt={isMobile ? 40 : 0} style={{ display: 'block', fontWeight: 500, fontSize: '15px', lineHeight: '12px' }}>
-                  Chọn bộ sưu tập
-                  <span style={{ color: 'red' }}>*</span>
-                </Text>
-                <Box onClick={() => setOpened(!opened)}>
-                  {function () {
-                    if (collections.isFetching) return <Skeleton />
-
-                    if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
-
-                    if (!collection) return <Group gap="lg" bg={theme.colors.gray[1]} p={15} style={{
-                      flexWrap: "nowrap",
-                      borderRadius: '10px',
-                      height: '90px',
-                      cursor: "pointer"
-                    }}
-                      onClick={() => router.push(AppRoutes.collection.create)}
-                    >
-                      <Flex justify="center" align="center" style={{
-                        borderRadius: '10px',
-                        backgroundColor: theme.colors.gray[2],
-                        width: '60px',
-                        height: '60px'
-                      }}><IconPlus /></Flex>
-                      <Text fw="bold">Tạo bộ sưu tập mới</Text>
-                    </Group>
-                    return <SelectInputItem width="48" height="64" fontsize="15px" image={collection.bannerUrl} label={collection.title} />
-                  }()}
-                </Box>
-              </Stack>
-
-              <Transition mounted={opened}
-                transition={scaleY}
-                duration={200}
-                timingFunction="ease"
-                keepMounted
+            <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+              <Stack pos="relative" my={isMobile ? 0 : 30} justify="center"
+                style={{
+                  borderRadius: '10px'
+                }}
               >
-                {(styles) => <Card w={'100%'} shadow="sm" radius={10} bg={theme.white} pos="absolute"
-                  style={{
-                    margin: "auto",
-                    zIndex: 1,
-                    top: isMobile ? '162px' : '120px',
-                    ...styles
-                  }}
+                <Stack gap={14}>
+                  <Text mt={isMobile ? 40 : 0} style={{ display: 'block', fontWeight: 500, fontSize: '15px', lineHeight: '12px' }}>
+                    Chọn bộ sưu tập
+                    <span style={{ color: 'red' }}>*</span>
+                  </Text>
+                  <Box onClick={() => setOpened(!opened)}>
+                    {function () {
+                      if (collections.isFetching) return <Skeleton />
+
+                      if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
+
+                      if (!collection) return <Group gap="lg" bg={theme.colors.gray[1]} p={15} style={{
+                        flexWrap: "nowrap",
+                        borderRadius: '10px',
+                        height: '90px',
+                        cursor: "pointer"
+                      }}
+                        onClick={() => router.push(AppRoutes.collection.create)}
+                      >
+                        <Flex justify="center" align="center" style={{
+                          borderRadius: '10px',
+                          backgroundColor: theme.colors.gray[2],
+                          width: '60px',
+                          height: '60px'
+                        }}><IconPlus /></Flex>
+                        <Text fw="bold">Tạo bộ sưu tập mới</Text>
+                      </Group>
+                      return <SelectInputItem width="48" height="64" fontsize="15px" image={collection.bannerUrl} label={collection.title} />
+                    }()}
+                  </Box>
+                </Stack>
+
+                <Transition mounted={opened}
+                  transition={scaleY}
+                  duration={200}
+                  timingFunction="ease"
+                  keepMounted
                 >
-                  {collections.data?.map((v, k) => <Box
-                    bg={v.tokenId === collection.tokenId ? theme.colors.primary[5] : theme.white}
-                    className={v.tokenId === collection.tokenId ? classes.itemActive : classes.item}
+                  {(styles) => <Card w={'100%'} shadow="sm" radius={10} bg={theme.white} pos="absolute"
                     style={{
-                      borderRadius: '12px',
-                      padding: '12px 12px',
+                      margin: "auto",
+                      zIndex: 1,
+                      top: isMobile ? '162px' : '120px',
+                      ...styles
                     }}
-                    key={k}
-                    onClick={() => setCollection(v)}
                   >
-                    <Group>
-                      <Image width="48" height="64" radius={12} src={v.bannerUrl} />
-                      <Text c={v.tokenId === collection.tokenId ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
-                    </Group>
-                  </Box>)}
-                </Card>}
-              </Transition>
+                    {collections.data?.map((v, k) => <Box
+                      bg={v.tokenId === collection.tokenId ? theme.colors.primary[5] : theme.white}
+                      className={v.tokenId === collection.tokenId ? classes.itemActive : classes.item}
+                      style={{
+                        borderRadius: '12px',
+                        padding: '12px 12px',
+                      }}
+                      key={k}
+                      onClick={() => setCollection(v)}
+                    >
+                      <Group>
+                        <Image width="48" height="64" radius={12} src={v.bannerUrl} />
+                        <Text c={v.tokenId === collection.tokenId ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
+                      </Group>
+                    </Box>)}
+                  </Card>}
+                </Transition>
 
-              <TextInput
-                label="Tiêu đề"
-                placeholder="My title"
-                withAsterisk
-                styles={{
-                  root: {
-                    width: '100%',
-                  },
-                  input: {
-                    height: '45px',
-                    borderRadius: '10px',
-                    marginTop: "6px"
-                  },
-                }}
-                {...form.getInputProps('title')}
-              />
+                <TextInput
+                  label="Tiêu đề"
+                  placeholder="My title"
+                  withAsterisk
+                  styles={{
+                    root: {
+                      width: '100%',
+                    },
+                    input: {
+                      height: '45px',
+                      borderRadius: '10px',
+                      marginTop: "6px"
+                    },
+                  }}
+                  {...form.getInputProps('title')}
+                />
 
-              <Textarea
-                label="Mô tả"
-                withAsterisk
-                placeholder="Mô tả video"
-                autosize
-                minRows={6}
-                styles={{
-                  root: {
-                    width: '100%',
-                    borderRadius: '10px'
-                  },
-                  input: {
-                    marginTop: '6px',
-                    borderRadius: '10px'
-                  }
-                }}
-                {...form.getInputProps('description')}
-              />
-            </Stack>
-          </Grid.Col>
-        </Grid>
+                <Textarea
+                  label="Mô tả"
+                  withAsterisk
+                  placeholder="Mô tả video"
+                  autosize
+                  minRows={6}
+                  styles={{
+                    root: {
+                      width: '100%',
+                      borderRadius: '10px'
+                    },
+                    input: {
+                      marginTop: '6px',
+                      borderRadius: '10px'
+                    }
+                  }}
+                  {...form.getInputProps('description')}
+                />
+              </Stack>
+            </Grid.Col>
+          </Grid>
 
-        <Group my={30} justify="flex-end">
-          <AppButton async type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
-            Tạo ngay
-          </AppButton>
-        </Group>
-      </form>
-    </Stack>
+          <Group my={30} justify="flex-end">
+            <AppButton async type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
+              Tạo ngay
+            </AppButton>
+          </Group>
+        </form>
+      </Stack>
+    </BoundaryConnectWallet>
   )
 }

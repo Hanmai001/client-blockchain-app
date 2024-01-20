@@ -1,10 +1,10 @@
-import { FC, createContext, useContext, useEffect, useState } from "react";
-import { BlockChainContext, BlockChainProviderProps, BlockchainError, BlockchainErrorCode, BlockchainStatus, ChainId, ConnectChain, ConnectWallet, GetContract, GetContractERC20, GetContractERC721, Provider, ProviderType, SwitchChain, Token } from "./types";
 import { ethers } from "ethers";
+import { FC, createContext, useContext, useEffect, useState } from "react";
 import { chains } from "./chain";
-import { Contract } from "./contracts/core";
 import { ContractERC20 } from "./contracts/ERC20";
 import { ContractERC721 } from "./contracts/ERC721";
+import { Contract } from "./contracts/core";
+import { BlockChainContext, BlockChainProviderProps, BlockchainError, BlockchainErrorCode, BlockchainStatus, ChainId, ConnectChain, ConnectWallet, GetChain, GetContract, GetContractERC20, GetContractERC721, Provider, ProviderType, SwitchChain, Token } from "./types";
 
 export let getWallet: () => string | undefined = () => undefined;
 export let getProvider: () => Provider | undefined = () => ({} as any);
@@ -16,6 +16,7 @@ export let getContract: GetContract;
 export let getContractERC20: GetContractERC20;
 export let getContractERC721: GetContractERC721;
 export let getBlockchainConfig: () => BlockChainProviderProps | undefined = () => undefined;
+export let getChain: GetChain;
 
 export const blockChainContext = createContext({} as BlockChainContext);
 
@@ -160,6 +161,12 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     forceUpdate();
   }
 
+  getChain = (chainId: ChainId) => {
+    const chain = chains.find(v => v.chainId === chainId);
+    if (!chain) throw Error("Chain does not supported yet");
+
+    return chain;
+  }
   getContract = (params) => {
     const chainId = params.chainId || status.chainId as ChainId;
     return new Contract({
@@ -272,6 +279,7 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     connectChain: connectChain,
     switchChain: switchChain,
     disconnect: disconnect,
+    getChain: getChain,
     getContract,
     addErc20: addErc20,
     configs: props,

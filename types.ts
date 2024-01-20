@@ -8,8 +8,8 @@ export enum AppEnv {
 
 export enum AppPayment {
   ETH = '0',
-  USDM = '1',
-  USDT = '2',
+  // USDM = '1',
+  // USDT = '2',
   BCT = '3',
 }
 

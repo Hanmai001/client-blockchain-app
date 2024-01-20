@@ -2,7 +2,7 @@ import { AppModule } from "@/modules/app/modules";
 import { AspectRatio, Box, Center, Group, Input, InputBaseProps, Stack, Text, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
 import { FC, useCallback, useState } from "react";
 import { AppImage } from "../app/app-image";
-import { IconPhoto, IconX } from "@tabler/icons-react";
+import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
 import Dropzone, { useDropzone, FileWithPath } from "react-dropzone";
 
 interface MediaInputProps extends InputBaseProps {
@@ -11,7 +11,8 @@ interface MediaInputProps extends InputBaseProps {
   width?: number | string,
   height?: number | string,
   value?: any,
-  initialValue?: string
+  initialValue?: string,
+  acceptance: 'image' | 'video'
 }
 
 export const MediaInput: FC<MediaInputProps> = (props) => {
@@ -67,7 +68,7 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: { 'image/jpeg': [], 'image/png': [], 'video/mp4': [] },
+    accept: props.acceptance === 'image' ? { 'image/jpeg': [], 'image/png': [] } : { 'video/mp4': [] },
     maxFiles: 1,
     onDrop,
   });
@@ -120,9 +121,10 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
           </UnstyledButton>
         </Group>}
         {!previewImage && <Group>
-          <IconPhoto
+          <IconUpload
             style={{ width: rem(52), height: rem(52) }}
             stroke={1.5}
+            color={theme.colors.text[1]}
           />
           <Stack gap={2}>
             <Text size="xl" c={theme.colors.text[1]} inline>
@@ -132,7 +134,7 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
               Kích thước file không quá 5MB
             </Text>
             <Text size="sm" c="dimmed" inline mt={7}>
-              JPG, PNG, MP4
+              {props.acceptance === 'image' ? 'JPG, PNG' : 'MP4'}
             </Text>
           </Stack>
         </Group>}

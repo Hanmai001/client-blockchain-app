@@ -15,6 +15,7 @@ import { MyCombobox } from "@/screens/marketplace";
 import { ListLoadState } from "../../../../types";
 import { NftStatus } from "@/modules/nft/types";
 import { NftCard } from "@/components/nft-card";
+import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 
 
 export const UserProfileScreen: FC = () => {
@@ -237,184 +238,186 @@ export const UserProfileScreen: FC = () => {
 
   return (
     <AppWrapper>
-      <Stack>
-        {function () {
-          if (!user) return <Skeleton w={'100%'} height={'100%'} />
-
-          return <UserCover user={user} />
-        }()}
-
-        <Stack mx={24} style={{
-          position: 'relative',
-          top: rem(-64),
-          zIndex: 10
-        }}>
+      <BoundaryConnectWallet>
+        <Stack>
           {function () {
-            if (!user) return <Skeleton radius='50%' w={98} height={98} />
+            if (!user) return <Skeleton w={'100%'} height={'100%'} />
 
-            return <UserAvatar user={user} />
+            return <UserCover user={user} />
           }()}
 
-          <Tabs value={activeTab} maw={'100%'} onChange={setActiveTab} classNames={{
-            root: "tab-root",
-            list: "tab-list",
-            tab: "tab-button",
+          <Stack mx={24} style={{
+            position: 'relative',
+            top: rem(-64),
+            zIndex: 10
           }}>
-            <Tabs.List grow style={{
-              maxWidth: '50%'
-            }}>
-              {Object.values(UserTabsProfile).map((v, k) => (
-                <Tabs.Tab value={v} key={k}>{v}</Tabs.Tab>
-              ))}
-            </Tabs.List>
+            {function () {
+              if (!user) return <Skeleton radius='50%' w={98} height={98} />
 
-            <Group mt={20}>
-              <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
-                input: {
-                  height: '45px',
+              return <UserAvatar user={user} />
+            }()}
+
+            <Tabs value={activeTab} maw={'100%'} onChange={setActiveTab} classNames={{
+              root: "tab-root",
+              list: "tab-list",
+              tab: "tab-button",
+            }}>
+              <Tabs.List grow style={{
+                maxWidth: '50%'
+              }}>
+                {Object.values(UserTabsProfile).map((v, k) => (
+                  <Tabs.Tab value={v} key={k}>{v}</Tabs.Tab>
+                ))}
+              </Tabs.List>
+
+              <Group mt={20}>
+                <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
+                  input: {
+                    height: '45px',
+                  },
+                  section: {
+                    paddingRight: `${theme.spacing.md}`
+                  }
+                }}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <MyCombobox
+                  initialValue={NftStatus.ALL}
+                  options={NftStatus}
+                  styles={{
+                    dropdown: {
+                      maxHeight: '200px',
+                      overflow: 'hidden',
+                      overflowY: 'auto',
+                    },
+                  }}
+                  classNames={{
+                    dropdown: 'hidden-scroll-bar'
+                  }}
+                  classNamesInput="combobox-input"
+                  classNamesRoot="combobox-root-input"
+                  onChange={() => { }}
+                />
+              </Group>
+
+              <Text my={10} fw="bold" c={theme.colors.text[1]}>2 kết quả</Text>
+
+              <Tabs.Panel value={UserTabsProfile.ALL}>
+                {function () {
+                  // if (items.isFetching || !items.data) return <Grid>
+                  //   {Array(3).fill(0).map((_, key) => (
+                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
+                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+                  //     </Grid.Col>
+                  //   ))}
+                  // </Grid>
+
+                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
+
+                  // if (!items.data.length) return <EmptyBox />
+
+                  return <Grid gutter={theme.spacing.md}>
+                    {items.data!.map((v, k) => (
+                      <Grid.Col key={k} span={{ ...gridColumns }}>
+                        <NftCard nft={v} key={k} />
+                      </Grid.Col>
+                    ))}
+                  </Grid>
+                }()}
+              </Tabs.Panel>
+
+              <Tabs.Panel value={UserTabsProfile.CREATED_COLLECTIONS}>
+                {function () {
+                  // if (items.isFetching || !items.data) return <Grid>
+                  //   {Array(3).fill(0).map((_, key) => (
+                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
+                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+                  //     </Grid.Col>
+                  //   ))}
+                  // </Grid>
+
+                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
+
+                  // if (!items.data.length) return <EmptyBox />
+
+                  return <Grid gutter={theme.spacing.md}>
+                    {items.data!.map((v, k) => (
+                      <Grid.Col key={k} span={{ ...gridColumns }}>
+                        <NftCard nft={v} key={k} />
+                      </Grid.Col>
+                    ))}
+                  </Grid>
+                }()}
+              </Tabs.Panel>
+
+              <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
+                {function () {
+                  // if (items.isFetching || !items.data) return <Grid>
+                  //   {Array(3).fill(0).map((_, key) => (
+                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
+                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+                  //     </Grid.Col>
+                  //   ))}
+                  // </Grid>
+
+                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
+
+                  // if (!items.data.length) return <EmptyBox />
+
+                  return <Grid gutter={theme.spacing.md}>
+                    {items.data!.map((v, k) => (
+                      <Grid.Col key={k} span={{ ...gridColumns }}>
+                        <NftCard nft={v} key={k} />
+                      </Grid.Col>
+                    ))}
+                  </Grid>
+                }()}
+              </Tabs.Panel>
+
+              <Tabs.Panel value={UserTabsProfile.ACTIVITY}>
+                {function () {
+                  // if (items.isFetching || !items.data) return <Grid>
+                  //   {Array(3).fill(0).map((_, key) => (
+                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
+                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+                  //     </Grid.Col>
+                  //   ))}
+                  // </Grid>
+
+                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
+
+                  // if (!items.data.length) return <EmptyBox />
+
+                  return <Grid gutter={theme.spacing.md}>
+                    {items.data!.map((v, k) => (
+                      <Grid.Col key={k} span={{ ...gridColumns }}>
+                        <NftCard nft={v} key={k} />
+                      </Grid.Col>
+                    ))}
+                  </Grid>
+                }()}
+              </Tabs.Panel>
+
+              <Pagination color={theme.colors.primary[5]} total={20} siblings={2} value={activePage} onChange={setPage} styles={{
+                root: {
+                  marginTop: '80px',
+                  display: 'flex',
+                  justifyContent: 'center'
                 },
-                section: {
-                  paddingRight: `${theme.spacing.md}`
+                control: {
+                  padding: '20px 15px',
                 }
               }}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <MyCombobox
-                initialValue={NftStatus.ALL}
-                options={NftStatus}
-                styles={{
-                  dropdown: {
-                    maxHeight: '200px',
-                    overflow: 'hidden',
-                    overflowY: 'auto',
-                  },
-                }}
                 classNames={{
-                  dropdown: 'hidden-scroll-bar'
+                  control: classes.control
                 }}
-                classNamesInput="combobox-input"
-                classNamesRoot="combobox-root-input"
-                onChange={() => { }}
               />
-            </Group>
 
-            <Text my={10} fw="bold" c={theme.colors.text[1]}>2 kết quả</Text>
-
-            <Tabs.Panel value={UserTabsProfile.ALL}>
-              {function () {
-                // if (items.isFetching || !items.data) return <Grid>
-                //   {Array(3).fill(0).map((_, key) => (
-                //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                //     </Grid.Col>
-                //   ))}
-                // </Grid>
-
-                // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
-
-                // if (!items.data.length) return <EmptyBox />
-
-                return <Grid gutter={theme.spacing.md}>
-                  {items.data!.map((v, k) => (
-                    <Grid.Col key={k} span={{ ...gridColumns }}>
-                      <NftCard nft={v} key={k} />
-                    </Grid.Col>
-                  ))}
-                </Grid>
-              }()}
-            </Tabs.Panel>
-
-            <Tabs.Panel value={UserTabsProfile.CREATED_COLLECTIONS}>
-              {function () {
-                // if (items.isFetching || !items.data) return <Grid>
-                //   {Array(3).fill(0).map((_, key) => (
-                //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                //     </Grid.Col>
-                //   ))}
-                // </Grid>
-
-                // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
-
-                // if (!items.data.length) return <EmptyBox />
-
-                return <Grid gutter={theme.spacing.md}>
-                  {items.data!.map((v, k) => (
-                    <Grid.Col key={k} span={{ ...gridColumns }}>
-                      <NftCard nft={v} key={k} />
-                    </Grid.Col>
-                  ))}
-                </Grid>
-              }()}
-            </Tabs.Panel>
-
-            <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
-              {function () {
-                // if (items.isFetching || !items.data) return <Grid>
-                //   {Array(3).fill(0).map((_, key) => (
-                //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                //     </Grid.Col>
-                //   ))}
-                // </Grid>
-
-                // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
-
-                // if (!items.data.length) return <EmptyBox />
-
-                return <Grid gutter={theme.spacing.md}>
-                  {items.data!.map((v, k) => (
-                    <Grid.Col key={k} span={{ ...gridColumns }}>
-                      <NftCard nft={v} key={k} />
-                    </Grid.Col>
-                  ))}
-                </Grid>
-              }()}
-            </Tabs.Panel>
-
-            <Tabs.Panel value={UserTabsProfile.ACTIVITY}>
-              {function () {
-                // if (items.isFetching || !items.data) return <Grid>
-                //   {Array(3).fill(0).map((_, key) => (
-                //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                //     </Grid.Col>
-                //   ))}
-                // </Grid>
-
-                // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
-
-                // if (!items.data.length) return <EmptyBox />
-
-                return <Grid gutter={theme.spacing.md}>
-                  {items.data!.map((v, k) => (
-                    <Grid.Col key={k} span={{ ...gridColumns }}>
-                      <NftCard nft={v} key={k} />
-                    </Grid.Col>
-                  ))}
-                </Grid>
-              }()}
-            </Tabs.Panel>
-
-            <Pagination color={theme.colors.primary[5]} total={20} siblings={2} value={activePage} onChange={setPage} styles={{
-              root: {
-                marginTop: '80px',
-                display: 'flex',
-                justifyContent: 'center'
-              },
-              control: {
-                padding: '20px 15px',
-              }
-            }}
-              classNames={{
-                control: classes.control
-              }}
-            />
-
-          </Tabs>
+            </Tabs>
+          </Stack>
         </Stack>
-      </Stack>
+      </BoundaryConnectWallet>
     </AppWrapper>
   )
 }

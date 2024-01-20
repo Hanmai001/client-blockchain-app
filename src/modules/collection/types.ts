@@ -25,6 +25,8 @@ export interface Collection {
   type: CollectionType,
   paymentType: AppPayment,
   contractAddress: string,
+  active: boolean,
+  disabled: boolean,
   createdAt: number,
   updatedAt: number
 }
