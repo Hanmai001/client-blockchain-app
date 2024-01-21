@@ -9,6 +9,7 @@ import { chains } from "@/share/blockchain/chain";
 import { ContractERC721 } from "@/share/blockchain/contracts/ERC721";
 import { ContractERC20 } from "@/share/blockchain/contracts/ERC20";
 import { Contract } from "@/share/blockchain/contracts/core";
+import MARKETPLACE_ABI from '../../share/blockchain/abis/MARKETPLACE.json';
 
 export const PRIMARY_COLOR: DefaultMantineColor = 'dark';
 export const PRIMARY_DARK_COLOR: DefaultMantineColor = 'primary';
@@ -72,11 +73,12 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
   }, {} as ERC20Contracts<ContractERC20>);
 
   const otherContracts = Object.keys(chainConfig.ercs).reduce((output, key) => {
-    output[key] = new ContractERC20({
+    output[key] = new Contract({
       address: chainConfig.ercs[key],
       chainId: status.chainId,
       provider: blockchain.provider,
       name: key,
+      abi: MARKETPLACE_ABI,
       wallet: blockchain.wallet,
     })
     return output;

@@ -40,4 +40,4 @@ export interface CollectionPayload {
   contractAddress: string,
   type: CollectionType,
   paymentType: AppPayment | '',
-}
+} 

@@ -90,7 +90,7 @@ export class Contract {
 
   async getWeb3() {
     return this.provider
-      ? new ethers.JsonRpcProvider(this.provider)
+      ? new ethers.BrowserProvider(this.provider)
       : await getAvailableWeb3(this.chain.chainId).then(r => r.provider);
   }
 
@@ -108,6 +108,7 @@ export class Contract {
     if (!this.address) throw new BlockchainError({ code: BlockchainErrorCode.CONTRACT_NOT_DEPLOYED_YET });
 
     const provider = await this.getWeb3();
+    console.log('provider: ', provider)
     if (!this.wallet) this.wallet = await provider.listAccounts().then((res) => res[0]);
 
     let wallet = this.wallet;
@@ -116,21 +117,24 @@ export class Contract {
       wallet = account?.address;
     }
 
-    if (!wallet || (!this.provider && !options?.privateKey)) throw new BlockchainError({
+    if (!wallet || (!provider && !options?.privateKey)) throw new BlockchainError({
       code: BlockchainErrorCode.MUST_BE_CONNECT_WALLET,
     });
 
-    const contract = new ethers.Contract(this.address, this.abi);
+    const signer = (await provider.getSigner());
+    const contract = new ethers.Contract(this.address, this.abi, signer);
 
-    return { provider, wallet, contract }
+    return { provider, wallet, contract, signer }
   }
 
   async estimateGas(options: ContractSendOptions, ...args: any): Promise<ContractEstimateGas> {
     if (!this.address) throw new BlockchainError({ code: BlockchainErrorCode.CONTRACT_NOT_DEPLOYED_YET });
-
     const prepare = await this._beforeSend(options);
-    const send = prepare.contract[options.method] as any;
-    if (typeof send !== 'function') throw new BlockchainError({
+
+    console.log("prepare: ", prepare)
+
+    const func = prepare.contract[options.method] as any;
+    if (typeof func !== 'function') throw new BlockchainError({
       code: BlockchainErrorCode.INVALID_METHOD_PARAMETERS,
       type: "WRITE",
       method: options.method,
@@ -140,24 +144,29 @@ export class Contract {
     return new Promise((resolve, reject) => {
       const action = async () => {
         try {
-          let gasPrice = +(await prepare.provider.getFeeData()).gasPrice;
-          let gasLimit = await send(...(options.args || args))
-            .estimateGas({ from: prepare.wallet, ...options.params })
-            .then((res: any) => +res)
+          // let gasPrice = +(await prepare.provider.getFeeData()).gasPrice;
 
-          const rateGas = options.rateGas || this.rateGas || 1;
-          gasLimit = gasLimit * rateGas;
+          // console.log("gas price:", gasPrice)
 
-          const rateGasPrice = options.rateGasPrice || this.rateGasPrice || 1;
-          gasPrice = gasPrice * rateGasPrice;
+
+          // let gasLimit = await send(...(options.args || args))
+          //   .estimateGas({ from: prepare.wallet, ...options.params });
+
+          // const rateGas = options.rateGas || this.rateGas || 1;
+          // gasLimit = gasLimit * rateGas;
+
+          // const rateGasPrice = options.rateGasPrice || this.rateGasPrice || 1;
+          // gasPrice = gasPrice * rateGasPrice;
+
+          // console.log("gas price:", gasPrice)
 
           const response: ContractEstimateGas = {
             ...prepare,
-            gasPrice: Number(gasPrice),
-            fee: +ethers.formatEther((Number(gasPrice * gasLimit)).toString()),
-            feeInWei: (Number(gasPrice * gasLimit)).toString(),
-            gasLimit: Number(gasLimit),
-            send,
+            gasPrice: Number(50000000),
+            // fee: +ethers.formatEther((Number(gasPrice * gasLimit)).toString()),
+            // feeInWei: (Number(gasPrice * gasLimit)).toString(),
+            // gasLimit: gasLimit,
+            func,
           }
 
           resolve(response);
@@ -184,6 +193,21 @@ export class Contract {
     const estimateGas = options.estimateGas || await this.estimateGas(options, ...args);
     const { provider, wallet, gasPrice, gasLimit, func } = estimateGas;
 
+    // const prepare = await this._beforeSend(options);
+    // const { provider, wallet, contract } = prepare;
+
+    // console.log("prepare: ", contract)
+
+    // const func = prepare.contract[options.method] as any;
+    // if (typeof func !== 'function') throw new BlockchainError({
+    //   code: BlockchainErrorCode.INVALID_METHOD_PARAMETERS,
+    //   type: "WRITE",
+    //   method: options.method,
+    //   args,
+    // })
+
+    console.log("func: ", func)
+
     let isHasError = false;
 
     return new Promise(async (resolve, reject) => {
@@ -196,27 +220,20 @@ export class Contract {
         }
       }
 
-      func(...(options.args || args))
-        .sendTransaction({
-          from: wallet,
-          gas: gasLimit.toString(),
-          gasPrice: gasPrice,
-          ...options.params,
-        })
-        .on('transactionHash', function (transactionHashReceived: any) {
-          handleOnSubmitted(transactionHashReceived);
-        })
-        .then(async (res: any) => {
-          if (options.delayInSeconds) await wait(options.delayInSeconds * 1000);
-          else await wait(1000);
-          if (this.captureTransaction) this.captureTransaction(res);
-          resolve(res);
-        })
-        .catch((error: any) => {
-          const e = parseBlockchainError({ type: 'WRITE', error, provider, transactionHash, method: options.method, wallet, args });
+      try {
+        const tx = await func(...(options.args || args), {
+            ...options.params,
+            gasPrice,
+            gasLimit: 2100000000,
+        }) 
+        const txReceipt = await tx.wait();
+        console.log(txReceipt);
+        resolve(txReceipt);
+      } catch (error) {
+        const e = parseBlockchainError({ type: 'WRITE', error, provider, transactionHash, method: options.method, wallet, args });
           isHasError = true;
           reject(e);
-        })
+      }
     })
   }
 

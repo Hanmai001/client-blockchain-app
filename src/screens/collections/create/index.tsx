@@ -8,7 +8,7 @@ import { CollectionPayload } from "@/modules/collection/types";
 import { getChainId, getContracts } from "@/modules/configs/context";
 import { MyCombobox } from "@/screens/marketplace";
 import { chains } from "@/share/blockchain/chain";
-import { useBlockChain } from "@/share/blockchain/context";
+import { getContract, useBlockChain } from "@/share/blockchain/context";
 import { Grid, Group, Select, Stack, Text, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconArrowLeft, IconNotebook, IconPhotoVideo, IconUsersGroup } from "@tabler/icons-react";
@@ -17,6 +17,9 @@ import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../../types";
 import classes from '../../../styles/collections/CollectionCreate.module.scss';
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
+import { Contract } from "@/share/blockchain/contracts/core";
+import { ContractConfigs } from "@/share/blockchain/types";
+import MARKETPLACE_ABI from "../../../share/blockchain/abis/MARKETPLACE.json";
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();
@@ -74,6 +77,33 @@ export const CollectionCreateScreen: FC = () => {
     try {
       let payload = { ...values }
       console.log("payload: ", payload)
+      
+      const contract = new Contract({
+        address: getContracts().ercs.MARKETPLACE.address,
+        wallet: payload.creator, //a
+        chainId: payload.chainId,
+        abi: MARKETPLACE_ABI
+      });
+      const collectionURI = "test.com"
+      // const contract = getContracts().ercs.MARKETPLACE;
+
+      // console.log(contract)
+
+      const feeMint = await contract.call({ method: 'getFeeMint', args: []})
+      console.log("feeMint: ", feeMint.toString())
+
+      const collectionId = await contract.send({
+        method: 'mintCollection', 
+        args: [payload.creator, collectionURI], 
+        params: {
+          from: payload.creator,
+          value: feeMint
+        }
+      })
+
+      console.log("collectionID: ", collectionId)
+
+      
     } catch (error) {
 
     }

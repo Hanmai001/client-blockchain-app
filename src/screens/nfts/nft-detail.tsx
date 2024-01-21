@@ -281,12 +281,12 @@ export const NftDetailScreen: FC = () => {
               <Card.Section>
                 <Title order={5} c={theme.colors.text[1]}>Thông tin</Title>
 
-                <Divider my={10}/>
+                <Divider my={10} />
 
                 <Stack gap={theme.spacing.sm}>
                   <Group justify="space-between">
                     <Text fw={500} c={theme.colors.text[1]}>Contract Address</Text>
-                    <Link href={`${blockchain.getChain(nft.data.chainId).urlBlockExplorer}/address/${nft.data.contractAddress}`} style={{
+                    <Link href={`${blockchain.getChain(nft.data.chainId).urlBlockExplorer}/address/${nft.data.contractAddress}`} target="_blank" style={{
                       color: theme.colors.blue[6],
                       textDecoration: 'underline'
                     }}>{StringUtils.compact(nft.data.contractAddress, 8, 5)}</Link>
