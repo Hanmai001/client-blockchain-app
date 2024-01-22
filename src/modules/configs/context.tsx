@@ -34,7 +34,7 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
   const { toggleColorScheme, colorScheme } = useMantineColorScheme();
   const firstChainSupported = Object.keys(appConfigs.chains)[0] as ChainId;
   const blockchain = useBlockChain();
-  const defaultStatus: {isReady: boolean, chainId: ChainId} = {isReady: false, chainId: firstChainSupported};
+  const defaultStatus: { isReady: boolean, chainId: ChainId } = { isReady: false, chainId: firstChainSupported };
   const [status, setStatus] = useState(defaultStatus);
   const availableChains = chains.filter(v => !appConfigs.chains[v.chainId]);
   const chainConfig = appConfigs.chains[status.chainId] as ChainConfig;
@@ -45,7 +45,7 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
     const isSupportedChain = !!appConfigs.chains[chainId];
     if (!isSupportedChain) return;
     localStorage.setItem('chain_id', chainId);
-    setStatus(s => ({...s, chainId: chainId}));
+    setStatus(s => ({ ...s, chainId: chainId }));
     //Update state of blockchain
     blockchain.connectChain(chainId);
   }
@@ -101,7 +101,7 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
         const isSupportedChain = !!appConfigs.chains[browserChainId];
         if (isSupportedChain) status.chainId = browserChainId;
       }
-      setStatus(s => ({...s, isReady: true}));
+      setStatus(s => ({ ...s, isReady: true }));
     }
   }, [status.isReady]);
 

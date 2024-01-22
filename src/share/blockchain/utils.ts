@@ -2,6 +2,7 @@ import { TransactionReceipt, ethers } from "ethers";
 import { BlockchainError, BlockchainErrorCode, ChainId, ContractActionType, SignTypeDataPayload, TokenType, Transaction, TransactionEventParsed } from "./types";
 import { chainBscTestnet, chains } from "./chain";
 import { Contract } from "./contracts/core";
+import web3EthAbi from 'web3-eth-abi';
 import ERC721_ABI from './abis/ERC721.json';
 import ERC20_ABI from './abis/ERC20.json';
 
@@ -206,7 +207,6 @@ export function parseEvent(abi: any[], address: string, receipt: TransactionRece
         receipt.events[eventNumber] = log
       })
 
-      // debug('Parsed %s logs', receipt.logs.length)
       delete receipt.logs
     }
 
@@ -233,7 +233,7 @@ export function parseEvent(abi: any[], address: string, receipt: TransactionRece
       if (descriptor) {
         event.event = descriptor.name
         event.signature = descriptor.signature
-        event.returnValues = ethers.AbiCoder.defaultAbiCoder().decode(
+        event.returnValues = web3EthAbi.decodeLog(
           descriptor.inputs,
           event.raw.data,
           event.raw.topics.slice(1)

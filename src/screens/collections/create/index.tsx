@@ -78,21 +78,23 @@ export const CollectionCreateScreen: FC = () => {
       let payload = { ...values }
       console.log("payload: ", payload)
       
-      const contract = new Contract({
-        address: getContracts().ercs.MARKETPLACE.address,
-        wallet: payload.creator, //a
-        chainId: payload.chainId,
-        abi: MARKETPLACE_ABI
-      });
+      // const contract = new Contract({
+      //   address: getContracts().ercs.MARKETPLACE.address,
+      //   wallet: payload.creator, //a
+      //   chainId: payload.chainId,
+      //   abi: MARKETPLACE_ABI
+      // });
       const collectionURI = "test.com"
-      // const contract = getContracts().ercs.MARKETPLACE;
+      const contract = getContracts().ercs.MARKETPLACE;
+      const contractBlockClipNft = getContracts().erc721s.BLOCKCLIP_NFT;
 
-      // console.log(contract)
+      const feeMint = await contract.call({method: 'getFeeMint'})
 
-      const feeMint = await contract.call({ method: 'getFeeMint', args: []})
-      console.log("feeMint: ", feeMint.toString())
+      // console.log("fee mint: ", feeMint)
+      // const listCollections = await contractBlockClipNft.call({ method: 'getListCollection'})
+      // console.log("collections: ", listCollections);
 
-      const collectionId = await contract.send({
+      const txReceipt = await contract.send({
         method: 'mintCollection', 
         args: [payload.creator, collectionURI], 
         params: {
@@ -100,10 +102,7 @@ export const CollectionCreateScreen: FC = () => {
           value: feeMint
         }
       })
-
-      console.log("collectionID: ", collectionId)
-
-      
+      console.log("txReceipt: ", txReceipt.events)
     } catch (error) {
 
     }

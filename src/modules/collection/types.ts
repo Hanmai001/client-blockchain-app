@@ -32,12 +32,13 @@ export interface Collection {
 }
 
 export interface CollectionPayload {
+  tokenId: string,
   creator: string,
   chainId: ChainId,
   title: string,
   description: string,
-  bannerFile: File | null,
+  bannerFile: File,
   contractAddress: string,
   type: CollectionType,
-  paymentType: AppPayment | '',
+  paymentType: AppPayment,
 } 
