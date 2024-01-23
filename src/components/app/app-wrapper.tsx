@@ -12,22 +12,23 @@ export const AppWrapper: FC<PropsWithChildren> = (props) => {
 
   return (
     <AppShell
-      header={{ height: 70 }}
+      // header={{ height: 70 }}
       navbar={{ width: { sm: 70, md: 240, lg: 240 }, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       styles={{
-      // navbar: {
-      //   [`@media (min-width: ${theme.breakpoints.md})`]: {
-      //     width: '240px',
-      //   },
-      //   [`@media (max-width: ${theme.breakpoints.md})`]: {
-      //     width: '70px',
-      //   },
-      // }
+      navbar: {
+        marginTop: '74px'
+        // [`@media (min-width: ${theme.breakpoints.md})`]: {
+        //   width: '240px',
+        // },
+        // [`@media (max-width: ${theme.breakpoints.md})`]: {
+        //   width: '70px',
+        // },
+      },
       footer: {
         display: "block",
         position: "relative",
         marginTop: "200px",
-      }
+      },
     }}
     >
       <AppTitle />

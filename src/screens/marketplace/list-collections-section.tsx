@@ -51,6 +51,13 @@ const listcollections = [
 export const ListCollections: FC<{ type: string | null }> = (props) => {
   const defaultState: ListLoadState<any, 'collections'> = { isFetching: true, data: { collections: listcollections, count: listcollections.length } }
   const [collections, setCollections] = useState(defaultState);
+  const [featuredTourism, setFeaturedTourism] = useState<ListLoadState<any, 'collections'>>({ isFetching: true });
+  const [featuredGame, setFeaturedGame] = useState<ListLoadState<any, 'collections'>>({ isFetching: true });
+  const [featuredLife, setFeaturedLife] = useState<ListLoadState<any, 'collections'>>({ isFetching: true });
+  const [featuredEducation, setFeaturedEducation] = useState<ListLoadState<any, 'collections'>>({ isFetching: true });
+  const [featuredFamily, setFeaturedFamily] = useState<ListLoadState<any, 'collections'>>({ isFetching: true });
+  const [featuredFilm, setFeaturedFilm] = useState<ListLoadState<any, 'collections'>>({ isFetching: true });
+  const [featuredCook, setFeaturedCook] = useState<ListLoadState<any, 'collections'>>({ isFetching: true });
   const blockchain = useBlockChain();
   const theme = useMantineTheme();
   const gridColumns = {
@@ -65,10 +72,31 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
       // console.log("res ", res.data)
 
       // if (props.type !== CollectionType.ALL) {
-      //   res.data.collections = res.data.collections.filter((v, k) => {
+      //   res.data!.collections = res.data!.collections.filter((v, k) => {
       //     if (v.category === props.type) return true;
       //     return false;
       //   })
+      // } else {
+      //   let featuredRes = await CollectionModule.getListFeaturedCollections({ chainID: blockchain.chainId, category: CollectionType.TOURISM });
+      //   setFeaturedTourism(s => ({ ...s, isFetching: false, data: { collections: featuredRes.data!.collections, count: featuredRes.data?.count }}))
+
+      //   featuredRes = await CollectionModule.getListFeaturedCollections({ chainID: blockchain.chainId, category: CollectionType.LIFE });
+      //   setFeaturedLife(s => ({ ...s, isFetching: false, data: { collections: featuredRes.data!.collections, count: featuredRes.data?.count } }))
+
+      //   featuredRes = await CollectionModule.getListFeaturedCollections({ chainID: blockchain.chainId, category: CollectionType.GAME});
+      //   setFeaturedGame(s => ({ ...s, isFetching: false, data: { collections: featuredRes.data!.collections, count: featuredRes.data?.count } }))
+
+      //   featuredRes = await CollectionModule.getListFeaturedCollections({ chainID: blockchain.chainId, category: CollectionType.FILM });
+      //   setFeaturedFilm(s => ({ ...s, isFetching: false, data: { collections: featuredRes.data!.collections, count: featuredRes.data?.count } }))
+
+      //   featuredRes = await CollectionModule.getListFeaturedCollections({ chainID: blockchain.chainId, category: CollectionType.FAMILY });
+      //   setFeaturedFamily(s => ({ ...s, isFetching: false, data: { collections: featuredRes.data!.collections, count: featuredRes.data?.count } }))
+
+      //   featuredRes = await CollectionModule.getListFeaturedCollections({ chainID: blockchain.chainId, category: CollectionType.EDUCATION });
+      //   setFeaturedEducation(s => ({ ...s, isFetching: false, data: { collections: featuredRes.data!.collections, count: featuredRes.data?.count } }))
+
+      //   featuredRes = await CollectionModule.getListFeaturedCollections({ chainID: blockchain.chainId, category: CollectionType.COOK });
+      //   setFeaturedCook(s => ({ ...s, isFetching: false, data: { collections: featuredRes.data!.collections, count: featuredRes.data?.count } }))
       // }
 
       // setCollections(s => ({...s, isFetching: false, data: {collections: res.data.collections, count: res.count}}))

@@ -5,11 +5,11 @@ import { getChainId, useConfig } from "@/modules/configs/context";
 import { useSelector } from "@/redux/store";
 import { useBlockChain } from "@/share/blockchain/context";
 import { NumberUtils } from "@/share/utils";
-import { ActionIcon, Avatar, Group, Image, Menu, Skeleton, Stack, Switch, Text, TextInput, UnstyledButton, useMantineColorScheme, useMantineTheme } from "@mantine/core";
-import { useDisclosure, useWindowScroll } from "@mantine/hooks";
+import { ActionIcon, Avatar, Box, Burger, Card, Center, Group, Image, Loader, Menu, MenuItem, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
 import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../types";
 import classes from "../../styles/app/AppHeader.module.scss";
 import { AccountInfo } from "../account-info";
@@ -19,6 +19,19 @@ import { AppButton } from "./app-button";
 import Link from "next/link";
 import { AppRoutes } from "../../../app-router";
 import { ChainId } from "@/share/blockchain/types";
+import { Nft } from "@/modules/nft/types";
+import { Collection } from "@/modules/collection/types";
+import { EmptyMessage } from "../empty-message";
+
+interface ResultProps {
+  isFetching: boolean,
+  isInitialized: boolean,
+  data: {
+    users: any[],
+    collections: Collection[],
+    nfts: Nft[],
+  }
+}
 
 export const AppHeader: FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -26,20 +39,208 @@ export const AppHeader: FC = () => {
   const theme = useMantineTheme();
   const [scroll, scrollTo] = useWindowScroll();
   const { isDarkMode } = useConfig();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
 
   return (
     <header className={scroll.y <= 10 ? classes.headerNormal : classes.headerScroll} style={{
       backgroundColor: isDarkMode ? theme.colors.dark[7] : theme.white,
     }}>
-      {/* <Text>{scroll.y}</Text> */}
       <Group justify="space-between" align="center" h="100%">
         <Link href={'/'}>
           <Image className={classes.logo} src='/images/logo.png' />
         </Link>
 
-        <Group visibleFrom="sm" style={{
-          width: '40%'
-        }}>
+        <HeaderSearch />
+
+        {!isMobile && <Balances />}
+
+        <Group gap={theme.spacing.sm} justify="flex-end">
+          {isDesktop && <>
+            <ActionIcon variant="light" color={theme.colors.primary[5]} size={28} h={40} w={42}>
+              <IconMessage2 size={26} />
+            </ActionIcon>
+
+            <ActionIcon variant="light" color={theme.colors.primary[5]} size={28} h={40} w={42}>
+              <IconBell size={26} />
+            </ActionIcon>
+          </>}
+
+          {isMobile && <HeaderSearchMobile />}
+          <Account />
+
+          <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
+        </Group>
+      </Group>
+    </header>
+  );
+}
+
+export const HeaderSearch: FC = () => {
+  const theme = useMantineTheme();
+  const [opened, setOpened] = useState<boolean>(false);
+  const { chainId } = useBlockChain();
+  const [search, setSearch] = useState('');
+  const [debounced] = useDebouncedValue(search, 200);
+  const defaultState: ResultProps = { isFetching: false, isInitialized: false, data: { users: [], collections: [], nfts: [], } }
+  const [results, setResults] = useState<ResultProps>(defaultState);
+  const clickOutsideRef = useClickOutside(() => setOpened(false));
+
+  const fetchSearchResults = async () => {
+    if (!search) return setResults(defaultState);
+
+    try {
+      // setResults(s => ({ ...s, isInitialized: true }))
+      // const res = await Promise.all([
+      // ])
+      // setResults(s => ({
+      //   ...s,
+      //   isFetching: false,
+      //   isInitialized: true,
+      //   data: {
+      //     ...s.data,
+      //     tokens: res[0].data,
+      //     collections: res[1].data,
+      //     users: res[2],
+      //   }
+      // }))
+    } catch (error) {
+      setResults(s => ({ ...s, isFetching: false, isInitialized: true }))
+    }
+  }
+
+  useEffect(() => {
+    fetchSearchResults()
+  }, [debounced])
+
+  return (
+    <Group visibleFrom="sm" style={{
+      width: '40%',
+      position: 'relative'
+    }}>
+      <TextInput
+        onChange={(e) => setSearch(e.target.value)} 
+        value={search}
+        onFocus={() => setOpened(true)}
+        placeholder="Nhập từ khóa" 
+        rightSection={<IconSearch />} 
+        radius={24} miw='100%' 
+        styles={{
+          input: {
+            height: '45px',
+            paddingLeft: `${theme.spacing.md}`,
+          },
+          section: {
+            paddingRight: `${theme.spacing.md}`
+          }
+        }} />
+
+      <Transition mounted={opened} transition={"scale-y"} duration={200} timingFunction="ease">
+        {(styles) => {
+
+          return <Card ref={clickOutsideRef} radius={10} shadow="sm" style={{
+            ...styles,
+            position: "absolute",
+            width: '100%',
+            marginTop: "80px",
+          }}>
+            {function () {
+              if (results.isFetching) return <Center>
+                <Loader size={"xs"} />
+              </Center>
+
+              const users = results.data.users;
+              const collections = results.data.collections;
+              const videos = results.data.nfts;
+
+              return <Stack gap={5}>
+                {!!videos.length && <>
+                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                  {videos.map((item, key) => <Group>
+                    <Stack>
+                      <Text>{item.title}</Text>
+                      <Text c="dimmed">{item.creator}</Text>
+                    </Stack>
+                  </Group>)}
+                </>}
+                {!!collections.length && <>
+                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                  {collections.map((item, key) => <Group>
+                    <Image src={item.bannerURL} width={92} height={64} />
+                    <Stack>
+                      <Text>{item.title}</Text>
+                      <Text c="dimmed">{item.creator}</Text>
+                    </Stack>
+                  </Group>)}
+                </>}
+                {!!users.length && <>
+                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                  {users.map((item, key) => <Group>
+                    <Avatar src={item.avatar} />
+                    {/* <Stack>
+                        <Text>{item.title}</Text>
+                        <Text c="dimmed">{item.creator}</Text>
+                      </Stack> */}
+                  </Group>)}
+                </>}
+              </Stack>
+            }()}
+          </Card>
+        }}
+      </Transition>
+    </Group>
+  )
+}
+export const HeaderSearchMobile: FC = () => {
+  const theme = useMantineTheme();
+  const [opened, { open, close }] = useDisclosure(false);
+  const { chainId } = useBlockChain();
+  const [search, setSearch] = useState('');
+  const [debounced] = useDebouncedValue(search, 200);
+  const defaultState: ResultProps = { isFetching: false, isInitialized: false, data: { users: [], collections: [], nfts: [], } }
+  const [results, setResults] = useState<ResultProps>(defaultState)
+
+  const fetchSearchResults = async () => {
+    if (!search) return setResults(defaultState);
+
+    try {
+      // setResults(s => ({ ...s, isInitialized: true }))
+      // const res = await Promise.all([
+      // ])
+      // setResults(s => ({
+      //   ...s,
+      //   isFetching: false,
+      //   isInitialized: true,
+      //   data: {
+      //     ...s.data,
+      //     tokens: res[0].data,
+      //     collections: res[1].data,
+      //     users: res[2],
+      //   }
+      // }))
+    } catch (error) {
+      setResults(s => ({ ...s, isFetching: false, isInitialized: true }))
+    }
+  }
+
+  useEffect(() => {
+    fetchSearchResults()
+  }, [debounced])
+
+  return (
+    <>
+      <UnstyledButton onClick={open} style={{
+        backgroundColor: `${theme.colors.primary[5]}20`,
+        padding: `5px 8px`,
+        borderRadius: rem(10),
+        display: 'flex'
+      }}>
+        <IconSearch color={theme.colors.primary[5]} size={28} stroke={1.5} />
+      </UnstyledButton>
+
+      <Modal opened={opened} onClose={close} title="Tìm kiếm" fullScreen
+        closeButtonProps={{ size: 32 }}
+      >
+        <Stack>
           <TextInput placeholder="Nhập từ khóa" rightSection={<IconSearch />} radius={24} miw='100%' styles={{
             input: {
               height: '45px',
@@ -49,28 +250,65 @@ export const AppHeader: FC = () => {
               paddingRight: `${theme.spacing.md}`
             }
           }} />
-        </Group>
 
-        <Balances />
+          {function () {
+            if (!results.isInitialized) return null;
 
-        <Group gap={theme.spacing.sm} justify="flex-end">
-          <ActionIcon variant="light" color={theme.colors.primary[5]} size={28} h={40} w={42}>
-            <IconMessage2 size={26} />
-          </ActionIcon>
+            return <Box pos='absolute' ml={5} pr={50}>
+              {function () {
+                if (results.isFetching) return <Center>
+                  <Loader size={"xs"} />
+                </Center>
 
-          <ActionIcon variant="light" color={theme.colors.primary[5]} size={28} h={40} w={42}>
-            <IconBell size={26} />
-          </ActionIcon>
+                const users = results.data.users;
+                const collections = results.data.collections;
+                const videos = results.data.nfts;
 
-          <Account />
-        </Group>
-
-        {/* <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" /> */}
-      </Group>
-    </header>
-  );
+                return <Stack gap={5}>
+                  {!!videos.length && <>
+                    <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                    {videos.map((item, key) => <Group>
+                      <Stack>
+                        <Text>{item.title}</Text>
+                        <Text c="dimmed">{item.creator}</Text>
+                      </Stack>
+                    </Group>)}
+                  </>}
+                  {!!collections.length && <>
+                    <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                    {collections.map((item, key) => <Group>
+                      <Image src={item.bannerURL} width={92} height={64} />
+                      <Stack>
+                        <Text>{item.title}</Text>
+                        <Text c="dimmed">{item.creator}</Text>
+                      </Stack>
+                    </Group>)}
+                  </>}
+                  {!!users.length && <>
+                    <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                    {users.map((item, key) => <Group>
+                      <Avatar src={item.avatar} />
+                      {/* <Stack>
+                        <Text>{item.title}</Text>
+                        <Text c="dimmed">{item.creator}</Text>
+                      </Stack> */}
+                    </Group>)}
+                  </>}
+                </Stack>
+              }()}
+            </Box>
+          }()}
+        </Stack>
+      </Modal>
+    </>
+  )
 }
 
+export const MenuAccountMobile: FC = () => {
+
+  return <>
+  </>
+}
 export const Account: FC = () => {
   const account = useAccount();
   const config = useConfig();
@@ -111,7 +349,7 @@ export const Account: FC = () => {
       <AppButton
         async
         leftSection={<IconNetwork size={20} />}
-        onClick={() => config.handleChangeChain(blockchain.chainId as ChainId).catch(error => {})}
+        onClick={() => config.handleChangeChain(blockchain.chainId as ChainId).catch(error => { })}
         color={theme.colors.primary[5]}
         height={45}
         width={156}
@@ -132,7 +370,7 @@ export const Account: FC = () => {
   }
 
   return (
-    <Menu shadow="md" width={210} trigger="hover" openDelay={100} closeDelay={200} offset={10} closeOnItemClick={false}>
+    <Menu shadow="md" width={210} trigger="click-hover" openDelay={100} closeDelay={200} offset={10} closeOnItemClick={false}>
       <Menu.Target>
         <UnstyledButton>
           <AccountInfo account={account.information as any} />

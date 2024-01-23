@@ -20,21 +20,22 @@ $border-color: #d3b0ff;
   padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
   position: fixed;
   z-index: 999;
-  width: calc(100% - calc(var(--mantine-navbar-width, 0px) + 2rem));
+  width: calc(100% - calc(var(--mantine-navbar-width, 0px) + 1.5rem));
   height: 70px;
   transition: 0.2s ease;
   max-width: 100%;
   top: 0;
   right: 1rem;
-  border-bottom: 2px solid var(--mantine-color-gray-2);
-  // box-shadow: var(--mantine-shadow-xs);
+  // border-bottom: 2px solid var(--mantine-color-gray-2);
+  box-shadow: var(--mantine-shadow-xs);
   height: unset;
   backdrop-filter: blur(15px);
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   padding: 10px 15px;
-
-  background-color: #d3b0ff;
+  
+  // background: #d3b0ff !important;
+  will-change: scroll-position;
 
   input:focus {
     border-color: #d3b0ff;

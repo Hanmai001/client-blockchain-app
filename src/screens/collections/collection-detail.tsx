@@ -180,20 +180,20 @@ export const CollectionDetailScreen: FC = () => {
   const [debounced] = useDebouncedValue(search, 200);
 
   const fetchItems = async () => {
-    let data = items.data; //test nên gán items.data nhaa
-
     try {
+      let listNfts = items.data; //test nên gán items.data nhaa
+      if (search.length > 0 && !!listNfts?.nfts) {
+        const nfts = listNfts.nfts.filter((v, k) => {
+          if (v.title.includes(search) || v.description.includes(search)) return true;
+          return false;
+        })
+        listNfts.nfts = nfts;
+      }
+      setItems(s => ({ ...s, data: listNfts }));
       //get list by filter
     } catch (error) {
 
     }
-    if (search.length > 0) {
-      data = data?.filter((v, k) => {
-        if (v.title.includes(search) || v.description.includes(search)) return true;
-        return false;
-      })
-    }
-    setItems(s => ({ ...s, data: data }));
   }
 
   const fetchCollection = async () => {
