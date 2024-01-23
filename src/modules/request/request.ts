@@ -1,7 +1,9 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { getChainId, getConfig } from "../configs/context";
+import { getConfig } from "../configs/context";
 import { AccountAccessToken } from "../account/acess-token";
 import { ObjectUtils } from "@/share/utils";
+import { FileWithPath } from "file-selector";
+import { getChainId } from "@/share/blockchain/context";
 
 export class RequestModule {
   static getURL(subURL: string) {
@@ -79,5 +81,25 @@ export class RequestModule {
     } catch (error) {
       throw error;
     }
+  }
+
+  static async uploadMedia(subURL: string, file: File, limitSize?: number, key?: string) {
+    const configs = await this.getConfigs();
+    const formData = new FormData();
+    formData.append(key || "file", file);
+
+    console.log("form data: ", file)
+
+    if (limitSize) formData.append("limitWitdh", limitSize.toString());
+
+    return axios.post(this.getURL(subURL), formData, {
+      ...configs,
+      headers: {
+        ...configs.headers,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+      .then(res => res.data.data)
+      .catch(err => { throw err });
   }
 }

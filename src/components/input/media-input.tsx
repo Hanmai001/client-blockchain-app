@@ -26,6 +26,7 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
+
       if (!file) {
         setFileError('File không hợp lệ');
         return;

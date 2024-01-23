@@ -1,8 +1,11 @@
+import { onError } from "@/components/modals/modal-error";
+import { CollectionModule } from "@/modules/collection/modules";
+import { useBlockChain } from "@/share/blockchain/context";
 import { Grid, Stack, Title, useMantineTheme } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { CollectionCard } from "../../components/collection-card";
-import { EmptyMessage } from "@/components/empty-message";
+import { CollectionType } from "@/modules/collection/types";
 
 const listcollections = [
   {
@@ -45,9 +48,10 @@ const listcollections = [
     description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
   },
 ]
-export const ListCollections: FC = () => {
-  const defaultState: ListLoadState<any> = { isFetching: true, data: listcollections }
+export const ListCollections: FC<{ type: string | null }> = (props) => {
+  const defaultState: ListLoadState<any, 'collections'> = { isFetching: true, data: { collections: listcollections, count: listcollections.length } }
   const [collections, setCollections] = useState(defaultState);
+  const blockchain = useBlockChain();
   const theme = useMantineTheme();
   const gridColumns = {
     lg: 4,
@@ -56,12 +60,26 @@ export const ListCollections: FC = () => {
   }
 
   const fetchCollections = async () => {
-    
+    try {
+      // const res = await CollectionModule.getList({chainID: blockchain.chainId})
+      // console.log("res ", res.data)
+
+      // if (props.type !== CollectionType.ALL) {
+      //   res.data.collections = res.data.collections.filter((v, k) => {
+      //     if (v.category === props.type) return true;
+      //     return false;
+      //   })
+      // }
+
+      // setCollections(s => ({...s, isFetching: false, data: {collections: res.data.collections, count: res.count}}))
+    } catch (error) {
+      onError(error)
+    }
   }
 
   useEffect(() => {
     fetchCollections()
-  }, [])
+  }, [props.type])
 
   return (
     <Stack>
@@ -69,7 +87,7 @@ export const ListCollections: FC = () => {
         Bộ sưu tập Du lịch nổi bật
       </Title>
 
-      {function() {
+      {function () {
         // if (collections.isFetching || !collections.data) return <Grid>
         //   {Array(3).fill(0).map((_, key) => (
         //     <Grid.Col key={key} span={{ ...gridColumns }}>
@@ -83,7 +101,7 @@ export const ListCollections: FC = () => {
         // if (!collections.data.length) return <EmptyMessage />
 
         return <Grid gutter={theme.spacing.md}>
-          {collections.data!.map((v, k) => (
+          {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>
@@ -109,7 +127,7 @@ export const ListCollections: FC = () => {
         // if (!collections.data.length) return <EmptyBox />
 
         return <Grid gutter={theme.spacing.md}>
-          {collections.data!.map((v, k) => (
+          {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>
@@ -135,7 +153,7 @@ export const ListCollections: FC = () => {
         // if (!collections.data.length) return <EmptyBox />
 
         return <Grid gutter={theme.spacing.md}>
-          {collections.data!.map((v, k) => (
+          {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>
@@ -161,7 +179,7 @@ export const ListCollections: FC = () => {
         // if (!collections.data.length) return <EmptyBox />
 
         return <Grid gutter={theme.spacing.md}>
-          {collections.data!.map((v, k) => (
+          {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>
@@ -187,7 +205,7 @@ export const ListCollections: FC = () => {
         // if (!collections.data.length) return <EmptyBox />
 
         return <Grid gutter={theme.spacing.md}>
-          {collections.data!.map((v, k) => (
+          {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>
@@ -213,7 +231,7 @@ export const ListCollections: FC = () => {
         // if (!collections.data.length) return <EmptyBox />
 
         return <Grid gutter={theme.spacing.md}>
-          {collections.data!.map((v, k) => (
+          {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>
@@ -239,7 +257,7 @@ export const ListCollections: FC = () => {
         // if (!collections.data.length) return <EmptyBox />
 
         return <Grid gutter={theme.spacing.md}>
-          {collections.data!.map((v, k) => (
+          {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>

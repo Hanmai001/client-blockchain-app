@@ -215,7 +215,7 @@ export class Contract {
         handleOnSubmitted(txReceipt.hash);
         //If have the utilization of transaction in the future
         if (this.captureTransaction) this.captureTransaction(txReceipt);
-
+        
         resolve(txReceipt);
       } catch (error) {
         const e = parseBlockchainError({ type: 'WRITE', error, provider, transactionHash, method: options.method, wallet, args });

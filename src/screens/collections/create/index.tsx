@@ -1,14 +1,19 @@
 import { AppButton } from "@/components/app/app-button";
 import { Account } from "@/components/app/app-header";
+import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { MediaInput } from "@/components/input/media-input";
+import { onError } from "@/components/modals/modal-error";
+import { onSuccess } from "@/components/modals/modal-success";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { CoinsModule } from "@/modules/coins/modules";
+import { CollectionModule } from "@/modules/collection/modules";
 import { CollectionPayload } from "@/modules/collection/types";
 import { getChainId, getContracts } from "@/modules/configs/context";
+import { RequestModule } from "@/modules/request/request";
 import { MyCombobox } from "@/screens/marketplace";
 import { chains } from "@/share/blockchain/chain";
-import { getContract, useBlockChain } from "@/share/blockchain/context";
+import { useBlockChain } from "@/share/blockchain/context";
 import { Grid, Group, Select, Stack, Text, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconArrowLeft, IconNotebook, IconPhotoVideo, IconUsersGroup } from "@tabler/icons-react";
@@ -16,11 +21,6 @@ import { ethers } from "ethers";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../../types";
 import classes from '../../../styles/collections/CollectionCreate.module.scss';
-import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
-import { Contract } from "@/share/blockchain/contracts/core";
-import { ContractConfigs } from "@/share/blockchain/types";
-import MARKETPLACE_ABI from "../../../share/blockchain/abis/MARKETPLACE.json";
-import { onError } from "@/components/modals/modal-error";
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();
@@ -43,13 +43,14 @@ export const CollectionCreateScreen: FC = () => {
 
   const form = useForm<CollectionPayload>({
     initialValues: {
-      chainId: getChainId(),
+      chainID: getChainId(),
       creator: '',
       title: '',
+      bannerURL: '',
       description: '',
       contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address,
       category: CollectionType.TOURISM,
-      paymentType: ''
+      paymentType: AppPayment.ETH
     },
     validate: {
       title: (value) => (value.length < 1 && 'Tên bộ sưu tập không hợp lệ'),
@@ -78,31 +79,36 @@ export const CollectionCreateScreen: FC = () => {
   const onSubmit = form.onSubmit(async (values) => {
     try {
       setIsUploading(true);
-      let payload = { ...values, collectionImage: bannerFile };
+      let payload = { ...values };
+
+      if (bannerFile instanceof File) 
+        payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
+
       console.log("payload: ", payload);
       
-      // const contract = new Contract({
-      //   address: getContracts().ercs.MARKETPLACE.address,
-      //   wallet: payload.creator, //a
-      //   chainId: payload.chainId,
-      //   abi: MARKETPLACE_ABI
-      // });
-      const collectionURI = "test.com"
-      const contract = getContracts().ercs.MARKETPLACE;
+      const contractMarket = getContracts().ercs.MARKETPLACE;
 
-      const feeMint = await contract.call({method: 'getFeeMint'})
+      const feeMint = await contractMarket.call({method: 'getFeeMint'})
 
-      const txReceipt = await contract.send({
+      console.log("payload: ", payload);
+      const res = await CollectionModule.create(payload);
+      console.log(res)
+
+      let txReceipt = await contractMarket.send({
         method: 'mintCollection', 
-        args: [payload.creator, collectionURI], 
+        args: [payload.creator, res.data.collectionURI], 
         params: {
           from: payload.creator,
           value: feeMint
         }
-      })
-      console.log("txReceipt: ", txReceipt.events)
+      });
 
+      // console.log(txReceipt)
 
+      const payloadUpdate = {...payload, collectionID: txReceipt.logs[0].args['0'].toString()};
+      await CollectionModule.updateAfterMint(res.data.collection.id, payloadUpdate);
+
+      onSuccess({title: 'Tạo thành công', message: ''});
       setIsUploading(false);
     } catch (error) {
       onError("Tạo Bộ sưu tập không thành công:(");
@@ -226,7 +232,7 @@ export const CollectionCreateScreen: FC = () => {
                     classNames={{
                       dropdown: 'hidden-scroll-bar'
                     }}
-                    {...form.getInputProps('chainId')}
+                    {...form.getInputProps('chainID')}
                   />
                 </Group>
               </Stack>

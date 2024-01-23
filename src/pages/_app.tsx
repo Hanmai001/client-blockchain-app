@@ -12,6 +12,7 @@ import { AppModule } from '@/modules/app/modules';
 import { BlockChainProvider } from '@/share/blockchain/context';
 import { AccountProvider } from '@/modules/account/context';
 import { ErrorModal } from '@/components/modals/modal-error';
+import { ModalSuccess } from '@/components/modals/modal-success';
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -21,6 +22,7 @@ const App: FC<PropsWithChildren> = (props) => {
         {props.children}
 
         {/* APP MODALS */}
+        <ModalSuccess />
         <ErrorModal />
       </main>
     </AccountProvider>

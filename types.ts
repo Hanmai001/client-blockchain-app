@@ -14,10 +14,10 @@ export enum AppPayment {
 }
 
 export interface Query {
-  chainId?: ChainId
+  chainID?: ChainId
   offset?: number
-  limit?: number
-  q?: string
+  limit?: number,
+  sort?: any,
 }
 
 export type QuerySort = 1 | -1
@@ -41,10 +41,13 @@ export interface DataLoadState<T = any> {
   isInitialized?: boolean
 }
 
-export interface ListLoadState<T = any> {
+export interface ListLoadState<T = any, K extends string = string> {
   isFetching?: boolean
-  data?: T[]
+  data?: {
+    [key in K]: T[];
+  } & {
+    count?: number;
+  };
   error?: Error
   isInitialized?: boolean
-  count?: number
 }

@@ -12,7 +12,7 @@ const listcollections = [
     tokenId: '2',
     chainId: '97',
     creator: '0vvdsd',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
+    bannerURL: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
     title: "Hình nền đẹp",
     totalViews: 12345,
     averagePrice: 0.56,
@@ -24,7 +24,7 @@ const listcollections = [
     tokenId: '1',
     chainId: '97',
     creator: '0vvdsd',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
+    bannerURL: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
     title: "Hình nền đẹp",
     totalViews: 12345,
     paymentType: "0",
@@ -36,7 +36,7 @@ const listcollections = [
     tokenId: '3',
     chainId: '97',
     creator: '0vvdsd',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
+    bannerURL: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
     title: "Hình nền đẹp",
     totalViews: 12345,
     paymentType: "0",
@@ -48,7 +48,7 @@ const listcollections = [
     tokenId: '4',
     chainId: '97',
     creator: '0vvdsd',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
+    bannerURL: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
     title: "Hình nền đẹp",
     totalViews: 12345,
     paymentType: "0",
@@ -60,7 +60,7 @@ const listcollections = [
     tokenId: '5',
     chainId: '97',
     creator: '0vvdsd',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
+    bannerURL: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
     title: "Hình nền đẹp",
     totalViews: 12345,
     paymentType: "0",
@@ -69,7 +69,7 @@ const listcollections = [
   },
 ]
 export const CollectionsRanking: FC = () => {
-  const defaultState: ListLoadState<any> = { isFetching: true, data: listcollections }
+  const defaultState: ListLoadState<any, 'collections'> = { isFetching: true, data: { collections: listcollections } }
   const [collections, setCollections] = useState(defaultState);
   const theme = useMantineTheme();
   const fetchCollectionsRanking = () => {
@@ -79,7 +79,7 @@ export const CollectionsRanking: FC = () => {
   useEffect(() => {
     fetchCollectionsRanking();
   }, [])
-  
+
   return <Stack>
     <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
       Xếp hạng trong tháng
@@ -90,7 +90,7 @@ export const CollectionsRanking: FC = () => {
       border: `1px solid ${theme.colors.gray[3]}`,
       boxShadow: `1px 3px ${theme.colors.gray[0]}`
     }}>
-      {function() {
+      {function () {
         // if (collections.isFetching) return <Skeleton width={"100%"} height={300}/>
 
         // if (collections.error) return <Group><ErrorBox error={collections.error} /></Group>
@@ -98,8 +98,8 @@ export const CollectionsRanking: FC = () => {
         // if (!collections.data.length) return <EmptyBox />
 
         return <>
-          {collections.data?.map((v, k) => (
-            <CollectionRaking key={k} collection={v}/>
+          {collections.data?.collections.map((v, k) => (
+            <CollectionRaking key={k} collection={v} />
           ))}
         </>
       }()}
@@ -108,14 +108,14 @@ export const CollectionsRanking: FC = () => {
 }
 
 
-const CollectionRaking: FC<{collection: Collection}> = (props) => {
+const CollectionRaking: FC<{ collection: Collection }> = (props) => {
   const theme = useMantineTheme();
   const { symbol } = renderPayment(props.collection.paymentType);
 
   return (
     <Group>
       <AspectRatio ratio={240 / 200} w={64} style={{ borderRadius: "12px", border: `2px solid ${theme.colors.primary[5]}`, overflow: "hidden" }}>
-        <AppImage src={props.collection.bannerUrl} style={{ borderRadius: "12px" }} />
+        <AppImage src={props.collection.bannerURL} style={{ borderRadius: "12px" }} />
       </AspectRatio>
 
       <Stack gap={0}>

@@ -1,5 +1,5 @@
 import { ChainId } from "@/share/blockchain/types";
-import { AppPayment } from "../../../types";
+import { AppPayment, Query } from "../../../types";
 
 export enum CollectionType {
   ALL = 'Tất cả',
@@ -13,13 +13,13 @@ export enum CollectionType {
 }
 
 export interface Collection {
-  collectionId: string,
+  collectionID: string,
   _id: string,
   creator: string,
-  chainId: ChainId,
+  chainID: ChainId,
   title: string,
   description: string,
-  bannerUrl: string,
+  bannerURL: string,
   averagePrice: number,
   category: CollectionType,
   paymentType: AppPayment,
@@ -27,17 +27,21 @@ export interface Collection {
   active: boolean,
   disabled: boolean,
   totalViews: number,
-  createdAt: number,
-  updatedAt: number
+  createdAt: any,
+  updatedAt: any
 }
 
 export interface CollectionPayload {
-  collectionId: string,
   creator: string,
-  chainId: ChainId,
+  chainID: ChainId,
   title: string,
+  bannerURL: string | '',
   description: string,
   contractAddress: string,
   category: CollectionType,
   paymentType: AppPayment,
 } 
+
+export interface CollectionQuery extends Query {
+  category?: CollectionType
+}

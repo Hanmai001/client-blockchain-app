@@ -17,6 +17,7 @@ export let getContractERC20: GetContractERC20;
 export let getContractERC721: GetContractERC721;
 export let getBlockchainConfig: () => BlockChainProviderProps | undefined = () => undefined;
 export let getChain: GetChain;
+export let getChainId: () => ChainId | undefined;
 
 export const blockChainContext = createContext({} as BlockChainContext);
 
@@ -32,6 +33,7 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
 
   getWallet = () => status.wallet;
   getProvider = () => status.provider;
+  getChainId = () => status.chainId;
 
   const setup = async (provider: ethers.Eip1193Provider, providerType: ProviderType, forceChainId?: ChainId) => {
     const providerUse = new ethers.BrowserProvider(provider);

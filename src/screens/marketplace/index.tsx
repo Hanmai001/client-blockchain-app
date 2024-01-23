@@ -51,7 +51,7 @@ export const MarketplaceScreen = () => {
           <Grid w={'100%'}>
             <Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
               <Stack>
-                <ListCollections />
+                <ListCollections type={activeTab}/>
               </Stack>
             </Grid.Col>
 

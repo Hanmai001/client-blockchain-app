@@ -73,7 +73,7 @@ export const CreateNftScreen: FC = () => {
   const blockchain = useBlockChain();
   const { isMobile, isDesktop } = useResponsive();
   const params = useParams<{ wallet: string }>();
-  const [collections, setCollections] = useState<ListLoadState<any>>({ isFetching: false, data: listcollections, count: listcollections.length });
+  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: false, data: { collections: listcollections, count: listcollections.length } });
   const [collection, setCollection] = useState(listcollections[0]);
   const [opened, setOpened] = useState(false);
   const router = useRouter();
@@ -217,7 +217,7 @@ export const CreateNftScreen: FC = () => {
                       ...styles
                     }}
                   >
-                    {collections.data?.map((v, k) => <Box
+                    {collections.data?.collections.map((v, k) => <Box
                       bg={v.tokenId === collection.tokenId ? theme.colors.primary[5] : theme.white}
                       className={v.tokenId === collection.tokenId ? classes.itemActive : classes.item}
                       style={{

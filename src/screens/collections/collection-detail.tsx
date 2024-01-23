@@ -172,7 +172,7 @@ export const CollectionDetailScreen: FC = () => {
     },
   ]
 
-  const [items, setItems] = useState<ListLoadState<any>>({ isFetching: true, data: nfts });
+  const [items, setItems] = useState<ListLoadState<any, 'nfts'>>({ isFetching: true, data: { nfts: nfts } });
   const theme = useMantineTheme();
   const [collection, setCollection] = useState<any>();
   const [search, setSearch] = useState('');
@@ -251,7 +251,7 @@ export const CollectionDetailScreen: FC = () => {
 
       <Box m={theme.spacing.md}>
         <Group mb={theme.spacing.lg}>
-          <Text c={theme.colors.text[1]} fw={500}>{items.data?.length} {"kết quả"}</Text>
+          <Text c={theme.colors.text[1]} fw={500}>{items.data?.nfts.length} {"kết quả"}</Text>
           <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
             input: {
               height: '45px',
@@ -296,7 +296,7 @@ export const CollectionDetailScreen: FC = () => {
           // if (!items.data.length) return <EmptyBox />
 
           return <Grid gutter={theme.spacing.md}>
-            {items.data!.map((v, k) => (
+            {items.data?.nfts.map((v, k) => (
               <Grid.Col key={k} span={{ ...gridColumns }}>
                 <NftCard nft={v} key={k} />
               </Grid.Col>

@@ -19,7 +19,7 @@ import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 
 
 export const UserProfileScreen: FC = () => {
-  const nfts = [
+  const nftsTest = [
     {
       tokenId: '1',
       _id: '1',
@@ -178,7 +178,7 @@ export const UserProfileScreen: FC = () => {
     xs: 6
   }
 
-  const [items, setItems] = useState<ListLoadState<any>>({ isFetching: true, data: nfts, count: nfts.length });
+  const [items, setItems] = useState<ListLoadState<any, 'nfts'>>({ isFetching: true, data: { nfts: nftsTest, count: nftsTest.length } });
   const theme = useMantineTheme();
   const [activeTab, setActiveTab] = useState<string | null>(UserTabsProfile.ALL);
   const params = useParams<{ wallet: string }>();
@@ -197,7 +197,7 @@ export const UserProfileScreen: FC = () => {
 
   const fetchItems = async () => {
     try {
-      let data = items.data; //test nên gán = items.data
+      let listNfts = items.data; //test nên gán = items.data
       if (activeTab === UserTabsProfile.ALL) {
 
       } else if (activeTab === UserTabsProfile.CREATED_COLLECTIONS) {
@@ -207,13 +207,14 @@ export const UserProfileScreen: FC = () => {
       } else if (activeTab === UserTabsProfile.ACTIVITY) {
 
       }
-      if (search.length > 0) {
-        data = data?.filter((v, k) => {
+      if (search.length > 0 && !!listNfts?.nfts) {
+        const nfts = listNfts?.nfts.filter((v, k) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
           return false;
         })
+        listNfts.nfts = nfts;
       }
-      setItems(s => ({ ...s, data: data }));
+      setItems(s => ({ ...s, data: listNfts }));
     } catch (error) {
 
     }
@@ -318,7 +319,7 @@ export const UserProfileScreen: FC = () => {
                   // if (!items.data.length) return <EmptyBox />
 
                   return <Grid gutter={theme.spacing.md}>
-                    {items.data!.map((v, k) => (
+                    {items.data?.nfts.map((v, k) => (
                       <Grid.Col key={k} span={{ ...gridColumns }}>
                         <NftCard nft={v} key={k} />
                       </Grid.Col>
@@ -342,7 +343,7 @@ export const UserProfileScreen: FC = () => {
                   // if (!items.data.length) return <EmptyBox />
 
                   return <Grid gutter={theme.spacing.md}>
-                    {items.data!.map((v, k) => (
+                    {items.data?.nfts.map((v, k) => (
                       <Grid.Col key={k} span={{ ...gridColumns }}>
                         <NftCard nft={v} key={k} />
                       </Grid.Col>
@@ -366,7 +367,7 @@ export const UserProfileScreen: FC = () => {
                   // if (!items.data.length) return <EmptyBox />
 
                   return <Grid gutter={theme.spacing.md}>
-                    {items.data!.map((v, k) => (
+                    {items.data?.nfts.map((v, k) => (
                       <Grid.Col key={k} span={{ ...gridColumns }}>
                         <NftCard nft={v} key={k} />
                       </Grid.Col>
@@ -390,7 +391,7 @@ export const UserProfileScreen: FC = () => {
                   // if (!items.data.length) return <EmptyBox />
 
                   return <Grid gutter={theme.spacing.md}>
-                    {items.data!.map((v, k) => (
+                    {items.data?.nfts.map((v, k) => (
                       <Grid.Col key={k} span={{ ...gridColumns }}>
                         <NftCard nft={v} key={k} />
                       </Grid.Col>

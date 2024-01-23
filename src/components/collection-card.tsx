@@ -15,7 +15,7 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
   const { image, symbol } = renderPayment(props.collection.paymentType);
 
   return (
-    <Link href={`/collections/${props.collection.tokenId}`}>
+    <Link href={`/collections/${props.collection.collectionID}`}>
       <Card className="app-card" shadow="sm" radius={10}>
         <Card.Section>
           <AspectRatio ratio={260 / 150}>
