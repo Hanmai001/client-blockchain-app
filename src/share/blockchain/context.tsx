@@ -242,6 +242,7 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     if (provider) {
       const handleChangeAccount = (accounts: string[]) => {
         const wallet = accounts[0] ? ethers.getAddress(accounts[0]) : undefined;
+        console.log("wallet: ", wallet)
         setStatus(s => ({ ...s, wallet }));
         forceUpdate();
       }
@@ -253,7 +254,7 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
         forceUpdate();
       }
 
-      //add events for provider
+      //add events of metamask for provider
       provider.on("accountsChanged", handleChangeAccount);
       provider.on("chainChanged", handleChangeChain);
 

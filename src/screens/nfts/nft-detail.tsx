@@ -2,15 +2,15 @@ import { AppHeader } from "@/components/app/app-header";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { useAccount } from "@/modules/account/context";
 import { Nft } from "@/modules/nft/types";
-import { useBlockChain } from "@/share/blockchain/context";
-import { AspectRatio, Image, Card, Group, Stack, Text, useMantineTheme, Title, Box, rem, Avatar, Spoiler, ActionIcon, Divider } from "@mantine/core";
+import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
+import { AspectRatio, Image, Card, Group, Stack, Text, useMantineTheme, Title, Box, rem, Avatar, Spoiler, ActionIcon, Divider, TextInput, Grid } from "@mantine/core";
 import { useParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { DataLoadState } from "../../../types";
 import { AppFooter } from "@/components/app/app-footer";
 import { renderPayment } from "@/modules/coins/utils";
 import { AppButton } from "@/components/app/app-button";
-import { IconBookmarkFilled, IconCopy, IconCopyCheck, IconEye, IconHeart, IconHeartBolt, IconHeartFilled, IconMessageCircle2Filled, IconShare, IconShoppingCart, IconShoppingCartFilled } from "@tabler/icons-react";
+import { IconBookmarkFilled, IconCopy, IconCopyCheck, IconEye, IconHeart, IconHeartBolt, IconHeartFilled, IconMessageCircle2Filled, IconSearch, IconShare, IconShoppingCart, IconShoppingCartFilled } from "@tabler/icons-react";
 import classes from '../../styles/nfts/NftDetail.module.scss';
 import { StringUtils } from "@/share/utils";
 import { useClipboard } from "@mantine/hooks";
@@ -59,6 +59,48 @@ const userTest = {
   updatedAt: '21/11/2023'
 }
 
+const ordersTest = [
+  {
+    _id: '1',
+    event: "Transfer",
+    chainId: '97',
+    tokenId: '1',
+    paymentAddress: '0xaa25Aa7a19f9c426E07dee59b12f944f4d9f1DD3',
+    price: '0.05',
+    seller: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
+    buyer: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
+    status: "ĐÃ BÁN",
+    createdAt: '21/01/2024',
+    updatedAt: '21/01/2024',
+  },
+  {
+    _id: '2',
+    event: "Transfer",
+    chainId: '97',
+    tokenId: '1',
+    paymentAddress: '0xaa25Aa7a19f9c426E07dee59b12f944f4d9f1DD3',
+    price: '0.05',
+    seller: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
+    buyer: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
+    status: "ĐÃ BÁN",
+    createdAt: '21/01/2024',
+    updatedAt: '21/01/2024',
+  },
+  {
+    _id: '3',
+    event: "Transfer",
+    chainId: '97',
+    tokenId: '1',
+    paymentAddress: '0xaa25Aa7a19f9c426E07dee59b12f944f4d9f1DD3',
+    price: '0.05',
+    seller: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
+    buyer: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
+    status: "ĐÃ BÁN",
+    createdAt: '21/01/2024',
+    updatedAt: '21/01/2024',
+  }
+]
+
 export const NftDetailScreen: FC = () => {
   const theme = useMantineTheme();
   const params = useParams<{ id: string }>();
@@ -70,6 +112,7 @@ export const NftDetailScreen: FC = () => {
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [isFavourite, setIsFavourite] = useState<boolean>(false);
   const [comments, setComments] = useState();
+  const [marketOrders, setMarketOrders] = useState(ordersTest);
   const [user, setUser] = useState<DataLoadState<any>>({ isFetching: false, data: userTest });
   const clipboard = useClipboard({ timeout: 500 });
 
@@ -80,6 +123,10 @@ export const NftDetailScreen: FC = () => {
 
   }
   const fetchComments = async () => {
+
+  }
+
+  const fetchMarketOrders = async () => {
 
   }
 
@@ -101,6 +148,7 @@ export const NftDetailScreen: FC = () => {
     fetchNft();
     fetchCollection();
     fetchComments();
+    fetchMarketOrders();
   }, [])
 
   return (
@@ -286,7 +334,7 @@ export const NftDetailScreen: FC = () => {
                 <Stack gap={theme.spacing.sm}>
                   <Group justify="space-between">
                     <Text fw={500} c={theme.colors.text[1]}>Contract Address</Text>
-                    <Link href={`${blockchain.getChain(nft.data.chainId).urlBlockExplorer}/address/${nft.data.contractAddress}`} target="_blank" style={{
+                    <Link href={renderLinkContract(nft.data.contractAddress, nft.data.chainId)} target="_blank" style={{
                       color: theme.colors.blue[6],
                       textDecoration: 'underline'
                     }}>{StringUtils.compact(nft.data.contractAddress, 8, 5)}</Link>
@@ -321,6 +369,58 @@ export const NftDetailScreen: FC = () => {
             </Card>
           </Stack>
         </Group>
+
+        <Card mt={20} withBorder shadow="sm" radius={theme.radius.md} p={30}>
+          <Card.Section>
+            <Title order={5} c={theme.colors.text[1]}>Lịch sử giao dịch</Title>
+
+            <Divider my={10} />
+
+            <TextInput my={10} placeholder="Tìm kiếm theo tên giao dịch, số tiền" rightSection={<IconSearch />} radius={24} miw='100%' styles={{
+              input: {
+                height: '45px',
+                paddingLeft: `${theme.spacing.md}`,
+              },
+              section: {
+                paddingRight: `${theme.spacing.md}`
+              }
+            }} />
+          </Card.Section>
+
+          <Card.Section>
+            <Group justify="space-between">
+              <Title order={5} c={theme.colors.text[1]}>Sự kiện</Title>
+              <Title order={5} c={theme.colors.text[1]}>Số tiền</Title>
+              <Title order={5} c={theme.colors.text[1]}>Nguồn gửi</Title>
+              <Title order={5} c={theme.colors.text[1]}>Nguồn nhận</Title>
+              <Title order={5} c={theme.colors.text[1]}>Ngày thực hiện</Title>
+            </Group>
+
+            <Divider my={10} />
+
+            {function () {
+
+              return <>
+                {marketOrders.map((v, k) => <>
+                  <Group key={k} justify="space-between">
+                    <Text fw={500} c={theme.colors.text[1]}>{v.event}</Text>
+                    <Text c={theme.colors.text[1]}>{v.price}</Text>
+                    <Link href={renderLinkContract(nft.data.contractAddress, nft.data.chainId)} target="_blank" style={{
+                      color: theme.colors.blue[6],
+                      textDecoration: 'underline'
+                    }}>{StringUtils.compact(v.seller, 5, 5)}</Link>
+                    <Link href={renderLinkContract(nft.data.contractAddress, nft.data.chainId)} target="_blank" style={{
+                      color: theme.colors.blue[6],
+                      textDecoration: 'underline'
+                    }}>{StringUtils.compact(v.buyer, 5, 5)}</Link>
+                    <Text c={theme.colors.text[1]}>{v.createdAt}</Text>
+                  </Group>
+                  <Divider my={10} />
+                </>)}
+              </>
+            }()}
+          </Card.Section>
+        </Card>
       </Stack>
 
       <AppFooter />

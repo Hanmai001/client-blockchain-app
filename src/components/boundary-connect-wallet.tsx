@@ -22,7 +22,7 @@ export const BoundaryConnectWallet: FC<PropsWithChildren> = ({ children }) => {
             <Stack align='center'>
               <Title c={theme.colors.text[1]} order={4}>Liên kết</Title>
               {function () {
-                if (!isMatchedChain) return <Text style={{ textAlign: 'center' }}>Kết nối tới mạng không được hỗ trợ, vui lòng đổi mạng khác<strong>{config.chain.name}</strong></Text>
+                if (!isMatchedChain) return <Text style={{ textAlign: 'center' }}>Kết nối tới mạng không được hỗ trợ, vui lòng đổi mạng khác</Text>
                 return <Text c={theme.colors.text[1]} style={{ textAlign: 'center' }}>Kết nối ví để sử dụng tính năng này bạn nhé!!!</Text>
               }()}
               <ConnectWallet />

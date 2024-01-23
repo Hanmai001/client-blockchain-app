@@ -3,7 +3,10 @@ import { Avatar, AvatarProps, Indicator, useMantineTheme } from "@mantine/core"
 import { FC } from "react"
 import classes from '../styles/app/AppHeader.module.scss';
 
-export const AccountAvatar: FC<AvatarProps> = (props) => {
+interface AppAvatarProps extends AvatarProps {
+  ref?: any
+}
+export const AccountAvatar: FC<AppAvatarProps> = (props) => {
   const theme = useMantineTheme();
 
   return <Avatar

@@ -4,9 +4,10 @@ export const AppRoutes = {
     create: '/collections/create'
   },
   nft: {
-    create: '/nfts/create'
+    create: '/nfts/create',
+    edit: '/nfts/edit'
   },
   user: {
-    profile: '/users/'
+    profile: '/users'
   }
 }

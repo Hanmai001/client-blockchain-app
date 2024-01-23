@@ -16,7 +16,7 @@ export const AppNavBar: FC = () => {
 
   const navLinks = [
     { link: AppRoutes.root, label: 'Cửa hàng', icon: IconBuildingStore },
-    { link: `${AppRoutes.user.profile}${account.information?.wallet}`, label: 'Hồ sơ của bạn', icon: IconCameraBolt },
+    { link: `${AppRoutes.user.profile}/${account.information?.wallet}`, label: 'Hồ sơ của bạn', icon: IconCameraBolt },
     { link: '/users/friends', label: 'Bạn bè', icon: IconFriends },
   ]
 

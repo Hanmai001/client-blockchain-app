@@ -20,6 +20,7 @@ import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { Contract } from "@/share/blockchain/contracts/core";
 import { ContractConfigs } from "@/share/blockchain/types";
 import MARKETPLACE_ABI from "../../../share/blockchain/abis/MARKETPLACE.json";
+import { onError } from "@/components/modals/modal-error";
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();
@@ -27,6 +28,8 @@ export const CollectionCreateScreen: FC = () => {
   const blockchain = useBlockChain();
   const { isMobile } = useResponsive();
   const [paymentType, setPaymentType] = useState<AppPayment | ''>('');
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   enum CollectionType {
     TOURISM = 'Du lịch',
@@ -44,9 +47,8 @@ export const CollectionCreateScreen: FC = () => {
       creator: '',
       title: '',
       description: '',
-      bannerFile: null,
       contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address,
-      type: CollectionType.TOURISM,
+      category: CollectionType.TOURISM,
       paymentType: ''
     },
     validate: {
@@ -75,8 +77,9 @@ export const CollectionCreateScreen: FC = () => {
 
   const onSubmit = form.onSubmit(async (values) => {
     try {
-      let payload = { ...values }
-      console.log("payload: ", payload)
+      setIsUploading(true);
+      let payload = { ...values, collectionImage: bannerFile };
+      console.log("payload: ", payload);
       
       // const contract = new Contract({
       //   address: getContracts().ercs.MARKETPLACE.address,
@@ -86,13 +89,8 @@ export const CollectionCreateScreen: FC = () => {
       // });
       const collectionURI = "test.com"
       const contract = getContracts().ercs.MARKETPLACE;
-      const contractBlockClipNft = getContracts().erc721s.BLOCKCLIP_NFT;
 
       const feeMint = await contract.call({method: 'getFeeMint'})
-
-      // console.log("fee mint: ", feeMint)
-      // const listCollections = await contractBlockClipNft.call({ method: 'getListCollection'})
-      // console.log("collections: ", listCollections);
 
       const txReceipt = await contract.send({
         method: 'mintCollection', 
@@ -103,10 +101,17 @@ export const CollectionCreateScreen: FC = () => {
         }
       })
       console.log("txReceipt: ", txReceipt.events)
-    } catch (error) {
 
+
+      setIsUploading(false);
+    } catch (error) {
+      onError("Tạo Bộ sưu tập không thành công:(");
     }
   })
+
+  useEffect(() => {
+
+  }, [isUploading])
 
   return (
     <BoundaryConnectWallet>
@@ -136,8 +141,8 @@ export const CollectionCreateScreen: FC = () => {
                   height={300}
                   radius={10}
                   acceptance="image"
-                  onChange={(file) => form.setFieldValue('bannerFile', file)}
-                  onRemove={() => form.setFieldValue('bannerFile', null)}
+                  onChange={(file) => setBannerFile(file)}
+                  onRemove={() => setBannerFile(null)}
                 />
 
                 <Group mt={20} justify="space-between">
@@ -174,7 +179,7 @@ export const CollectionCreateScreen: FC = () => {
                     }}
                     classNamesInput={classes.comboboxInput}
                     classNamesRoot={classes.comboboxRootInput}
-                    onChange={(value: CollectionType) => form.setFieldValue("type", value)}
+                    onChange={(value: CollectionType) => form.setFieldValue("category", value)}
                   />
 
                   <Textarea
@@ -262,7 +267,7 @@ export const CollectionCreateScreen: FC = () => {
           </Grid>
 
           <Group my={30} justify="flex-end">
-            <AppButton async type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
+            <AppButton async loading={isUploading} type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
               Tạo ngay
             </AppButton>
           </Group>

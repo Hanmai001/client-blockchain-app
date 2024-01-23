@@ -56,7 +56,7 @@ export const ErrorModal: FC = () => {
 
               <Group gap='xs' mt={20}>
                 {!!transactionHash && <Button onClick={() => window.open(renderLinkTransaction(state.error.transactionHash, getChainId()))}>
-                  View Transaction
+                  Xem giao dịch
                 </Button>}
 
                 <Button
@@ -64,7 +64,7 @@ export const ErrorModal: FC = () => {
                   onClick={onClose}
                   variant="outline"
                 >
-                  Close
+                  Đóng
                 </Button>
               </Group>
             </Stack>
@@ -89,7 +89,7 @@ export const ErrorModal: FC = () => {
             </Stack>
             <Group>
               <Button color='gray' onClick={close} variant={isDarkMode ? 'outline' : 'default'}>
-                Close
+                Đóng
               </Button>
             </Group>
           </Stack>

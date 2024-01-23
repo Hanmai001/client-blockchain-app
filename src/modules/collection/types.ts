@@ -13,32 +13,31 @@ export enum CollectionType {
 }
 
 export interface Collection {
-  tokenId: string,
+  collectionId: string,
   _id: string,
   creator: string,
   chainId: ChainId,
   title: string,
   description: string,
   bannerUrl: string,
-  totalViews: number,
   averagePrice: number,
-  type: CollectionType,
+  category: CollectionType,
   paymentType: AppPayment,
   contractAddress: string,
   active: boolean,
   disabled: boolean,
+  totalViews: number,
   createdAt: number,
   updatedAt: number
 }
 
 export interface CollectionPayload {
-  tokenId: string,
+  collectionId: string,
   creator: string,
   chainId: ChainId,
   title: string,
   description: string,
-  bannerFile: File,
   contractAddress: string,
-  type: CollectionType,
+  category: CollectionType,
   paymentType: AppPayment,
 } 

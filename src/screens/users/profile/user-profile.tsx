@@ -595,7 +595,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         width: rem(98),
         height: rem(98),
         position: "relative"
-      }}>
+      }} ref={ref}>
         <AccountAvatar
           size={98}
           src={props.user.avatar}

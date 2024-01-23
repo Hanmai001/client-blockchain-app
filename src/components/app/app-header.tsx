@@ -18,6 +18,7 @@ import { onError } from "../modals/modal-error";
 import { AppButton } from "./app-button";
 import Link from "next/link";
 import { AppRoutes } from "../../../app-router";
+import { ChainId } from "@/share/blockchain/types";
 
 export const AppHeader: FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -110,7 +111,7 @@ export const Account: FC = () => {
       <AppButton
         async
         leftSection={<IconNetwork size={20} />}
-        onClick={() => blockchain.connectChain(blockchain.chainId).catch(error => {})}
+        onClick={() => config.handleChangeChain(blockchain.chainId as ChainId).catch(error => {})}
         color={theme.colors.primary[5]}
         height={45}
         width={156}

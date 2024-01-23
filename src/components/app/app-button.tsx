@@ -1,16 +1,15 @@
-import { Button, ButtonProps, useMantineTheme } from "@mantine/core";
-import React, { FC, useState } from "react";
+import { Button, ButtonProps } from "@mantine/core";
+import { FC, useState } from "react";
 
 interface IButtonProps extends ButtonProps {
   onClick?: (e: any) => any
   async?: boolean
   height?: string | number
   width?: string | number
-  type?: string
+  type?: 'submit' | 'reset' | undefined
 }
 
 export const AppButton: FC<IButtonProps> = (props) => {
-  const theme = useMantineTheme();
   const [isLoading, setIsLoading] = useState(props.loading || false);
 
   const onClick = async (event: any) => {

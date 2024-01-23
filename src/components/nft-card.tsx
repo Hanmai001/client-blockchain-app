@@ -1,7 +1,7 @@
 import { AppImage } from "@/components/app/app-image";
 import { Nft } from "@/modules/nft/types";
 import { ClassNames, StringUtils } from "@/share/utils";
-import { AspectRatio, Card, Stack, Title, useMantineTheme, Text, Group } from "@mantine/core";
+import { AspectRatio, Card, Stack, Title, useMantineTheme, Text, Group, ActionIcon, rem } from "@mantine/core";
 import Link from "next/link";
 import { FC, useEffect } from "react";
 import classes from '../styles/collections/CollectionDetail.module.scss';
@@ -9,6 +9,8 @@ import { AppButton } from "@/components/app/app-button";
 import { useHover } from "@mantine/hooks";
 import { useAccount } from "@/modules/account/context";
 import { ethers } from "ethers";
+import { IconEdit } from "@tabler/icons-react";
+import { AppRoutes } from "../../app-router";
 
 export const NftCard: FC<{ nft: Nft }> = (props) => {
   const account = useAccount();
@@ -46,6 +48,19 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
         })}>
           Mua ngay
         </AppButton>}
+
+        {account.information?.wallet === props.nft.owner &&
+          <Link href={`${AppRoutes.nft.edit}/${props.nft._id}`} style={{
+            position: "absolute",
+            right: 0,
+            marginRight: rem(10),
+            zIndex: 10
+          }}>
+            <ActionIcon c={theme.colors.primary[5]} variant="transparent" >
+              <IconEdit />
+            </ActionIcon>
+          </Link>
+        }
       </Card>
     </Link>
   )
