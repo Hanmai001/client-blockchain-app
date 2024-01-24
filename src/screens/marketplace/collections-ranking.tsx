@@ -1,10 +1,15 @@
 import { AppImage } from "@/components/app/app-image";
 import { renderPayment } from "@/modules/coins/utils";
-import { Collection } from "@/modules/collection/types";
+import { Collection, CollectionType } from "@/modules/collection/types";
 import { StringUtils } from "@/share/utils";
-import { AspectRatio, Group, Stack, Text, Title, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Group, Skeleton, Stack, Text, Title, useMantineTheme } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
+import { onError } from "@/components/modals/modal-error";
+import { CollectionModule } from "@/modules/collection/modules";
+import { useBlockChain } from "@/share/blockchain/context";
+import { ErrorMessage } from "@/components/error-message";
+import { EmptyMessage } from "@/components/empty-message";
 
 const listcollections = [
   {
@@ -68,12 +73,27 @@ const listcollections = [
     description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
   },
 ]
-export const CollectionsRanking: FC = () => {
+export const CollectionsRanking: FC<{type: string | null}> = (props) => {
   const defaultState: ListLoadState<any, 'collections'> = { isFetching: true, data: { collections: listcollections } }
   const [collections, setCollections] = useState(defaultState);
+  const blockchain = useBlockChain();
   const theme = useMantineTheme();
-  const fetchCollectionsRanking = () => {
 
+  const fetchCollectionsRanking = async () => {
+    try {
+      let filteredRes: any;
+      if (props.type !== CollectionType.ALL) {
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, sort: '+averagePrice', limit: 5 })
+        filteredRes = res.data!.collections.filter(v => true);
+
+      } else {
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, sort: '+averagePrice', limit: 5 })
+        filteredRes = res.data!.collections.filter(v => true);
+      }
+      setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
+    } catch (error) {
+      onError(error)
+    }
   }
 
   useEffect(() => {
@@ -91,11 +111,9 @@ export const CollectionsRanking: FC = () => {
       boxShadow: `1px 3px ${theme.colors.gray[0]}`
     }}>
       {function () {
-        // if (collections.isFetching) return <Skeleton width={"100%"} height={300}/>
+        if (collections.isFetching) return <Skeleton width={"100%"} height={300}/>
 
-        // if (collections.error) return <Group><ErrorBox error={collections.error} /></Group>
-
-        // if (!collections.data.length) return <EmptyBox />
+        if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
 
         return <>
           {collections.data?.collections.map((v, k) => (

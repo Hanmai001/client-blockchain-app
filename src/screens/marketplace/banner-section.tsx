@@ -1,96 +1,18 @@
 import { AppImage } from "@/components/app/app-image";
 import { useResponsive } from "@/modules/app/hooks";
 import { renderPayment } from '@/modules/coins/utils';
-import { Collection } from '@/modules/collection/types';
+import { Collection, CollectionType } from '@/modules/collection/types';
 import { StringUtils } from "@/share/utils";
-import { AspectRatio, Box, Group, Stack, Text, Title, rem, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Box, Grid, Group, Skeleton, Stack, Text, Title, rem, useMantineTheme } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
 import Slider from "react-slick";
 import { ListLoadState } from "../../../types";
 import classes from '../../styles/Marketplace.module.scss';
-
-const listcollections = [
-  {
-    _id: 'afdsf',
-    tokenId: '2',
-    chainId: '97',
-    creator: '0vvdsd',
-    bannerURL: 'https://i.pinimg.com/736x/9a/ed/f1/9aedf1aa575ddcb86a63f91f258833bc.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    averagePrice: 0.56,
-    paymentType: "3",
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-  {
-    _id: 'afdsf',
-    tokenId: '1',
-    chainId: '97',
-    creator: '0vvdsd',
-    bannerURL: 'https://www.tnmt.edu.vn/wp-content/uploads/2023/11/hinh-nen-dep-nhat-the-gioi.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    paymentType: "3",
-    averagePrice: 0.56,
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-  {
-    _id: 'afdsf',
-    tokenId: '3',
-    chainId: '97',
-    creator: '0vvdsd',
-    bannerURL: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/12/hinh-nen-vu-tru-72.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    paymentType: "3",
-    averagePrice: 0.56,
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-  {
-    _id: 'afdsf',
-    tokenId: '4',
-    chainId: '97',
-    creator: '0vvdsd',
-    bannerURL: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/12/hinh-nen-vu-tru-67.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    averagePrice: 0.56,
-    paymentType: "3",
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-  {
-    _id: 'afdsf',
-    tokenId: '5',
-    chainId: '97',
-    creator: '0vvdsd',
-    bannerURL: 'https://msmobile.com.vn/upload_images/images/tai-hinh-nen-cho-may-tinh-dep-nhat-the-gioi-12.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    paymentType: "3",
-    averagePrice: 0.56,
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-  {
-    _id: 'afdsf',
-    tokenId: '6',
-    chainId: '97',
-    creator: '0vvdsd',
-    bannerURL: 'https://i.pinimg.com/originals/c2/e9/02/c2e902e031e1d9d932411dd0b8ab5eef.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    paymentType: "3",
-    averagePrice: 0.56,
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-]
+import { onError } from "@/components/modals/modal-error";
+import { useBlockChain } from "@/share/blockchain/context";
+import { CollectionModule } from "@/modules/collection/modules";
 
 const CustomedNextArrow: FC<any> = ({ onClick }) => {
   return (
@@ -108,9 +30,10 @@ const CustomedPrevArrow: FC<any> = ({ onClick }) => {
   )
 }
 
-export const BannerSection: FC = () => {
-  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: listcollections } });
+export const BannerSection: FC<{ type: string | null }> = (props) => {
+  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
   const theme = useMantineTheme();
+  const blockchain = useBlockChain();
   const { isMobile, isTablet } = useResponsive();
 
   const settings = {
@@ -131,16 +54,45 @@ export const BannerSection: FC = () => {
     xs: 12
   }
 
+  function getRandomItems(array: any[], count: number): any[] {
+    const shuffled = array.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  const fetchCollections = async () => {
+    try {
+      let filteredRes: any;
+      if (props.type !== CollectionType.ALL) {
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string })
+        filteredRes = res.data!.collections.filter(v => true);
+
+      } else {
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId })
+        filteredRes = res.data!.collections.filter(v => true);
+      }
+      filteredRes = getRandomItems(filteredRes, 9);
+      setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
+
+      console.log("filtered res: ", collections)
+    } catch (error) {
+      onError(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCollections();
+  }, [props.type])
+
   return (
     <>
       {function () {
-        // if (collections.isFetching || !collections.data) return <Grid>
-        //   {Array(3).fill(0).map((_, key) => (
-        //     <Grid.Col key={key} span={{ ...gridColumns }}>
-        //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-        //     </Grid.Col>
-        //   ))}
-        // </Grid>
+        if (collections.isFetching || !collections.data) return <Grid>
+          {Array(3).fill(0).map((_, key) => (
+            <Grid.Col key={key} span={{ ...gridColumns }}>
+              <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+            </Grid.Col>
+          ))}
+        </Grid>
 
         return <Slider {...settings}>
           {collections.data?.collections.map((v, k) => (

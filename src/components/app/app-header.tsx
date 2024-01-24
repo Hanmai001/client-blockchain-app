@@ -4,8 +4,8 @@ import { renderPayment } from "@/modules/coins/utils";
 import { getChainId, useConfig } from "@/modules/configs/context";
 import { useSelector } from "@/redux/store";
 import { useBlockChain } from "@/share/blockchain/context";
-import { NumberUtils } from "@/share/utils";
-import { ActionIcon, Avatar, Box, Burger, Card, Center, Group, Image, Loader, Menu, MenuItem, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { NumberUtils, StringUtils } from "@/share/utils";
+import { ActionIcon, Avatar, Box, Burger, Card, Center, Drawer, Group, Image, Loader, Menu, MenuItem, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
 import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
@@ -22,6 +22,7 @@ import { ChainId } from "@/share/blockchain/types";
 import { Nft } from "@/modules/nft/types";
 import { Collection } from "@/modules/collection/types";
 import { EmptyMessage } from "../empty-message";
+import { CollectionModule } from "@/modules/collection/modules";
 
 interface ResultProps {
   isFetching: boolean,
@@ -34,7 +35,6 @@ interface ResultProps {
 }
 
 export const AppHeader: FC = () => {
-  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const theme = useMantineTheme();
   const [scroll, scrollTo] = useWindowScroll();
@@ -66,9 +66,10 @@ export const AppHeader: FC = () => {
           </>}
 
           {isMobile && <HeaderSearchMobile />}
+
           <Account />
 
-          <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
+          {isMobile && <MenuAccountMobile />}
         </Group>
       </Group>
     </header>
@@ -78,7 +79,7 @@ export const AppHeader: FC = () => {
 export const HeaderSearch: FC = () => {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState<boolean>(false);
-  const { chainId } = useBlockChain();
+  const blockchain = useBlockChain();
   const [search, setSearch] = useState('');
   const [debounced] = useDebouncedValue(search, 200);
   const defaultState: ResultProps = { isFetching: false, isInitialized: false, data: { users: [], collections: [], nfts: [], } }
@@ -89,20 +90,21 @@ export const HeaderSearch: FC = () => {
     if (!search) return setResults(defaultState);
 
     try {
-      // setResults(s => ({ ...s, isInitialized: true }))
-      // const res = await Promise.all([
-      // ])
-      // setResults(s => ({
-      //   ...s,
-      //   isFetching: false,
-      //   isInitialized: true,
-      //   data: {
-      //     ...s.data,
-      //     tokens: res[0].data,
-      //     collections: res[1].data,
-      //     users: res[2],
-      //   }
-      // }))
+      setResults(s => ({ ...s, isInitialized: true }))
+      const res = await Promise.all([
+        CollectionModule.getList({ chainID: blockchain.chainId, search, limit: 5 }),
+      ])
+      setResults(s => ({
+        ...s,
+        isFetching: false,
+        isInitialized: true,
+        data: {
+          ...s.data,
+          nfts: [],
+          collections: res[0].data ? res[0].data.collections : [],
+          users: [],
+        }
+      }))
     } catch (error) {
       setResults(s => ({ ...s, isFetching: false, isInitialized: true }))
     }
@@ -118,12 +120,12 @@ export const HeaderSearch: FC = () => {
       position: 'relative'
     }}>
       <TextInput
-        onChange={(e) => setSearch(e.target.value)} 
+        onChange={(e) => setSearch(e.target.value)}
         value={search}
         onFocus={() => setOpened(true)}
-        placeholder="Nhập từ khóa" 
-        rightSection={<IconSearch />} 
-        radius={24} miw='100%' 
+        placeholder="Nhập từ khóa"
+        rightSection={<IconSearch />}
+        radius={24} miw='100%'
         styles={{
           input: {
             height: '45px',
@@ -141,7 +143,7 @@ export const HeaderSearch: FC = () => {
             ...styles,
             position: "absolute",
             width: '100%',
-            marginTop: "80px",
+            top: "50px",
           }}>
             {function () {
               if (results.isFetching) return <Center>
@@ -163,17 +165,19 @@ export const HeaderSearch: FC = () => {
                   </Group>)}
                 </>}
                 {!!collections.length && <>
-                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
-                  {collections.map((item, key) => <Group>
-                    <Image src={item.bannerURL} width={92} height={64} />
-                    <Stack>
-                      <Text>{item.title}</Text>
-                      <Text c="dimmed">{item.creator}</Text>
-                    </Stack>
-                  </Group>)}
+                  <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Bộ sưu tập</Text>
+                  {collections.map((item, key) => <Link href={`/collections/${item.collectionID}`}>
+                    <Group gap={8}>
+                      <Image radius={10} src={item.bannerURL} width={64} height={48} />
+                      <Stack gap={2}>
+                        <Text fw={500} c={theme.colors.text[1]}>{item.title}</Text>
+                        <Text size="12px" c="dimmed">{StringUtils.compact(item.creator, 4, 5)}</Text>
+                      </Stack>
+                    </Group>
+                  </Link>)}
                 </>}
                 {!!users.length && <>
-                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Nhà sáng tạo</Text>
                   {users.map((item, key) => <Group>
                     <Avatar src={item.avatar} />
                     {/* <Stack>
@@ -305,8 +309,15 @@ export const HeaderSearchMobile: FC = () => {
 }
 
 export const MenuAccountMobile: FC = () => {
+  const theme = useMantineTheme();
+  const [opened, { open, close }] = useDisclosure(false);
 
   return <>
+    <Burger c={theme.colors.gray[2]} onClick={open} />
+
+    <Drawer position="right" opened={opened} onClose={close} title="Menu">
+      {/* Drawer content */}
+    </Drawer>
   </>
 }
 export const Account: FC = () => {

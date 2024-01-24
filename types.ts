@@ -18,6 +18,7 @@ export interface Query {
   offset?: number
   limit?: number,
   sort?: any,
+  search?: string
 }
 
 export type QuerySort = 1 | -1

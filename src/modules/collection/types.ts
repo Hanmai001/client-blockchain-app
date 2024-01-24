@@ -43,5 +43,5 @@ export interface CollectionPayload {
 } 
 
 export interface CollectionQuery extends Query {
-  category?: CollectionType
+  category?: string
 }

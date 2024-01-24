@@ -410,9 +410,9 @@ export const UserProfileScreen: FC = () => {
                   padding: '20px 15px',
                 }
               }}
-                classNames={{
-                  control: classes.control
-                }}
+                // classNames={{
+                //   control: classes.control
+                // }}
               />
 
             </Tabs>

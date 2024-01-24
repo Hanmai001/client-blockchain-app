@@ -46,7 +46,7 @@ export const MarketplaceScreen = () => {
             classNamesInput={classes.comboboxInput}
           />}
 
-          <BannerSection />
+          <BannerSection type={activeTab}/>
 
           <Grid w={'100%'}>
             <Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
@@ -56,7 +56,7 @@ export const MarketplaceScreen = () => {
             </Grid.Col>
 
             <Grid.Col span={{ base: 4 }}>
-              <CollectionsRanking />
+              <CollectionsRanking type={activeTab}/>
             </Grid.Col>
           </Grid>
 

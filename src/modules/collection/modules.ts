@@ -11,10 +11,6 @@ export class CollectionModule {
     return RequestModule.get(`/api/v1/collections`, query);
   }
 
-  static async getListFeaturedCollections(query: CollectionQuery): Promise<ListLoadState<Collection>> {
-    return RequestModule.get(`/api/v1/collections/`, query);
-  }
-
   static async updateAfterMint(id: string, payload: any) {
     return RequestModule.put(`/api/v1/collections/${id}`, payload);
   }
