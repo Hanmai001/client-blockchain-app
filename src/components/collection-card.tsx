@@ -2,7 +2,7 @@ import { AppImage } from "@/components/app/app-image";
 import { renderPayment } from "@/modules/coins/utils";
 import { Collection } from "@/modules/collection/types";
 import { StringUtils } from "@/share/utils";
-import { AspectRatio, Card, Group, Stack, Text, Title, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Box, Card, Group, Stack, Text, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import Link from "next/link";
 import { FC } from "react";
 
@@ -19,14 +19,18 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
       <Card className="app-card" shadow="sm" radius={10}>
         <Card.Section>
           <AspectRatio ratio={260 / 150}>
-            <AppImage src={props.collection.bannerUrl} />
+            <AppImage src={props.collection.bannerURL} />
           </AspectRatio>
         </Card.Section>
 
         <Stack pt={theme.spacing.xs} gap={theme.spacing.xs}>
-          <Title size={15} c={theme.colors.text[1]}>{StringUtils.limitCharacters(props.collection.title, 15)}</Title>
-          <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.collection.description, 100)}</Text>
-
+          <Tooltip label={props.collection.title}>
+            <Title size={15} c={theme.colors.text[1]}>{StringUtils.limitCharacters(props.collection.title, 15)}</Title>
+          </Tooltip>
+          <Box h={40}>
+            <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.collection.description, 80)}</Text>
+          </Box>
+          
           <Group justify="space-between">
             <Text c={theme.colors.gray[6]} size="12px">Average price</Text>
             <Group gap={4}>

@@ -5,12 +5,19 @@ export const AppLoading: FC<{ visible: boolean }> = (props) => {
   const theme = useMantineTheme();
 
   return (
-    <Box>
+    <Box style={{
+      position: 'fixed',
+      top: 0,
+      bottom: 0,
+      right: 0,
+      left: 0,
+      zIndex: 999
+    }}>
       <LoadingOverlay
         visible={props.visible}
         zIndex={1000}
         overlayProps={{ radius: "sm", backgroundOpacity: 0.3, color: theme.black }}
-        loaderProps={{color: theme.colors.primary[5], type: 'dots', children: <AppLoader />}}
+        loaderProps={{ color: theme.colors.primary[5], type: 'dots', children: <AppLoader /> }}
       />
     </Box>
   )

@@ -75,6 +75,7 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
 
       console.log("filtered res: ", collections)
     } catch (error) {
+      setCollections(s => ({ ...s, isFetching: false }))
       onError(error)
     }
   }
@@ -119,7 +120,7 @@ const BannerSlide: FC<{ collection: Collection }> = (props) => {
   }, [])
 
   return (
-    <Link href={`/collections/${props.collection._id}`}>
+    <Link href={`/collections/${props.collection.collectionID}`}>
       <Box px={theme.spacing.xs} className={classes.banner}>
         <AspectRatio ratio={820 / 600} style={{ overflow: 'hidden', borderRadius: rem(10) }}>
           <AppImage src={props.collection.bannerURL} alt="" className={classes.bannerImage} />

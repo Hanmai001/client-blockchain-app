@@ -1,7 +1,7 @@
 import { AppImage } from "@/components/app/app-image";
 import { Nft } from "@/modules/nft/types";
 import { ClassNames, StringUtils } from "@/share/utils";
-import { AspectRatio, Card, Stack, Title, useMantineTheme, Text, Group, ActionIcon, rem } from "@mantine/core";
+import { AspectRatio, Card, Stack, Title, useMantineTheme, Text, Group, ActionIcon, rem, Tooltip, Box } from "@mantine/core";
 import Link from "next/link";
 import { FC, useEffect } from "react";
 import classes from '../styles/collections/CollectionDetail.module.scss';
@@ -37,8 +37,12 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
         </Card.Section>
 
         <Stack pt={theme.spacing.xs} gap={theme.spacing.xs}>
-          <Title size={15} c={theme.colors.text[1]}>{StringUtils.limitCharacters(props.nft.title, 15)}</Title>
-          <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.nft.description, 100)}</Text>
+          <Tooltip label={props.nft.title}>
+            <Title size={15} c={theme.colors.text[1]}>{StringUtils.limitCharacters(props.nft.title, 15)}</Title>
+          </Tooltip>
+          <Box h={40}>
+            <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.nft.description, 100)}</Text>
+          </Box>
         </Stack>
 
         {hovered && account.information?.wallet?.toLowerCase() !== props.nft.owner && <AppButton async color={theme.colors.primary[5]} className={ClassNames({

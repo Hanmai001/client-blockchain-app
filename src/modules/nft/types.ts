@@ -1,6 +1,7 @@
-import { AppPayment } from "../../../types"
+import { AppPayment, Query } from "../../../types"
 
 export enum FilterOptions {
+  ALL = 'Tất cả',
   PRICE_TO_LOW = 'Giá từ thấp đến cao',
   PRICE_TO_HIGH = "Giá từ cao đến thấp",
   MOST_VIEWS = 'Xem nhiều nhất',
@@ -12,7 +13,7 @@ export enum FilterOptions {
 
 export interface Nft {
   tokenID: string,
-  _id: string,
+  id: string,
   creator: string,
   tokenUri: string,
   collectionID: string,
@@ -46,4 +47,10 @@ export enum NftStatus {
   SOLD = 'Đã bán',
   UNLISTING = 'Không bán',
   NEREST_RECIEVE = 'Nhận gần đây'
+}
+
+export interface NftQuery extends Query {
+  collectionID?: string,
+  creator?: string,
+  owner?: string
 }

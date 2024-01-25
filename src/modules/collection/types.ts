@@ -14,7 +14,7 @@ export enum CollectionType {
 
 export interface Collection {
   collectionID: string,
-  _id: string,
+  id: string,
   creator: string,
   chainID: ChainId,
   title: string,

@@ -1,9 +1,7 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { getConfig } from "../configs/context";
-import { AccountAccessToken } from "../account/acess-token";
 import { ObjectUtils } from "@/share/utils";
-import { FileWithPath } from "file-selector";
-import { getChainId } from "@/share/blockchain/context";
+import axios, { AxiosRequestConfig } from "axios";
+import { AccountAccessToken } from "../account/acess-token";
+import { getChainId, getConfig } from "../configs/context";
 
 export class RequestModule {
   static getURL(subURL: string) {

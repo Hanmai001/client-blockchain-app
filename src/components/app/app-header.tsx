@@ -157,34 +157,40 @@ export const HeaderSearch: FC = () => {
               return <Stack gap={5}>
                 {!!videos.length && <>
                   <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
-                  {videos.map((item, key) => <Group>
-                    <Stack>
-                      <Text>{item.title}</Text>
-                      <Text c="dimmed">{item.creator}</Text>
-                    </Stack>
-                  </Group>)}
+                  <Stack>
+                    {videos.map((item, key) => <Group>
+                      <Stack>
+                        <Text>{item.title}</Text>
+                        <Text c="dimmed">{item.creator}</Text>
+                      </Stack>
+                    </Group>)}
+                  </Stack>
                 </>}
                 {!!collections.length && <>
                   <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Bộ sưu tập</Text>
-                  {collections.map((item, key) => <Link href={`/collections/${item.collectionID}`}>
-                    <Group gap={8}>
-                      <Image radius={10} src={item.bannerURL} width={64} height={48} />
-                      <Stack gap={2}>
-                        <Text fw={500} c={theme.colors.text[1]}>{item.title}</Text>
-                        <Text size="12px" c="dimmed">{StringUtils.compact(item.creator, 4, 5)}</Text>
-                      </Stack>
-                    </Group>
-                  </Link>)}
+                  <Stack>
+                    {collections.map((item, key) => <Link href={`/collections/${item.collectionID}`}>
+                      <Group gap={8}>
+                        <Image radius={10} src={item.bannerURL} width={64} height={48} />
+                        <Stack gap={2}>
+                          <Text fw={500} c={theme.colors.text[1]}>{item.title}</Text>
+                          <Text size="12px" c="dimmed">{StringUtils.compact(item.creator, 4, 5)}</Text>
+                        </Stack>
+                      </Group>
+                    </Link>)}
+                  </Stack>
                 </>}
                 {!!users.length && <>
                   <Text size='12px' fw='bold' c={theme.colors.text[1]}>Nhà sáng tạo</Text>
-                  {users.map((item, key) => <Group>
-                    <Avatar src={item.avatar} />
-                    {/* <Stack>
+                  <Stack>
+                    {users.map((item, key) => <Group>
+                      <Avatar src={item.avatar} />
+                      {/* <Stack>
                         <Text>{item.title}</Text>
                         <Text c="dimmed">{item.creator}</Text>
                       </Stack> */}
-                  </Group>)}
+                    </Group>)}
+                  </Stack>
                 </>}
               </Stack>
             }()}

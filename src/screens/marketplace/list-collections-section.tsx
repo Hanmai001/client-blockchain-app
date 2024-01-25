@@ -55,9 +55,9 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
         await fetchFeaturedCollections(CollectionType.TOURISM);
         await fetchFeaturedCollections(CollectionType.GAME);
         await fetchFeaturedCollections(CollectionType.LIFE);
-        await fetchFeaturedCollections(CollectionType.FILM);
-        await fetchFeaturedCollections(CollectionType.FAMILY);
         await fetchFeaturedCollections(CollectionType.EDUCATION);
+        await fetchFeaturedCollections(CollectionType.FAMILY);
+        await fetchFeaturedCollections(CollectionType.FILM);
         await fetchFeaturedCollections(CollectionType.COOK);
       }
     } catch (error) {

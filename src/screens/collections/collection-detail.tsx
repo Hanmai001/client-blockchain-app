@@ -11,216 +11,22 @@ import { renderPayment } from "@/modules/coins/utils";
 import { NftCard } from "../../components/nft-card";
 import { IconSearch } from "@tabler/icons-react";
 import { MyCombobox } from "../marketplace";
-import { FilterOptions } from "@/modules/nft/types";
+import { FilterOptions, NftStatus } from "@/modules/nft/types";
 import { useDebouncedValue } from "@mantine/hooks";
 import { AppCreateButton } from "@/components/app/app-create-button";
+import { NftModule } from "@/modules/nft/modules";
+import { CollectionModule } from "@/modules/collection/modules";
+import { onError } from "@/components/modals/modal-error";
+import { ErrorMessage } from "@/components/error-message";
+import { EmptyMessage } from "@/components/empty-message";
 
-export const CollectionDetailScreen: FC = () => {
-  const params = useParams<{ id: string }>();
+export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const [activePage, setPage] = useState(1);
-
-  const nfts = [
-    {
-      tokenId: '1',
-      _id: '1',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '2',
-      _id: '2',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '3',
-      _id: '3',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '4',
-      _id: '4',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '5',
-      _id: '5',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '6',
-      _id: '6',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-  ]
-
-  const [items, setItems] = useState<ListLoadState<any, 'nfts'>>({ isFetching: true, data: { nfts: nfts } });
+  const [items, setItems] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
   const theme = useMantineTheme();
-  const [collection, setCollection] = useState<any>();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState(FilterOptions.PRICE_TO_LOW);
+  const [filter, setFilter] = useState(FilterOptions.ALL);
   const [debounced] = useDebouncedValue(search, 200);
-
-  const fetchItems = async () => {
-    try {
-      let listNfts = items.data; //test nên gán items.data nhaa
-      if (search.length > 0 && !!listNfts?.nfts) {
-        const nfts = listNfts.nfts.filter((v, k) => {
-          if (v.title.includes(search) || v.description.includes(search)) return true;
-          return false;
-        })
-        listNfts.nfts = nfts;
-      }
-      setItems(s => ({ ...s, data: listNfts }));
-      //get list by filter
-    } catch (error) {
-
-    }
-  }
-
-  const fetchCollection = async () => {
-    try {
-
-    } catch (error) {
-
-    }
-  }
-
-  useEffect(() => {
-    fetchItems();
-  }, [search, filter])
-
-  useEffect(() => {
-    setCollection({
-      createdAt: '12/09/2023',
-      updated: '12/09/2023',
-      creator: '0vvdsd',
-      bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-      title: "Hình nền đẹp",
-      totalViews: 12345,
-      totalItems: 12,
-      averagePrice: 0.56,
-      paymentType: '0'
-    })
-  }, [])
 
   const gridColumns = {
     lg: 3,
@@ -236,9 +42,44 @@ export const CollectionDetailScreen: FC = () => {
     }
   }
 
+  const fetchItems = async () => {
+    try {
+      let listtokens: any;
+      let sort = '';
+      //get list by filter
+      if (filter !== FilterOptions.ALL) {
+        if (filter === FilterOptions.MOST_VIEWS) sort = '+totalViews';
+        if (filter === FilterOptions.MOST_SHARES) sort = '+totalShare';
+        if (filter === FilterOptions.MOST_LIKES) sort = '+totalLikes';
+        if (filter === FilterOptions.OLDEST) sort = '+createdAt';
+        if (filter === FilterOptions.NEWEST) sort = '-createdAt';
+      }
+    
+      listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort });
+      console.log("fs", listtokens)
+      if (search.length > 0 && !!listtokens.data.tokens) {
+        const tokens = listtokens.data.tokens.filter((v, k) => {
+          if (v.title.includes(search) || v.description.includes(search)) return true;
+          return false;
+        })
+        listtokens.data.tokens = tokens;
+      }
+      setItems(s => ({ ...s, isFetching: false, data: { tokens: listtokens.data.tokens, count: listtokens.data.count } }));
+    } catch (error) {
+      setItems(s => ({ ...s, isFetching: false, data: { tokens: [], count: 0 } }))
+      // onError(error);
+      throw error
+    }
+  }
+
   useEffect(() => {
+    fetchItems();
+  }, [debounced, filter])
+
+  useEffect(() => {
+    fetchItems();
     fetchItemsOfCollection();
-  }, []);
+  }, [])
 
   return <AppWrapper>
     <Stack>
@@ -251,7 +92,7 @@ export const CollectionDetailScreen: FC = () => {
 
       <Box m={theme.spacing.md}>
         <Group mb={theme.spacing.lg}>
-          <Text c={theme.colors.text[1]} fw={500}>{items.data?.nfts.length} {"kết quả"}</Text>
+          <Text c={theme.colors.text[1]} fw={500}>{items.data?.count !== 0 ? items.data?.tokens.length : 0} {"kết quả"}</Text>
           <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
             input: {
               height: '45px',
@@ -265,7 +106,7 @@ export const CollectionDetailScreen: FC = () => {
           />
 
           <MyCombobox
-            initialValue={FilterOptions.PRICE_TO_LOW}
+            initialValue={FilterOptions.ALL}
             options={FilterOptions}
             styles={{
               dropdown: {
@@ -279,24 +120,24 @@ export const CollectionDetailScreen: FC = () => {
             }}
             classNamesInput={classes.comboboxInput}
             classNamesRoot={classes.comboboxRootInput}
-            onChange={() => { }}
+            onChange={(value) => { setFilter(value)}}
           />
         </Group>
         {function () {
-          // if (items.isFetching || !items.data) return <Grid>
-          //   {Array(3).fill(0).map((_, key) => (
-          //     <Grid.Col key={key} span={{ ...gridColumns }}>
-          //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-          //     </Grid.Col>
-          //   ))}
-          // </Grid>
+          if (items.isFetching || !items.data?.tokens) return <Grid>
+            {Array(8).fill(0).map((_, key) => (
+              <Grid.Col key={key} span={{ ...gridColumns }}>
+                <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+              </Grid.Col>
+            ))}
+          </Grid>
 
-          // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
+          if (items.error) return <Group><ErrorMessage error={items.error} /></Group>
 
-          // if (!items.data.length) return <EmptyBox />
+          if (items.data?.count === 0) return <EmptyMessage />
 
           return <Grid gutter={theme.spacing.md}>
-            {items.data?.nfts.map((v, k) => (
+            {items.data?.tokens.map((v, k) => (
               <Grid.Col key={k} span={{ ...gridColumns }}>
                 <NftCard nft={v} key={k} />
               </Grid.Col>
@@ -305,15 +146,15 @@ export const CollectionDetailScreen: FC = () => {
         }()}
       </Box>
 
-      <Pagination color={theme.colors.primary[5]} total={20} siblings={2} value={activePage} onChange={setPage} styles={{
-          root: {
-            margin: "auto",
-            marginTop: '40px'
-          },
-          control: {
-            padding: '20px 15px',
-          }
-        }}
+      <Pagination color={theme.colors.primary[5]} total={Math.ceil(items.data.count / 10)} siblings={2} value={activePage} onChange={setPage} styles={{
+        root: {
+          margin: "auto",
+          marginTop: '40px'
+        },
+        control: {
+          padding: '20px 15px',
+        }
+      }}
         classNames={{
           control: classes.control
         }}
@@ -324,13 +165,13 @@ export const CollectionDetailScreen: FC = () => {
   </AppWrapper>
 }
 
-const BannerSection: FC<{ collection: any }> = (props) => {
+const BannerSection: FC<{ collection: Collection }> = (props) => {
   const theme = useMantineTheme();
   const { symbol } = renderPayment(props.collection.paymentType);
 
   return (
     <AspectRatio ratio={400 / 100} style={{ overflow: 'hidden' }}>
-      <AppImage src={props.collection.bannerUrl} alt="" />
+      <AppImage src={props.collection.bannerURL} alt="" />
 
       <Group
         bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0))`}
@@ -346,7 +187,7 @@ const BannerSection: FC<{ collection: any }> = (props) => {
           </Title>
           <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creator, 2, 5)}</Text>
           <Group justify="space-between" mt={4}>
-            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.totalItems} items</Text>
+            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.totalItems ? props.collection.totalItems : 0} items</Text>
             <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
           </Group>
         </Stack>
