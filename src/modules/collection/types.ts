@@ -43,5 +43,6 @@ export interface CollectionPayload {
 } 
 
 export interface CollectionQuery extends Query {
-  category?: string
+  category?: string,
+  creator?: string
 }

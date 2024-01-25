@@ -2,27 +2,30 @@ import { AppShell, Box, useMantineTheme } from "@mantine/core";
 import { FC, PropsWithChildren } from "react";
 import { AppHeader } from "./app-header";
 import { AppNavBar } from "./app-navbar";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import { AppTitle } from "./app-title";
 import { AppFooter } from "./app-footer";
 
 export const AppWrapper: FC<PropsWithChildren> = (props) => {
   const theme = useMantineTheme();
   const [opened, { toggle }] = useDisclosure();
+  const [scroll, scrollTo] = useWindowScroll();
 
   return (
     <AppShell
-      // header={{ height: 70 }}
+      header={{ height: scroll.y > 10 ? 74 : 70 }}
       navbar={{ width: { sm: 70, md: 240, lg: 240 }, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       styles={{
       navbar: {
-        marginTop: '74px'
         // [`@media (min-width: ${theme.breakpoints.md})`]: {
         //   width: '240px',
         // },
         // [`@media (max-width: ${theme.breakpoints.md})`]: {
         //   width: '70px',
         // },
+      },
+      header: {
+        border: 'none'
       },
       footer: {
         display: "block",

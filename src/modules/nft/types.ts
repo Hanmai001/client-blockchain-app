@@ -11,20 +11,22 @@ export enum FilterOptions {
 }
 
 export interface Nft {
-  tokenId: string,
+  tokenID: string,
   _id: string,
   creator: string,
   tokenUri: string,
-  collectionId: string,
+  collectionID: string,
   contractAddress: string,
   owner: string,
-  chainId: string,
+  chainID: string,
   title: string,
   description: string
   source: string,
   totalViews: number,
   totalLikes: number,
   totalShare: number,
+  acive: boolean,
+  disabled: boolean,
   createdAt: number,
   updatedAt: number
 }
@@ -32,14 +34,10 @@ export interface Nft {
 export interface NftPayload {
   creator: string,
   owner: string,
-  collection: {
-    chainId: string,
-    tokenId: string,
-    paymentType: string
-  } | null,
+  chainID: string,
+  collectionID: string,
   title: string,
   description: string
-  sourceFile: File | null
 }
 
 export enum NftStatus {

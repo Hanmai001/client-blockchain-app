@@ -2,7 +2,7 @@ $border-color: #d3b0ff;
 
 .headerNormal {
   position: fixed;
-  z-index: 999;
+  z-index: 99;
   width: 100%;
   transition: 0.2s ease;
   max-width: 100%;
@@ -19,9 +19,8 @@ $border-color: #d3b0ff;
 .headerScroll {
   padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
   position: fixed;
-  z-index: 999;
+  z-index: 99;
   width: calc(100% - calc(var(--mantine-navbar-width, 0px) + 1.5rem));
-  height: 70px;
   transition: 0.2s ease;
   max-width: 100%;
   top: 0;
@@ -35,7 +34,7 @@ $border-color: #d3b0ff;
   padding: 10px 15px;
   
   // background: #d3b0ff !important;
-  will-change: scroll-position;
+  // will-change: scroll-position;
 
   input:focus {
     border-color: #d3b0ff;

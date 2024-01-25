@@ -360,7 +360,7 @@ export const Account: FC = () => {
       <AppButton
         async
         leftSection={<IconNetwork size={20} />}
-        onClick={() => config.handleChangeChain(blockchain.chainId as ChainId).catch(error => { })}
+        onClick={() => config.handleChangeChain(blockchain.chainId as ChainId).catch(error => { onError(error) })}
         color={theme.colors.primary[5]}
         height={45}
         width={156}

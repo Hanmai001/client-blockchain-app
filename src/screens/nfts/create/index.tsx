@@ -1,90 +1,43 @@
 import { AppButton } from "@/components/app/app-button";
 import { Account } from "@/components/app/app-header";
+import { AppLoading } from "@/components/app/app-loading";
+import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
+import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
 import { MediaInput } from "@/components/input/media-input";
 import { SelectInputItem } from "@/components/input/select-input-item";
+import { onSuccess } from "@/components/modals/modal-success";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
+import { CollectionModule } from "@/modules/collection/modules";
+import { Collection } from "@/modules/collection/types";
 import { NftPayload } from "@/modules/nft/types";
 import { useBlockChain } from "@/share/blockchain/context";
 import { Box, Card, Flex, Grid, Group, Image, Skeleton, Stack, Text, TextInput, Textarea, Title, Transition, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/router";
-import { FC, useEffect, useState } from "react";
-import { AppRoutes } from "../../../../app-router";
-import { ListLoadState } from "../../../../types";
-import classes from '../../../styles/nfts/NftCreate.module.scss';
 import { ethers } from "ethers";
-import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
-
-const listcollections = [
-  {
-    _id: 'afdsf',
-    tokenId: '2',
-    chainId: '97',
-    creator: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    averagePrice: 0.56,
-    paymentType: "0",
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-  {
-    _id: 'afdsf',
-    tokenId: '1',
-    chainId: '97',
-    creator: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    paymentType: "0",
-    averagePrice: 0.56,
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-  {
-    _id: 'afdsf',
-    tokenId: '3',
-    chainId: '97',
-    creator: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-    title: "Hình nền đẹp",
-    totalViews: 12345,
-    totalItems: 12,
-    paymentType: "0",
-    averagePrice: 0.56,
-    description: "Chủ đề Hình nền xinh xắn Hình nền xinh xắn là một sự lựa chọn tuyệt vời để trang trí màn hình điện thoại của bạn. Với những hình ảnh đẹp và dễ thương."
-  },
-]
-const scaleY = {
-  in: { opacity: 1, transform: 'scaleY(1)' },
-  out: { opacity: 0, transform: 'scaleY(0)' },
-  common: { transformOrigin: 'top' },
-  transitionProperty: 'transform, opacity',
-};
+import { useRouter } from "next/router";
+import { FC, useEffect, useLayoutEffect, useState } from "react";
+import { AppRoutes } from "../../../../app-router";
+import { DataLoadState, ListLoadState } from "../../../../types";
+import classes from '../../../styles/nfts/NftCreate.module.scss';
+import { RequestModule } from "@/modules/request/request";
+import { getContracts } from "@/modules/configs/context";
+import { NftModule } from "@/modules/nft/modules";
+import { onError } from "@/components/modals/modal-error";
 
 export const CreateNftScreen: FC = () => {
   const theme = useMantineTheme();
   const account = useAccount();
   const blockchain = useBlockChain();
   const { isMobile, isDesktop } = useResponsive();
-  const params = useParams<{ wallet: string }>();
-  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: false, data: { collections: listcollections, count: listcollections.length } });
-  const [collection, setCollection] = useState(listcollections[0]);
+  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
+  const [collection, setCollection] = useState<DataLoadState<Collection>>({ isFetching: true });
   const [opened, setOpened] = useState(false);
   const router = useRouter();
-
-  const fetchCollections = async () => {
-    try {
-
-    } catch (error) {
-
-    }
-  }
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [file, setFile] = useState<File | null>(null);
 
   const form = useForm<NftPayload>({
     initialValues: {
@@ -92,14 +45,20 @@ export const CreateNftScreen: FC = () => {
       owner: '',
       title: '',
       description: '',
-      sourceFile: null,
-      collection: null
+      collectionID: '',
+      chainID: '',
     },
     validate: {
       title: (value) => (value.length < 1 && 'Tên bộ sưu tập không hợp lệ'),
       description: (value) => (value.length < 1 && 'Mô tả không hợp lệ'),
     },
   })
+
+  useEffect(() => {
+    if (collections.data?.collections && collections.data?.collections.length > 0) {
+      setCollection({ isFetching: false, data: collections.data.collections[0] });
+    }
+  }, [collections]);
 
   const getWallet = async () => {
     if (!!account.information && account.information.wallet) {
@@ -116,25 +75,57 @@ export const CreateNftScreen: FC = () => {
 
   const onSubmit = form.onSubmit(async (values) => {
     try {
-      let payload = { ...values }
-      payload.collection = {
-        chainId: collection.chainId,
-        tokenId: collection.tokenId,
-        paymentType: collection.paymentType
+      let payload = { ...values, source: '' }
+      setIsUploading(true);
+      if (collection) {
+        payload.chainID = collection.data!.chainID;
+        payload.collectionID = collection.data!.collectionID;
       }
-      console.log("payload: ", payload)
-    } catch (error) {
+      if (file instanceof File)
+        payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, file as File, 400, "source");
 
+      const contractMarket = getContracts().ercs.MARKETPLACE;
+
+      const feeMint = await contractMarket.call({ method: 'getFeeMint' })
+
+      const res = await NftModule.create(payload);
+
+      let txReceipt = await contractMarket.send({
+        method: 'mintNft',
+        args: [payload.creator, res.data.tokenURI, payload.collectionID],
+        params: {
+          from: payload.creator,
+          value: feeMint
+        }
+      });
+
+      const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString() };
+      await NftModule.update(res.data.token.id, payloadUpdate);
+      onSuccess({ title: 'Tạo thành công', message: '' });
+    } catch (error) {
+      onError(error);
+    } finally {
+      setIsUploading(false);
     }
   })
 
   useEffect(() => {
-    fetchCollections();
     getWallet();
   }, [])
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await CollectionModule.getList({ chainID: blockchain.chainId, creator: form.values.creator });
+      console.log("res", res)
+      setCollections(s => ({ ...s, isFetching: false, data: { collections: res.data!.collections, count: res.data!.count } }));
+    };
+
+    fetchData();
+  }, [account.information]);
+
   return (
     <BoundaryConnectWallet>
+      {isUploading && <AppLoading visible={isUploading} />}
       <Stack px={40} mt={20}>
         <form onSubmit={onSubmit}>
           <Group justify="space-between">
@@ -160,8 +151,8 @@ export const CreateNftScreen: FC = () => {
                 height={500}
                 radius={10}
                 acceptance="video"
-                onChange={(file) => form.setFieldValue('sourceFile', file)}
-                onRemove={() => form.setFieldValue('sourceFile', null)}
+                onChange={(file) => setFile(file)}
+                onRemove={() => setFile(null)}
               />
             </Grid.Col>
 
@@ -182,7 +173,7 @@ export const CreateNftScreen: FC = () => {
 
                       if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
 
-                      if (!collection) return <Group gap="lg" bg={theme.colors.gray[1]} p={15} style={{
+                      if (!collection.data) return <Group gap="lg" bg={theme.colors.gray[1]} p={15} style={{
                         flexWrap: "nowrap",
                         borderRadius: '10px',
                         height: '90px',
@@ -198,40 +189,53 @@ export const CreateNftScreen: FC = () => {
                         }}><IconPlus /></Flex>
                         <Text fw="bold">Tạo bộ sưu tập mới</Text>
                       </Group>
-                      return <SelectInputItem width="48" height="64" fontsize="15px" image={collection.bannerUrl} label={collection.title} />
+                      return <SelectInputItem width="48" height="64" fontsize="15px" image={collection.data.bannerURL} label={collection.data.title} />
                     }()}
                   </Box>
                 </Stack>
 
                 <Transition mounted={opened}
-                  transition={scaleY}
+                  transition='scale-y'
                   duration={200}
                   timingFunction="ease"
                   keepMounted
                 >
-                  {(styles) => <Card w={'100%'} shadow="sm" radius={10} bg={theme.white} pos="absolute"
+                  {(styles) => <Card w={'100%'} mah={300} shadow="sm" radius={10} bg={theme.white} pos="absolute"
                     style={{
                       margin: "auto",
                       zIndex: 1,
                       top: isMobile ? '162px' : '120px',
+                      overflowY: 'auto',
                       ...styles
                     }}
                   >
-                    {collections.data?.collections.map((v, k) => <Box
-                      bg={v.tokenId === collection.tokenId ? theme.colors.primary[5] : theme.white}
-                      className={v.tokenId === collection.tokenId ? classes.itemActive : classes.item}
-                      style={{
-                        borderRadius: '12px',
-                        padding: '12px 12px',
-                      }}
-                      key={k}
-                      onClick={() => setCollection(v)}
-                    >
-                      <Group>
-                        <Image width="48" height="64" radius={12} src={v.bannerUrl} />
-                        <Text c={v.tokenId === collection.tokenId ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
-                      </Group>
-                    </Box>)}
+                    {function () {
+                      if (collections.isFetching) return <Skeleton />
+
+                      if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
+
+                      if (collections.data?.count === 0) return <EmptyMessage />
+
+                      if (!collection.data) return null;
+
+                      return <>
+                        {collections.data?.collections.map((v, k) => <Box
+                          bg={v.collectionID === collection.data.collectionID ? theme.colors.primary[5] : theme.white}
+                          className={v.collectionID === collection.data.collectionID ? classes.itemActive : classes.item}
+                          style={{
+                            borderRadius: '12px',
+                            padding: '12px 12px',
+                          }}
+                          key={k}
+                          onClick={() => setCollection(s => ({ ...s, data: v }))}
+                        >
+                          <Group>
+                            <Image width="48" height="64" radius={12} src={v.bannerURL} />
+                            <Text c={v.collectionID === collection.data.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
+                          </Group>
+                        </Box>)}
+                      </>
+                    }()}
                   </Card>}
                 </Transition>
 

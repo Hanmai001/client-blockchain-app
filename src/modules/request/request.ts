@@ -16,7 +16,7 @@ export class RequestModule {
 
     if (typeof window !== undefined) {
       const accessToken = await AccountAccessToken.get();
-      console.log("accessToken: ", accessToken)
+      // console.log("accessToken: ", accessToken)
       if (accessToken) {
         headers['Authorization'] = `Bearer ${accessToken}`;
       }
@@ -88,7 +88,7 @@ export class RequestModule {
     const formData = new FormData();
     formData.append(key || "file", file);
 
-    console.log("form data: ", file)
+    // console.log("form data: ", file)
 
     if (limitSize) formData.append("limitWitdh", limitSize.toString());
 

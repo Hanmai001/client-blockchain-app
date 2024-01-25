@@ -186,6 +186,7 @@ export function getAvailableWeb3(chainId: ChainId, ignoreRpcUrl?: string): Promi
 //Transform logs into events
 export function parseEvent(abi: any[], address: string, receipt: TransactionReceipt | any) {
   try {
+    console.log("abi: ", abi)
     let events: any[] = []
 
     if (receipt.logs) {
@@ -220,16 +221,18 @@ export function parseEvent(abi: any[], address: string, receipt: TransactionRece
         return
       }
 
+      console.log("evnt: ", event)
       const descriptor = abi
         .filter(desc => desc.type === 'event')
         .map(desc => ({
           ...desc,
-          signature: desc.signature || ethers.id(desc.name + "(" + desc.inputs.map(input => input.type).join(",") + ")")
+          signature: ethers.id(getEventSignature(desc.name, abi))
         }))
         .find(desc => {
           return desc.signature === event.raw.topics[0];
         })
-
+      
+        // console.log("description: ", descriptor)
       if (descriptor) {
         event.event = descriptor.name
         event.signature = descriptor.signature
@@ -239,7 +242,7 @@ export function parseEvent(abi: any[], address: string, receipt: TransactionRece
           event.raw.topics.slice(1)
         )
 
-        delete event.returnValues.__length__
+        // delete event.returnValues.__length__
         events.push(event)
       }
 
@@ -383,4 +386,10 @@ export const getEvents = async (params: { chainId: ChainId, transactionHash: str
     })
 
   return events.sort((a, b) => a.logIndex - b.logIndex);
+}
+
+export const getEventSignature = (eventName: string, abi: any) => {
+  const eventAbi = abi.find((entry) => entry.name === eventName);
+  const types = eventAbi.inputs.map((input) => input.type);
+  return `${eventName}(${types.join(',')})`;
 }

@@ -4,6 +4,7 @@ import { IconCategory, IconUpload } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { AppRoutes } from "../../../app-router";
+import Link from "next/link";
 
 
 export const AppCreateButton: FC = () => {
@@ -46,27 +47,32 @@ export const AppCreateButton: FC = () => {
         justifyContent: "flex-end",
         transition: `0.5s ease`
       }}>
-        <UnstyledButton onClick={() => router.push(AppRoutes.collection.create)} className={`create-buttons ${clicked ? 'app-button-clicked' : 'app-button-unclicked'}`} style={{
-          width: "250px",
-          height: "70px",
-          borderRadius: "10px",
-          backgroundColor: theme.colors.primary[0],
-          textAlign: "end",
-        }}>
-          <Text mr={10} c={theme.colors.primary[5]} fw="bold" size="sm">Tạo bộ sưu tập mới</Text>
-        </UnstyledButton>
+        <Link href={`${AppRoutes.collection.create}`}>
+          <UnstyledButton className={`create-buttons ${clicked ? 'app-button-clicked' : 'app-button-unclicked'}`} style={{
+            width: "250px",
+            height: "70px",
+            borderRadius: "10px",
+            backgroundColor: theme.colors.primary[0],
+            textAlign: "end",
+          }}>
+            <Text mr={10} c={theme.colors.primary[5]} fw="bold" size="sm">Tạo bộ sưu tập mới</Text>
+          </UnstyledButton>
+        </Link>
 
-        <UnstyledButton onClick={() => router.push(AppRoutes.nft.create)} className={`create-buttons ${clicked ? 'app-button-clicked' : 'app-button-unclicked'}`} style={{
-          width: "250px",
-          height: "70px",
-          borderRadius: "10px",
-          backgroundColor: theme.colors.primary[0],
-          textAlign: "end",
-          marginBottom: "10px"
-        }}>
-          
-          <Text mr={10} c={theme.colors.primary[5]} fw="bold" size="sm">Tạo Video</Text>
-        </UnstyledButton>
+        <Link href={`${AppRoutes.nft.create}`}>
+          <UnstyledButton className={`create-buttons ${clicked ? 'app-button-clicked' : 'app-button-unclicked'}`} style={{
+            width: "250px",
+            height: "70px",
+            borderRadius: "10px",
+            backgroundColor: theme.colors.primary[0],
+            textAlign: "end",
+            marginBottom: "10px"
+          }}>
+
+            <Text mr={10} c={theme.colors.primary[5]} fw="bold" size="sm">Tạo Video</Text>
+          </UnstyledButton>
+        </Link>
+
       </Stack>}
     </>
   )

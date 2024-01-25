@@ -1,7 +1,7 @@
 import { BlockchainError, BlockchainErrorCode, Chain, ChainId, ContractCallOptions, ContractConfigs, ContractEstimateGas, ContractSendOptions, Provider, TokenUnit, Transaction } from "../types";
-import { TransactionReceipt, ethers } from "ethers";
+import { Log, TransactionReceipt, ethers } from "ethers";
 import { chains } from "../chain";
-import { getAvailableWeb3, parseBlockchainError, parseEvent, randomInt, wait } from "../utils";
+import { getAvailableWeb3, getEventSignature, parseBlockchainError, parseEvent, randomInt, wait } from "../utils";
 
 export class Contract {
   name: string;
@@ -191,11 +191,10 @@ export class Contract {
   async send(options: ContractSendOptions, ...args: any): Promise<any> {
     const estimateGas = options.estimateGas || await this.estimateGas(options, ...args);
     const { provider, wallet, gasPrice, gasLimit, func } = estimateGas;
-
+    let transactionHash: string;
     let isHasError = false;
 
     return new Promise(async (resolve, reject) => {
-      let transactionHash: string;
 
       const handleOnSubmitted = (transactionHashReceived: string) => {
         transactionHash = transactionHashReceived;
@@ -209,7 +208,7 @@ export class Contract {
             from: wallet,
             ...options.params,
             gasPrice: 23000,
-            gasLimit: 200000,
+            gasLimit: 500000,
         }) 
         const txReceipt = await tx.wait(1);
         handleOnSubmitted(txReceipt.hash);

@@ -21,7 +21,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
   };
 
   return (
-    <Link href={`/nfts/${props.nft.tokenId}`}>
+    <Link href={`/nfts/${props.nft.tokenID}`}>
       <Card className="app-card" shadow="sm" radius={10} ref={ref}>
         <Card.Section>
           <AspectRatio ratio={100 / 120} style={{ overflow: 'hidden' }}>

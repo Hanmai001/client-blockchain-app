@@ -21,6 +21,7 @@ import { ethers } from "ethers";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../../types";
 import classes from '../../../styles/collections/CollectionCreate.module.scss';
+import { AppLoading } from "@/components/app/app-loading";
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();
@@ -81,22 +82,18 @@ export const CollectionCreateScreen: FC = () => {
       setIsUploading(true);
       let payload = { ...values };
 
-      if (bannerFile instanceof File) 
+      if (bannerFile instanceof File)
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
 
-      console.log("payload: ", payload);
-      
       const contractMarket = getContracts().ercs.MARKETPLACE;
 
-      const feeMint = await contractMarket.call({method: 'getFeeMint'})
+      const feeMint = await contractMarket.call({ method: 'getFeeMint' })
 
-      console.log("payload: ", payload);
       const res = await CollectionModule.create(payload);
-      console.log(res)
 
       let txReceipt = await contractMarket.send({
-        method: 'mintCollection', 
-        args: [payload.creator, res.data.collectionURI], 
+        method: 'mintCollection',
+        args: [payload.creator, res.data.collectionURI],
         params: {
           from: payload.creator,
           value: feeMint
@@ -105,13 +102,14 @@ export const CollectionCreateScreen: FC = () => {
 
       // console.log(txReceipt)
 
-      const payloadUpdate = {...payload, collectionID: txReceipt.logs[0].args['0'].toString()};
+      const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString() };
       await CollectionModule.updateAfterMint(res.data.collection.id, payloadUpdate);
-
-      onSuccess({title: 'Tạo thành công', message: ''});
-      setIsUploading(false);
+      
+      onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
-      onError("Tạo Bộ sưu tập không thành công:(");
+      onError("Tạo Bộ sưu tập không thành công!!!");
+    } finally {
+      setIsUploading(false);  
     }
   })
 
@@ -121,6 +119,8 @@ export const CollectionCreateScreen: FC = () => {
 
   return (
     <BoundaryConnectWallet>
+      {isUploading && <AppLoading visible={isUploading} />}
+
       <Stack px={40} mt={20}>
         <form onSubmit={onSubmit}>
           <Group justify="space-between">

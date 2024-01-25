@@ -1,7 +1,7 @@
 import { useAccount } from '@/modules/account/context';
 import { useConfig } from '@/modules/configs/context';
 import { useBlockChain } from '@/share/blockchain/context';
-import { Card, Center, Skeleton, Stack, Title, Text, useMantineTheme } from '@mantine/core';
+import { Card, Center, Skeleton, Stack, Title, Text, useMantineTheme, Box } from '@mantine/core';
 import { FC, PropsWithChildren } from 'react';
 import { ConnectWallet } from './buttons/connect-wallet';
 

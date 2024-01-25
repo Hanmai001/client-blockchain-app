@@ -16,7 +16,7 @@ export const MarketplaceScreen = () => {
 
   return (
     <AppWrapper>
-      <Box p={theme.spacing.md} mt={70}>
+      <Box p={theme.spacing.md}>
         <Stack className='Marketplace' w={'100%'}>
           <Tabs value={activeTab} onChange={setActiveTab} maw={isDesktop ? '66.3%' : '100%'} visibleFrom='sm' classNames={{
             root: "tab-root",
