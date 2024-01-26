@@ -22,7 +22,7 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
   // const wallet = information?.wallet;
 
   getAccount = () => information;
-  getWallet = () => information.wallet;
+  getWallet = () => information?.wallet;
 
   const authenticate = async () => {
     try {
@@ -32,7 +32,7 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
       if (accessToken) {
         try {
           const res = await UserModule.authenticate();
-          setInformation(s => ({ ...s, ...res.data[0] }))
+          setInformation(s => ({ ...s, ...res.data }))
         } catch (error) {
           await AccountAccessToken.remove(accessToken);
         }
@@ -90,7 +90,6 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
         CoinsModule.fetchUserBalance()
       ]);
 
-      console.log("balances: ", balances);
     } catch (error) {
       console.error(error);
     }

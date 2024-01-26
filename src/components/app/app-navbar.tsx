@@ -7,16 +7,18 @@ import { AppRoutes } from "../../../app-router";
 import classes from "../../styles/app/AppNavBar.module.scss";
 import { useRouter } from "next/router";
 import { usePathname } from "next/navigation";
+import { useBlockChain } from "@/share/blockchain/context";
 
 export const AppNavBar: FC = () => {
   const account = useAccount();
+  const blockchain = useBlockChain();
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const router = useRouter();
   const pathname = usePathname();
 
   const navLinks = [
     { link: AppRoutes.root, label: 'Cửa hàng', icon: IconBuildingStore },
-    { link: `${AppRoutes.user.profile}/${account.information?.wallet}`, label: 'Hồ sơ của bạn', icon: IconCameraBolt },
+    { link: `${AppRoutes.user.profile}/${blockchain.wallet}`, label: 'Hồ sơ của bạn', icon: IconCameraBolt },
     { link: '/users/friends', label: 'Bạn bè', icon: IconFriends },
   ]
 

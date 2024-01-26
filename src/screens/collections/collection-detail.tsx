@@ -1,24 +1,21 @@
+import { AppCreateButton } from "@/components/app/app-create-button";
+import { AppImage } from "@/components/app/app-image";
+import { AppWrapper } from "@/components/app/app-wrapper";
+import { EmptyMessage } from "@/components/empty-message";
+import { ErrorMessage } from "@/components/error-message";
+import { renderPayment } from "@/modules/coins/utils";
 import { Collection } from "@/modules/collection/types";
+import { NftModule } from "@/modules/nft/modules";
+import { FilterOptions } from "@/modules/nft/types";
+import { StringUtils } from "@/share/utils";
+import { AspectRatio, Box, Grid, Group, Pagination, Skeleton, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
+import { useDebouncedValue } from "@mantine/hooks";
+import { IconSearch } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
-import { AppWrapper } from "@/components/app/app-wrapper";
-import { AspectRatio, Box, Group, Stack, Title, useMantineTheme, Text, rem, Grid, TextInput, Skeleton, Pagination } from "@mantine/core";
-import { useParams } from "next/navigation";
-import classes from '../../styles/collections/CollectionDetail.module.scss';
-import { AppImage } from "@/components/app/app-image";
-import { StringUtils } from "@/share/utils";
-import { renderPayment } from "@/modules/coins/utils";
 import { NftCard } from "../../components/nft-card";
-import { IconSearch } from "@tabler/icons-react";
+import classes from '../../styles/collections/CollectionDetail.module.scss';
 import { MyCombobox } from "../marketplace";
-import { FilterOptions, NftStatus } from "@/modules/nft/types";
-import { useDebouncedValue } from "@mantine/hooks";
-import { AppCreateButton } from "@/components/app/app-create-button";
-import { NftModule } from "@/modules/nft/modules";
-import { CollectionModule } from "@/modules/collection/modules";
-import { onError } from "@/components/modals/modal-error";
-import { ErrorMessage } from "@/components/error-message";
-import { EmptyMessage } from "@/components/empty-message";
 
 export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const [activePage, setPage] = useState(1);

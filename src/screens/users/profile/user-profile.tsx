@@ -5,7 +5,7 @@ import { AppWrapper } from "@/components/app/app-wrapper";
 import { Roles, UserTabsProfile, UserInformation } from "@/modules/user/types";
 import { StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Box, Divider, Grid, Group, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
-import { useClipboard, useHover } from "@mantine/hooks";
+import { useClipboard, useDebouncedValue, useHover } from "@mantine/hooks";
 import { IconCheck, IconCopy, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
 import { useParams } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
@@ -16,226 +16,21 @@ import { ListLoadState } from "../../../../types";
 import { NftStatus } from "@/modules/nft/types";
 import { NftCard } from "@/components/nft-card";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
+import { NftModule } from "@/modules/nft/modules";
+import { ErrorMessage } from "@/components/error-message";
+import { EmptyMessage } from "@/components/empty-message";
+import { CollectionModule } from "@/modules/collection/modules";
+import { onError } from "@/components/modals/modal-error";
+import { CollectionCard } from "@/components/collection-card";
+import { useResponsive } from "@/modules/app/hooks";
+import { CollectionStatus, CollectionType } from "@/modules/collection/types";
 
 
-export const UserProfileScreen: FC = () => {
-  const nftsTest = [
-    {
-      tokenId: '1',
-      _id: '1',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: '0x6aaef57a890743e6322feb3275e4006b3ecb8cb5',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '2',
-      _id: '2',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: '0x6aaef57a890743e6322feb3275e4006b3ecb8cb5',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '3',
-      _id: '3',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '4',
-      _id: '4',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '5',
-      _id: '5',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-    {
-      tokenId: '6',
-      _id: '6',
-      creator: 'dsfdsf',
-      tokenUri: 'dsfdsf',
-      collection: {
-        createdAt: '12/09/2023',
-        updated: '12/09/2023',
-        creator: '0vvdsd',
-        bannerUrl: 'https://cdn.sforum.vn/sforum/wp-content/uploads/2023/06/tai-hinh-nen-dep-nhat-the-gioi-57.jpg',
-        title: "Hình nền đẹp",
-        totalViews: 12345,
-        totalItems: 12,
-        averagePrice: 0.56,
-        paymentType: '0'
-      },
-      owner: 'dsfdsf',
-      chainId: '97',
-      title: 'Cậu học trò chứng minh bài học vật lý',
-      description: "The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣 The cat fought and fell into the water🤣🤣",
-      source: "https://www.youtube.com/watch?v=g20t_K9dlhU&list=RDzENVcKkqZWg&index=27",
-      totalViews: 0,
-      totalLikes: 0,
-      totalShare: 0,
-    },
-  ]
-
-  const gridColumns = {
-    lg: 3,
-    sm: 4,
-    xs: 6
-  }
-
-  const [items, setItems] = useState<ListLoadState<any, 'nfts'>>({ isFetching: true, data: { nfts: nftsTest, count: nftsTest.length } });
-  const theme = useMantineTheme();
+export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
+  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
+  const [favouritedTokens, setFavouritedTokens] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
   const [activeTab, setActiveTab] = useState<string | null>(UserTabsProfile.ALL);
-  const params = useParams<{ wallet: string }>();
-  const [user, setUser] = useState<UserInformation>();
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState(NftStatus.ALL);
-  const [activePage, setPage] = useState(1);
-
-  const fetchUser = async () => {
-    try {
-
-    } catch (error) {
-
-    }
-  }
-
-  const fetchItems = async () => {
-    try {
-      let listNfts = items.data; //test nên gán = items.data
-      if (activeTab === UserTabsProfile.ALL) {
-
-      } else if (activeTab === UserTabsProfile.CREATED_COLLECTIONS) {
-
-      } else if (activeTab === UserTabsProfile.FAVOURITE) {
-
-      } else if (activeTab === UserTabsProfile.ACTIVITY) {
-
-      }
-      if (search.length > 0 && !!listNfts?.nfts) {
-        const nfts = listNfts?.nfts.filter((v, k) => {
-          if (v.title.includes(search) || v.description.includes(search)) return true;
-          return false;
-        })
-        listNfts.nfts = nfts;
-      }
-      setItems(s => ({ ...s, data: listNfts }));
-    } catch (error) {
-
-    }
-  }
-
-  useEffect(() => {
-    fetchItems();
-  }, [filter, search])
-
-  useEffect(() => {
-    // fetchUser();
-    setUser({
-      _id: "dfsdfsdf",
-      wallet: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-      username: "Unknown",
-      avatar: '',
-      cover: '',
-      createdAt: 0,
-      roles: [Roles.USER, Roles.ADMIN]
-    })
-  }, [])
+  const theme = useMantineTheme();
 
   return (
     <AppWrapper>
@@ -271,103 +66,30 @@ export const UserProfileScreen: FC = () => {
                 ))}
               </Tabs.List>
 
-              <Group mt={20}>
-                <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
-                  input: {
-                    height: '45px',
-                  },
-                  section: {
-                    paddingRight: `${theme.spacing.md}`
-                  }
-                }}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <MyCombobox
-                  initialValue={NftStatus.ALL}
-                  options={NftStatus}
-                  styles={{
-                    dropdown: {
-                      maxHeight: '200px',
-                      overflow: 'hidden',
-                      overflowY: 'auto',
-                    },
-                  }}
-                  classNames={{
-                    dropdown: 'hidden-scroll-bar'
-                  }}
-                  classNamesInput="combobox-input"
-                  classNamesRoot="combobox-root-input"
-                  onChange={() => { }}
-                />
-              </Group>
-
-              <Text my={10} fw="bold" c={theme.colors.text[1]}>2 kết quả</Text>
-
               <Tabs.Panel value={UserTabsProfile.ALL}>
-                {function () {
-                  // if (items.isFetching || !items.data) return <Grid>
-                  //   {Array(3).fill(0).map((_, key) => (
-                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                  //     </Grid.Col>
-                  //   ))}
-                  // </Grid>
-
-                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
-
-                  // if (!items.data.length) return <EmptyBox />
-
-                  return <Grid gutter={theme.spacing.md}>
-                    {items.data?.nfts.map((v, k) => (
-                      <Grid.Col key={k} span={{ ...gridColumns }}>
-                        <NftCard nft={v} key={k} />
-                      </Grid.Col>
-                    ))}
-                  </Grid>
-                }()}
+                <TabNfts user={user} />
               </Tabs.Panel>
 
               <Tabs.Panel value={UserTabsProfile.CREATED_COLLECTIONS}>
+                <TabCollections user={user} />
+              </Tabs.Panel>
+
+              {/* <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
                 {function () {
-                  // if (items.isFetching || !items.data) return <Grid>
-                  //   {Array(3).fill(0).map((_, key) => (
-                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                  //     </Grid.Col>
-                  //   ))}
-                  // </Grid>
-
-                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
-
-                  // if (!items.data.length) return <EmptyBox />
-
-                  return <Grid gutter={theme.spacing.md}>
-                    {items.data?.nfts.map((v, k) => (
-                      <Grid.Col key={k} span={{ ...gridColumns }}>
-                        <NftCard nft={v} key={k} />
+                  if (tokens.isFetching || !tokens.data) return <Grid>
+                    {Array(3).fill(0).map((_, key) => (
+                      <Grid.Col key={key} span={{ ...gridColumns }}>
+                        <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
                       </Grid.Col>
                     ))}
                   </Grid>
-                }()}
-              </Tabs.Panel>
 
-              <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
-                {function () {
-                  // if (items.isFetching || !items.data) return <Grid>
-                  //   {Array(3).fill(0).map((_, key) => (
-                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                  //     </Grid.Col>
-                  //   ))}
-                  // </Grid>
+                  if (tokens.error) return <Group><ErrorMessage error={tokens.error} /></Group>
 
-                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
-
-                  // if (!items.data.length) return <EmptyBox />
+                  if (tokens.data.count === 0) return <EmptyMessage />
 
                   return <Grid gutter={theme.spacing.md}>
-                    {items.data?.nfts.map((v, k) => (
+                    {tokens.data?.tokens.map((v, k) => (
                       <Grid.Col key={k} span={{ ...gridColumns }}>
                         <NftCard nft={v} key={k} />
                       </Grid.Col>
@@ -378,42 +100,27 @@ export const UserProfileScreen: FC = () => {
 
               <Tabs.Panel value={UserTabsProfile.ACTIVITY}>
                 {function () {
-                  // if (items.isFetching || !items.data) return <Grid>
-                  //   {Array(3).fill(0).map((_, key) => (
-                  //     <Grid.Col key={key} span={{ ...gridColumns }}>
-                  //       <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                  //     </Grid.Col>
-                  //   ))}
-                  // </Grid>
+                  if (tokens.isFetching || !tokens.data) return <Grid>
+                    {Array(3).fill(0).map((_, key) => (
+                      <Grid.Col key={key} span={{ ...gridColumns }}>
+                        <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+                      </Grid.Col>
+                    ))}
+                  </Grid>
 
-                  // if (items.error) return <Group><ErrorBox error={items.error} /></Group>
+                  if (tokens.error) return <Group><ErrorMessage error={tokens.error} /></Group>
 
-                  // if (!items.data.length) return <EmptyBox />
+                  if (tokens.data.count === 0) return <EmptyMessage />
 
                   return <Grid gutter={theme.spacing.md}>
-                    {items.data?.nfts.map((v, k) => (
+                    {tokens.data?.tokens.map((v, k) => (
                       <Grid.Col key={k} span={{ ...gridColumns }}>
                         <NftCard nft={v} key={k} />
                       </Grid.Col>
                     ))}
                   </Grid>
                 }()}
-              </Tabs.Panel>
-
-              <Pagination color={theme.colors.primary[5]} total={20} siblings={2} value={activePage} onChange={setPage} styles={{
-                root: {
-                  marginTop: '80px',
-                  display: 'flex',
-                  justifyContent: 'center'
-                },
-                control: {
-                  padding: '20px 15px',
-                }
-              }}
-                // classNames={{
-                //   control: classes.control
-                // }}
-              />
+              </Tabs.Panel> */}
 
             </Tabs>
           </Stack>
@@ -667,5 +374,263 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
       <Text c={theme.colors.text[1]} fw="bold" ml={14}>{props.user.username}</Text>
     </Stack>
+  )
+}
+
+const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
+  const [tokens, setTokens] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
+  const gridColumns = {
+    lg: 3,
+    sm: 4,
+    xs: 6
+  }
+  const theme = useMantineTheme();
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState(NftStatus.ALL);
+  const [activePage, setPage] = useState(1);
+  const [debounced] = useDebouncedValue(search, 200);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const { isMobile, isTablet } = useResponsive();
+  const limit = isMobile ? 10 : 12;
+
+  const fetchItems = async () => {
+    try {
+      setTokens(s => ({ ...s, isFetching: true, data: { tokens: [], count: 0 } }));
+      let listItems: any;
+      let sort = '';
+      //get list by filter
+      if (filter !== NftStatus.ALL) {
+        if (filter === NftStatus.OLDEST) sort = '+createdAt';
+        if (filter === NftStatus.NEWEST) sort = '-createdAt';
+      }
+
+      listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort });
+      if (search.length > 0 && !!listItems.data.tokens) {
+        const nfts = listItems.data.tokens.filter((v, k) => {
+          if (v.title.includes(search) || v.description.includes(search)) return true;
+          return false;
+        })
+        listItems.data.tokens = nfts;
+        listItems.data.count = nfts.length;
+      }
+      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data.tokens, count: listItems.data.count } }));
+      setTotalPages(Math.ceil(listItems.data.count / limit));
+    } catch (error) {
+      setTokens(s => ({ ...s, isFetching: false }));
+      onError(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchItems();
+  }, [activePage, filter, debounced])
+
+  return (
+    <>
+      <Group mt={20}>
+        <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
+          input: {
+            height: '45px',
+          },
+          section: {
+            paddingRight: `${theme.spacing.md}`
+          }
+        }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <MyCombobox
+          initialValue={NftStatus.ALL}
+          options={NftStatus}
+          styles={{
+            dropdown: {
+              maxHeight: '200px',
+              overflow: 'hidden',
+              overflowY: 'auto',
+            },
+          }}
+          classNames={{
+            dropdown: 'hidden-scroll-bar'
+          }}
+          classNamesInput="combobox-input"
+          classNamesRoot="combobox-root-input"
+          onChange={(val) => { setFilter(val) }}
+        />
+      </Group>
+
+      <Text my={10} fw="bold" c={theme.colors.text[1]}>{tokens.data?.count || 0} kết quả</Text>
+
+      {function () {
+        if (tokens.isFetching || !tokens.data) return <Grid>
+          {Array(4).fill(0).map((_, key) => (
+            <Grid.Col key={key} span={{ ...gridColumns }}>
+              <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+            </Grid.Col>
+          ))}
+        </Grid>
+
+        if (tokens.error) return <Group><ErrorMessage error={tokens.error} /></Group>
+
+        if (tokens.data.count === 0) return <EmptyMessage />
+        return <Grid gutter={theme.spacing.md}>
+          {tokens.data?.tokens.map((v, k) => (
+            <Grid.Col key={k} span={{ ...gridColumns }}>
+              <NftCard nft={v} key={k} />
+            </Grid.Col>
+          ))}
+        </Grid>
+      }()}
+
+      <Pagination color={theme.colors.primary[5]} total={totalPages} siblings={2} value={activePage} onChange={setPage} styles={{
+        root: {
+          marginTop: '80px',
+          display: 'flex',
+          justifyContent: 'center'
+        },
+        control: {
+          padding: '20px 15px',
+        }
+      }}
+      />
+    </>
+  )
+}
+
+const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
+  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
+  const gridColumns = {
+    lg: 3,
+    sm: 4,
+    xs: 6
+  }
+  const theme = useMantineTheme();
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState(CollectionType.ALL);
+  const [status, setStatus] = useState(CollectionStatus.ALL);
+  const [activePage, setPage] = useState(1);
+  const [debounced] = useDebouncedValue(search, 200);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const { isMobile, isTablet } = useResponsive();
+  const limit = isMobile ? 10 : 12;
+
+  const fetchItems = async () => {
+    try {
+      setCollections(s => ({ ...s, isFetching: true, data: { collections: [], count: 0 } }));
+      let listItems: any;
+      let sort = '';
+      //get list by filter
+      if (status !== CollectionStatus.ALL) {
+        if (status === CollectionStatus.MOST_VIEWS) sort = '-totalViews';
+        if (status === CollectionStatus.MOST_AVGPRICE) sort = '-averagePrice';
+        if (status === CollectionStatus.NEWEST) sort = '-createdAt';
+        if (status === CollectionStatus.OLDEST) sort = '+createdAt';
+      }
+      listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter as string : '' });
+      if (search.length > 0 && !!listItems.data.collections) {
+        const collections = listItems.data.collections.filter((v, k) => {
+          if (v.title.includes(search) || v.description.includes(search)) return true;
+          return false;
+        })
+        listItems.data.collections = collections;
+        listItems.data.count = collections.length;
+      }
+      setCollections(s => ({ ...s, isFetching: false, data: { collections: listItems.data.collections, count: listItems.data.count } }));
+
+      setTotalPages(Math.ceil(listItems.data.count / limit));
+    } catch (error) {
+      setCollections(s => ({ ...s, isFetching: false }));
+      onError(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchItems();
+  }, [activePage, filter, debounced])
+
+  return (
+    <>
+      <Group mt={20}>
+        <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
+          input: {
+            height: '45px',
+          },
+          section: {
+            paddingRight: `${theme.spacing.md}`
+          }
+        }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <MyCombobox
+          initialValue={CollectionType.ALL}
+          options={CollectionType}
+          styles={{
+            dropdown: {
+              maxHeight: '200px',
+              overflow: 'hidden',
+              overflowY: 'auto',
+            },
+          }}
+          classNames={{
+            dropdown: 'hidden-scroll-bar'
+          }}
+          classNamesInput="combobox-input"
+          classNamesRoot="combobox-root-input"
+          onChange={(val) => { setFilter(val) }}
+        />
+        <MyCombobox
+          initialValue={CollectionStatus.ALL}
+          options={CollectionStatus}
+          styles={{
+            dropdown: {
+              maxHeight: '200px',
+              overflow: 'hidden',
+              overflowY: 'auto',
+            },
+          }}
+          classNames={{
+            dropdown: 'hidden-scroll-bar'
+          }}
+          classNamesInput="combobox-input"
+          classNamesRoot="combobox-root-input"
+          onChange={(val) => { setStatus(val) }}
+        />
+      </Group>
+
+      <Text my={10} fw="bold" c={theme.colors.text[1]}>{collections.data?.count || 0} kết quả</Text>
+
+      {function () {
+        if (collections.isFetching || !collections.data) return <Grid>
+          {Array(4).fill(0).map((_, key) => (
+            <Grid.Col key={key} span={{ ...gridColumns }}>
+              <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+            </Grid.Col>
+          ))}
+        </Grid>
+
+        if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
+
+        if (collections.data.count === 0) return <EmptyMessage />
+        return <Grid gutter={theme.spacing.md}>
+          {collections.data?.collections.map((v, k) => (
+            <Grid.Col key={k} span={{ ...gridColumns }}>
+              <CollectionCard collection={v} key={k} />
+            </Grid.Col>
+          ))}
+        </Grid>
+      }()}
+
+      <Pagination color={theme.colors.primary[5]} total={totalPages} siblings={2} value={activePage} onChange={setPage} styles={{
+        root: {
+          marginTop: '80px',
+          display: 'flex',
+          justifyContent: 'center'
+        },
+        control: {
+          padding: '20px 15px',
+        }
+      }}
+      />
+    </>
   )
 }

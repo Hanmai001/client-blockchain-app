@@ -18,4 +18,8 @@ export class CollectionModule {
   static async getCollectionByID(id: string): Promise<any> {
     return RequestModule.get(`/api/v1/collections/${id}`);
   }
+
+  static async getCollecionsOfUser(wallet: string, query?: CollectionQuery): Promise<ListLoadState<Collection>> {
+    return RequestModule.get(`/api/v1/collections`, {creator: wallet});
+  }
 }

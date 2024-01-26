@@ -1,3 +1,4 @@
+import { Query } from "../../../types"
 
 
 export enum Roles {
@@ -5,7 +6,7 @@ export enum Roles {
   USER = 'USER',
 }
 export interface UserInformation {
-  _id: string,
+  id: string,
   wallet?: string,
   username?: string,
   avatar?: string,
@@ -36,4 +37,8 @@ export enum UserTabsProfile {
   CREATED_COLLECTIONS = 'Bộ sưu tập',
   FAVOURITE = 'Đã yêu thích',
   ACTIVITY = 'Hoạt động'
+}
+
+export interface UserQuery extends Query {
+  
 }

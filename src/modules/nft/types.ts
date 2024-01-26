@@ -46,7 +46,9 @@ export enum NftStatus {
   ISLISTING = 'Đang bán',
   SOLD = 'Đã bán',
   UNLISTING = 'Không bán',
-  NEREST_RECIEVE = 'Nhận gần đây'
+  NEREST_RECIEVE = 'Nhận gần đây',
+  OLDEST = 'Cũ nhất',
+  NEWEST = 'Mới nhất'
 }
 
 export interface NftQuery extends Query {

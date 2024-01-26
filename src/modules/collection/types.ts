@@ -12,6 +12,14 @@ export enum CollectionType {
   COOK = 'Nấu ăn'
 }
 
+export enum CollectionStatus {
+  ALL = 'Tất cả',
+  OLDEST = 'Cũ nhất',
+  NEWEST = 'Mới nhất',
+  MOST_AVGPRICE = 'Tỷ lệ giá trung bình cao nhất',
+  MOST_VIEWS = 'Được xem nhiều nhất'
+}
+
 export interface Collection {
   collectionID: string,
   id: string,
