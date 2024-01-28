@@ -8,7 +8,8 @@ export const AppRoutes = {
     edit: '/nfts/edit'
   },
   user: {
-    profile: '/users'
+    profile: '/users',
+    friends: '/users/friends'
   },
   friends: '/friends'
 }

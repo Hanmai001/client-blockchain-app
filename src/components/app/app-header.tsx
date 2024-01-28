@@ -7,7 +7,7 @@ import { useBlockChain } from "@/share/blockchain/context";
 import { NumberUtils, StringUtils } from "@/share/utils";
 import { ActionIcon, Avatar, Box, Burger, Card, Center, Drawer, Group, Image, Loader, Menu, MenuItem, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
-import { IconBell, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import { IconBell, IconFriends, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../types";
@@ -339,6 +339,7 @@ export const Account: FC = () => {
   const profileMenu = [
     { label: 'Trang cá nhân', route: `${AppRoutes.user.profile}/${account.information?.wallet}`, icon: <IconUserBolt />, },
     { label: 'Yêu thích', route: 'd', icon: <IconHeartBolt />, },
+    { label: 'Bạn bè', route: AppRoutes.user.friends, icon: <IconFriends />, },
     { label: 'Cài đặt', route: 'd', icon: <IconSettings /> },
     { label: 'Chế độ tối', icon: <IconMoonFilled /> }
   ];

@@ -33,6 +33,7 @@
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
     "react-easy-crop": "^5.0.4",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-redux": "^9.0.4",
     "react-slick": "^0.29.0",
     "sass": "^1.69.7",
