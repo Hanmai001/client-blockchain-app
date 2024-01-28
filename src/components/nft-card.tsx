@@ -45,7 +45,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
           </Box>
         </Stack>
 
-        {hovered && account.information?.wallet?.toLowerCase() !== props.nft.owner && <AppButton async color={theme.colors.primary[5]} className={ClassNames({
+        {hovered && account.information?.wallet !== props.nft.owner && <AppButton async color={theme.colors.primary[5]} className={ClassNames({
           [classes.buyButton]: true,
           [classes.buttonUnhovered]: !hovered ? true : false,
           [classes.buttonHovered]: hovered
@@ -54,7 +54,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
         </AppButton>}
 
         {account.information?.wallet === props.nft.owner &&
-          <Link href={`${AppRoutes.nft.edit}/${props.nft._id}`} style={{
+          <Link href={`${AppRoutes.nft.edit}/${props.nft.tokenID}`} style={{
             position: "absolute",
             right: 0,
             marginRight: rem(10),

@@ -23,13 +23,14 @@ export interface Nft {
   title: string,
   description: string
   source: string,
+  listOfLikedUsers: any[],
+  listOfFavoriteUsers: any[],
   totalViews: number,
-  totalLikes: number,
   totalShare: number,
   acive: boolean,
   disabled: boolean,
-  createdAt: number,
-  updatedAt: number
+  createdAt: Date,
+  updatedAt: Date
 }
 
 export interface NftPayload {

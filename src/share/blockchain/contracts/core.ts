@@ -208,7 +208,7 @@ export class Contract {
             from: wallet,
             ...options.params,
             gasPrice: 23000,
-            gasLimit: 500000,
+            gasLimit: 300000,
         }) 
         const txReceipt = await tx.wait(1);
         handleOnSubmitted(txReceipt.hash);

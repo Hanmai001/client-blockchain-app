@@ -29,6 +29,7 @@ export class RequestModule {
 
   static async get(subUrl: string, params = {}) {
     const configs = await this.getConfigs(params);
+    // console.log(configs)
     try {
       const res = await axios.get(this.getURL(subUrl), configs);
       return res.data;

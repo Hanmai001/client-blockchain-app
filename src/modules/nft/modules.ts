@@ -22,4 +22,30 @@ export class NftModule {
   static async getAllNftsOfUser(wallet: string, query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {
     return RequestModule.get(`/api/v1/tokens/user/${wallet}`, query);
   }
+
+  static async getFavouritedNftsOfUser(query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {
+    return RequestModule.get(`/api/v1/tokens/favorite`, query)
+  }
+
+  static async updateLikeNft(id: string) {
+    return RequestModule.get(`/api/v1/tokens/${id}/like`);
+  }
+
+  static async checkIsLikeNft(id: string) {
+    const res = await RequestModule.get(`/api/v1/tokens/${id}/isLiked`);
+    return res.data.isLiked;
+  }
+
+  static async updateFavouriteNft(id: string) {
+    return RequestModule.get(`/api/v1/tokens/${id}/favorite`);
+  }
+
+  static async checkIsFavouriteNft(id: string) {
+    const res = await RequestModule.get(`/api/v1/tokens/${id}/isFavorited`)
+    return res.data.isFavorited;
+  }
+
+  static async increaseTotalViews(id: string): Promise<any> {
+    return RequestModule.put(``);
+  }
 }

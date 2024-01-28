@@ -99,7 +99,7 @@ export const CreateNftScreen: FC = () => {
         }
       });
 
-      const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString() };
+      const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT };
       await NftModule.update(res.data.token.id, payloadUpdate);
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
@@ -116,7 +116,6 @@ export const CreateNftScreen: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const res = await CollectionModule.getList({ chainID: blockchain.chainId, creator: form.values.creator });
-      console.log("res", res)
       setCollections(s => ({ ...s, isFetching: false, data: { collections: res.data!.collections, count: res.data!.count } }));
     };
 

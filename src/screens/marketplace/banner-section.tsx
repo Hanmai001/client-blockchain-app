@@ -72,8 +72,6 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
       }
       filteredRes = getRandomItems(filteredRes, 9);
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
-
-      console.log("filtered res: ", collections)
     } catch (error) {
       setCollections(s => ({ ...s, isFetching: false }))
       onError(error)

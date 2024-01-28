@@ -13,6 +13,7 @@ import { BlockChainProvider } from '@/share/blockchain/context';
 import { AccountProvider } from '@/modules/account/context';
 import { ErrorModal } from '@/components/modals/modal-error';
 import { ModalSuccess } from '@/components/modals/modal-success';
+import { ModalListNft } from '@/components/modals/modal-list-nft';
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -24,6 +25,7 @@ const App: FC<PropsWithChildren> = (props) => {
         {/* APP MODALS */}
         <ModalSuccess />
         <ErrorModal />
+        <ModalListNft />
       </main>
     </AccountProvider>
   )

@@ -19,7 +19,7 @@ export const AppNavBar: FC = () => {
   const navLinks = [
     { link: AppRoutes.root, label: 'Cửa hàng', icon: IconBuildingStore },
     { link: `${AppRoutes.user.profile}/${blockchain.wallet}`, label: 'Hồ sơ của bạn', icon: IconCameraBolt },
-    { link: '/users/friends', label: 'Bạn bè', icon: IconFriends },
+    { link: AppRoutes.friends, label: 'Bạn bè', icon: IconFriends },
   ]
 
   const links = navLinks.map((item) => (

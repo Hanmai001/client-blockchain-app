@@ -14,8 +14,8 @@ export const renderPayment = (payment: AppPayment, specificChainId?: ChainId) =>
     if (chain) symbol = chain.currency.name
   }
 
-  if (payment === AppPayment.USDM) symbol = 'USDM'
-  if (payment === AppPayment.USDT) symbol = 'USDT'
+  // if (payment === AppPayment.USDM) symbol = 'USDM'
+  // if (payment === AppPayment.USDT) symbol = 'USDT'
   if (payment === AppPayment.BCT) symbol = 'BCT'
 
   return {
@@ -34,13 +34,7 @@ export const getPaymentContract = (payment: AppPayment, specificChainId?: ChainI
 
   const chainConfig = getChainConfig(chainId);
 
-  if (payment === AppPayment.USDM) address = chainConfig.erc20s.USDM;
-  else if (payment === AppPayment.USDT)
-    address = chainConfig.erc20s.USDT;
-  else if (payment === AppPayment.BCT)
-    address = chainConfig.erc20s.BCT;
-
-  // console.log("address: ", address)
+  if (payment === AppPayment.BCT) address = chainConfig.erc20s.BCT;
 
   if (!address) return;
 

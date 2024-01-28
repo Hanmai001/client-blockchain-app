@@ -74,53 +74,9 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
                 <TabCollections user={user} />
               </Tabs.Panel>
 
-              {/* <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
-                {function () {
-                  if (tokens.isFetching || !tokens.data) return <Grid>
-                    {Array(3).fill(0).map((_, key) => (
-                      <Grid.Col key={key} span={{ ...gridColumns }}>
-                        <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                      </Grid.Col>
-                    ))}
-                  </Grid>
-
-                  if (tokens.error) return <Group><ErrorMessage error={tokens.error} /></Group>
-
-                  if (tokens.data.count === 0) return <EmptyMessage />
-
-                  return <Grid gutter={theme.spacing.md}>
-                    {tokens.data?.tokens.map((v, k) => (
-                      <Grid.Col key={k} span={{ ...gridColumns }}>
-                        <NftCard nft={v} key={k} />
-                      </Grid.Col>
-                    ))}
-                  </Grid>
-                }()}
+              <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
+                <TabFavouritedNfts user={user} />
               </Tabs.Panel>
-
-              <Tabs.Panel value={UserTabsProfile.ACTIVITY}>
-                {function () {
-                  if (tokens.isFetching || !tokens.data) return <Grid>
-                    {Array(3).fill(0).map((_, key) => (
-                      <Grid.Col key={key} span={{ ...gridColumns }}>
-                        <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
-                      </Grid.Col>
-                    ))}
-                  </Grid>
-
-                  if (tokens.error) return <Group><ErrorMessage error={tokens.error} /></Group>
-
-                  if (tokens.data.count === 0) return <EmptyMessage />
-
-                  return <Grid gutter={theme.spacing.md}>
-                    {tokens.data?.tokens.map((v, k) => (
-                      <Grid.Col key={k} span={{ ...gridColumns }}>
-                        <NftCard nft={v} key={k} />
-                      </Grid.Col>
-                    ))}
-                  </Grid>
-                }()}
-              </Tabs.Panel> */}
 
             </Tabs>
           </Stack>
@@ -615,6 +571,125 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
           {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard collection={v} key={k} />
+            </Grid.Col>
+          ))}
+        </Grid>
+      }()}
+
+      <Pagination color={theme.colors.primary[5]} total={totalPages} siblings={2} value={activePage} onChange={setPage} styles={{
+        root: {
+          marginTop: '80px',
+          display: 'flex',
+          justifyContent: 'center'
+        },
+        control: {
+          padding: '20px 15px',
+        }
+      }}
+      />
+    </>
+  )
+}
+
+const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
+  const [tokens, setTokens] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
+  const gridColumns = {
+    lg: 3,
+    sm: 4,
+    xs: 6
+  }
+  const theme = useMantineTheme();
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState(NftStatus.ALL);
+  const [activePage, setPage] = useState(1);
+  const [debounced] = useDebouncedValue(search, 200);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const { isMobile, isTablet } = useResponsive();
+  const limit = isMobile ? 10 : 12;
+
+  const fetchItems = async () => {
+    try {
+      setTokens(s => ({ ...s, isFetching: true, data: { tokens: [], count: 0 } }));
+      let listItems: any;
+      let sort = '';
+      //get list by filter
+      if (filter !== NftStatus.ALL) {
+        if (filter === NftStatus.OLDEST) sort = '+createdAt';
+        if (filter === NftStatus.NEWEST) sort = '-createdAt';
+      }
+
+      listItems = await NftModule.getFavouritedNftsOfUser({ limit, offset: (activePage - 1) * limit, sort });
+      if (search.length > 0 && !!listItems.data.tokens) {
+        const nfts = listItems.data.tokens.filter((v, k) => {
+          if (v.title.includes(search) || v.description.includes(search)) return true;
+          return false;
+        })
+        listItems.data.tokens = nfts;
+        listItems.data.count = nfts.length;
+      }
+      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data.tokens, count: listItems.data.count } }));
+      setTotalPages(Math.ceil(listItems.data.count / limit));
+    } catch (error) {
+      setTokens(s => ({ ...s, isFetching: false }));
+      onError(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchItems();
+  }, [activePage, filter, debounced])
+
+  return (
+    <>
+      <Group mt={20}>
+        <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
+          input: {
+            height: '45px',
+          },
+          section: {
+            paddingRight: `${theme.spacing.md}`
+          }
+        }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <MyCombobox
+          initialValue={NftStatus.ALL}
+          options={NftStatus}
+          styles={{
+            dropdown: {
+              maxHeight: '200px',
+              overflow: 'hidden',
+              overflowY: 'auto',
+            },
+          }}
+          classNames={{
+            dropdown: 'hidden-scroll-bar'
+          }}
+          classNamesInput="combobox-input"
+          classNamesRoot="combobox-root-input"
+          onChange={(val) => { setFilter(val) }}
+        />
+      </Group>
+
+      <Text my={10} fw="bold" c={theme.colors.text[1]}>{tokens.data?.count || 0} kết quả</Text>
+
+      {function () {
+        if (tokens.isFetching || !tokens.data) return <Grid>
+          {Array(4).fill(0).map((_, key) => (
+            <Grid.Col key={key} span={{ ...gridColumns }}>
+              <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+            </Grid.Col>
+          ))}
+        </Grid>
+
+        if (tokens.error) return <Group><ErrorMessage error={tokens.error} /></Group>
+
+        if (tokens.data.count === 0) return <EmptyMessage />
+        return <Grid gutter={theme.spacing.md}>
+          {tokens.data?.tokens.map((v, k) => (
+            <Grid.Col key={k} span={{ ...gridColumns }}>
+              <NftCard nft={v} key={k} />
             </Grid.Col>
           ))}
         </Grid>
