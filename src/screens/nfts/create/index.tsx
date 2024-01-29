@@ -99,7 +99,6 @@ export const CreateNftScreen: FC = () => {
       });
 
       const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
-      console.log("payload update: ",payloadUpdate);
       await NftModule.update(res.data.token.id, payloadUpdate);
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
@@ -218,9 +217,9 @@ export const CreateNftScreen: FC = () => {
                       if (!collection.data) return null;
 
                       return <>
-                        {collections.data?.collections.map((v, k) => <Box
-                          bg={v.collectionID === collection.data.collectionID ? theme.colors.primary[5] : theme.white}
-                          className={v.collectionID === collection.data.collectionID ? classes.itemActive : classes.item}
+                        {collections.data!.collections.map((v, k) => <Box
+                          bg={v.collectionID === collection.data!.collectionID ? theme.colors.primary[5] : theme.white}
+                          className={v.collectionID === collection.data!.collectionID ? classes.itemActive : classes.item}
                           style={{
                             borderRadius: '12px',
                             padding: '12px 12px',
@@ -230,7 +229,7 @@ export const CreateNftScreen: FC = () => {
                         >
                           <Group>
                             <Image width="48" height="64" radius={12} src={v.bannerURL} />
-                            <Text c={v.collectionID === collection.data.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
+                            <Text c={v.collectionID === collection.data!.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
                           </Group>
                         </Box>)}
                       </>

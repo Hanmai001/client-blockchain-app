@@ -1,9 +1,7 @@
-import { AppModule } from "@/modules/app/modules";
-import { AspectRatio, Box, Center, Group, Input, InputBaseProps, Stack, Text, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
-import { FC, useCallback, useState } from "react";
-import { AppImage } from "../app/app-image";
-import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
-import Dropzone, { useDropzone, FileWithPath } from "react-dropzone";
+import { Box, Group, InputBaseProps, Stack, Text, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
+import { IconUpload, IconX } from "@tabler/icons-react";
+import { FC, useCallback, useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
 
 interface MediaInputProps extends InputBaseProps {
   onChange: (file: File) => any,
@@ -73,6 +71,19 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
     maxFiles: 1,
     onDrop,
   });
+
+  useEffect(() => {
+    if (props.value) {
+      setPreviewImage(props.value);
+      if (props.acceptance === 'image') {
+        setIsImage(true);
+        setIsVideo(false);
+      } else {
+        setIsImage(false);
+        setIsVideo(true);
+      }
+    }
+  }, [props.value]);
 
   return <Box>
     <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '15px' }}>

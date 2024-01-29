@@ -1,6 +1,7 @@
 import { ListLoadState } from "../../../types";
 import { RequestModule } from "../request/request";
-import { Collection, CollectionPayload, CollectionQuery } from "./types";
+import { TokenModule } from "../token/modules";
+import { Collection, CollectionPayload, CollectionQuery, CollectionUpdatePayload } from "./types";
 
 export class CollectionModule {
   static async create(payload: CollectionPayload): Promise<any> {
@@ -11,7 +12,7 @@ export class CollectionModule {
     return RequestModule.get(`/api/v1/collections`, query);
   }
 
-  static async updateAfterMint(id: string, payload: any) {
+  static async update(id: string, payload: any) {
     return RequestModule.put(`/api/v1/collections/${id}`, payload);
   }
 
@@ -21,5 +22,16 @@ export class CollectionModule {
 
   static async getCollecionsOfUser(wallet: string, query?: CollectionQuery): Promise<ListLoadState<Collection>> {
     return RequestModule.get(`/api/v1/collections`, {creator: wallet});
+  }
+
+  static async updateCollection(payload: CollectionUpdatePayload): Promise<any> {
+     const res =  await this.update(payload.collectionID, payload);
+
+    const contract = TokenModule.getContractERC721(payload.contractAddress);
+
+    let txReceipt = await contract.send({
+      method: 'updateBaseCollectionURI',
+      args: [res.data.tokenURI, payload.collectionID],
+    });
   }
 }

@@ -296,13 +296,13 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
 
 export const useBlockChain = () => useContext(blockChainContext);
 
-export const renderLinkContract = (address: string, chainId: ChainId) => {
+export const renderLinkContract = (address: string, chainId: string) => {
   const chain = chains.find(v => v.chainId === chainId);
   if (chain) return `${chain.urlBlockExplorer}/address/${address}`;
   return `${address}`;
 }
 
-export const renderLinkTransaction = (transactionHash: string, chainId: ChainId) => {
+export const renderLinkTransaction = (transactionHash: string, chainId: string) => {
   const chain = chains.find(v => v.chainId === chainId);
   if (chain) return `${chain.urlBlockExplorer}/tx/${transactionHash}`;
   return `${transactionHash}`;

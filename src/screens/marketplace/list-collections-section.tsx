@@ -32,7 +32,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
 
   const fetchFeaturedCollections = async (category: CollectionType) => {
     try {
-      const featuredResItem = await CollectionModule.getList({ chainID: blockchain.chainId, category: category as string, sort: '+averagePrice' });
+      const featuredResItem = await CollectionModule.getList({ chainID: blockchain.chainId, category: category as string, sort: '+averagePrice', limit: 3 });
       const tempFeaturedResItem = { isFetching: false, data: { collections: featuredResItem.data ? featuredResItem.data.collections : [], count: featuredResItem.data ? featuredResItem.data.count : 0 } };
       setFeaturedRes(s => [...s, tempFeaturedResItem]);
     } catch (error) {
@@ -43,7 +43,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
   const fetchCollections = async () => {
     try {
       if (props.type !== CollectionType.ALL) {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, limit: 10, offset: (activePage - 1) * 10 })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, limit: 20, offset: (activePage - 1) * 20 })
         const filteredRes = res.data!.collections?.filter((v, k) => {
           if (v.category === props.type) return true;
           return false;

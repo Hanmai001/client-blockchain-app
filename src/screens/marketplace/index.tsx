@@ -55,7 +55,7 @@ export const MarketplaceScreen = () => {
               </Stack>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 4 }}>
+            <Grid.Col span={{ base: 12, md: 4, lg: 4 }}>
               <CollectionsRanking type={activeTab}/>
             </Grid.Col>
           </Grid>

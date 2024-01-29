@@ -50,6 +50,17 @@ export interface CollectionPayload {
   paymentType: AppPayment,
 } 
 
+export interface CollectionUpdatePayload {
+  collectionID: string,
+  chainID: ChainId,
+  title: string,
+  bannerURL: string,
+  description: string,
+  contractAddress: string,
+  category: CollectionType,
+  active: boolean,
+} 
+
 export interface CollectionQuery extends Query {
   category?: string,
   creator?: string

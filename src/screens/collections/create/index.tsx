@@ -102,13 +102,13 @@ export const CollectionCreateScreen: FC = () => {
       // console.log(txReceipt)
 
       const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString() };
-      await CollectionModule.updateAfterMint(res.data.collection.id, payloadUpdate);
-      
+      await CollectionModule.update(res.data.collection.id, payloadUpdate);
+
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
       onError("Tạo Bộ sưu tập không thành công!!!");
     } finally {
-      setIsUploading(false);  
+      setIsUploading(false);
     }
   })
 

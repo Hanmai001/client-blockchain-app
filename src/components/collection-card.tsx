@@ -2,9 +2,12 @@ import { AppImage } from "@/components/app/app-image";
 import { renderPayment } from "@/modules/coins/utils";
 import { Collection } from "@/modules/collection/types";
 import { StringUtils } from "@/share/utils";
-import { AspectRatio, Box, Card, Group, Stack, Text, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Card, Group, Stack, Text, Title, Tooltip, rem, useMantineTheme } from "@mantine/core";
 import Link from "next/link";
 import { FC } from "react";
+import { AppRoutes } from "../../app-router";
+import { useAccount } from "@/modules/account/context";
+import { IconEdit } from "@tabler/icons-react";
 
 interface CollectionCardProps {
   collection: Collection
@@ -13,6 +16,7 @@ interface CollectionCardProps {
 export const CollectionCard: FC<CollectionCardProps> = (props) => {
   const theme = useMantineTheme();
   const { image, symbol } = renderPayment(props.collection.paymentType);
+  const account = useAccount();
 
   return (
     <Link href={`/collections/${props.collection.collectionID}`}>
@@ -42,6 +46,19 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
             </Group>
           </Group>
         </Stack>
+
+        {account.information?.wallet === props.collection.creator &&
+          <Link href={`${AppRoutes.collection.edit}/${props.collection.collectionID}`} style={{
+            position: "absolute",
+            right: 0,
+            marginRight: rem(10),
+            zIndex: 10
+          }}>
+            <ActionIcon c={theme.colors.primary[5]} variant="transparent" >
+              <IconEdit />
+            </ActionIcon>
+          </Link>
+        }
       </Card>
     </Link>
   )

@@ -24,48 +24,6 @@ import { onBuyNft } from "@/components/modals/modal-buy-nft";
 import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
 
-const ordersTest = [
-  {
-    _id: '1',
-    event: "Transfer",
-    chainId: '97',
-    tokenId: '1',
-    paymentAddress: '0xaa25Aa7a19f9c426E07dee59b12f944f4d9f1DD3',
-    price: '0.05',
-    seller: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-    buyer: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-    status: "ĐÃ BÁN",
-    createdAt: '21/01/2024',
-    updatedAt: '21/01/2024',
-  },
-  {
-    _id: '2',
-    event: "Transfer",
-    chainId: '97',
-    tokenId: '1',
-    paymentAddress: '0xaa25Aa7a19f9c426E07dee59b12f944f4d9f1DD3',
-    price: '0.05',
-    seller: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-    buyer: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-    status: "ĐÃ BÁN",
-    createdAt: '21/01/2024',
-    updatedAt: '21/01/2024',
-  },
-  {
-    _id: '3',
-    event: "Transfer",
-    chainId: '97',
-    tokenId: '1',
-    paymentAddress: '0xaa25Aa7a19f9c426E07dee59b12f944f4d9f1DD3',
-    price: '0.05',
-    seller: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-    buyer: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-    status: "ĐÃ BÁN",
-    createdAt: '21/01/2024',
-    updatedAt: '21/01/2024',
-  }
-]
-
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
   const account = useAccount();
@@ -112,7 +70,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const fetchMarketOrders = async () => {
     try {
       let res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID });
-      const filteredOrders = res.data.order.filter(v => v.status !== MarketStatus.ISLISTING);
+      const filteredOrders = res.data.order.filter(v=> v.status !== MarketStatus.ISLISTING);
 
       setMarketOrders(filteredOrders);
 

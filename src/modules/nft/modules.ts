@@ -1,6 +1,7 @@
 import { ListLoadState } from "../../../types";
 import { RequestModule } from "../request/request";
-import { Nft, NftPayload, NftQuery } from "./types";
+import { TokenModule } from "../token/modules";
+import { Nft, NftPayload, NftQuery, NftUpdatePayload } from "./types";
 
 export class NftModule {
   static async getList(query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {
@@ -47,5 +48,16 @@ export class NftModule {
 
   static async increaseTotalViews(id: string): Promise<any> {
     return RequestModule.patch(`/api/v1/tokens/${id}/view`);
+  }
+
+  static async updateToken(payload: NftUpdatePayload): Promise<any> {
+     const res =  await NftModule.update(payload.tokenID, payload);
+
+    const contract = TokenModule.getContractERC721(payload.contractAddress);
+
+    let txReceipt = await contract.send({
+      method: 'updateBaseNftURI',
+      args: [res.data.tokenURI, payload.tokenID],
+    });
   }
 }

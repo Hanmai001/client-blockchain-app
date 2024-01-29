@@ -26,7 +26,7 @@ export interface Nft {
   listOfFavoriteUsers: any[],
   totalViews: number,
   totalShare: number,
-  acive: boolean,
+  active: boolean,
   disabled: boolean,
   createdAt: Date,
   updatedAt: Date
@@ -38,6 +38,17 @@ export interface NftPayload {
   chainID: string,
   collectionID: string,
   title: string,
+  description: string
+}
+
+export interface NftUpdatePayload {
+  tokenID: string,
+  contractAddress: string,
+  chainID: string,
+  collectionID: string,
+  source: string,
+  title: string,
+  active: boolean,
   description: string
 }
 

@@ -11,11 +11,13 @@ import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { EmptyMessage } from "@/components/empty-message";
+import { useResponsive } from "@/modules/app/hooks";
 
 export const CollectionsRanking: FC<{type: string | null}> = (props) => {
   const defaultState: ListLoadState<any, 'collections'> = { isFetching: true, data: { collections: [], count: 0 } }
   const [collections, setCollections] = useState(defaultState);
   const blockchain = useBlockChain();
+  const { isMobile } = useResponsive();
   const theme = useMantineTheme();
 
   const fetchCollectionsRanking = async () => {
