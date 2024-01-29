@@ -14,6 +14,7 @@ import { AccountProvider } from '@/modules/account/context';
 import { ErrorModal } from '@/components/modals/modal-error';
 import { ModalSuccess } from '@/components/modals/modal-success';
 import { ModalListNft } from '@/components/modals/modal-list-nft';
+import { ModalBuyNft } from '@/components/modals/modal-buy-nft';
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -26,6 +27,7 @@ const App: FC<PropsWithChildren> = (props) => {
         <ModalSuccess />
         <ErrorModal />
         <ModalListNft />
+        <ModalBuyNft />
       </main>
     </AccountProvider>
   )

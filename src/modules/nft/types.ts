@@ -15,7 +15,6 @@ export interface Nft {
   tokenID: string,
   id: string,
   creator: string,
-  tokenUri: string,
   collectionID: string,
   contractAddress: string,
   owner: string,

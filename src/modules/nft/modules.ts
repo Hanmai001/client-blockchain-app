@@ -28,7 +28,7 @@ export class NftModule {
   }
 
   static async updateLikeNft(id: string) {
-    return RequestModule.get(`/api/v1/tokens/${id}/like`);
+    return RequestModule.patch(`/api/v1/tokens/${id}/like`);
   }
 
   static async checkIsLikeNft(id: string) {
@@ -37,7 +37,7 @@ export class NftModule {
   }
 
   static async updateFavouriteNft(id: string) {
-    return RequestModule.get(`/api/v1/tokens/${id}/favorite`);
+    return RequestModule.patch(`/api/v1/tokens/${id}/favorite`);
   }
 
   static async checkIsFavouriteNft(id: string) {
@@ -46,6 +46,6 @@ export class NftModule {
   }
 
   static async increaseTotalViews(id: string): Promise<any> {
-    return RequestModule.put(``);
+    return RequestModule.patch(`/api/v1/tokens/${id}/view`);
   }
 }

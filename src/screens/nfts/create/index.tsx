@@ -94,12 +94,12 @@ export const CreateNftScreen: FC = () => {
         method: 'mintNft',
         args: [payload.creator, res.data.tokenURI, payload.collectionID],
         params: {
-          from: payload.creator,
           value: feeMint
         }
       });
 
-      const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT };
+      const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
+      console.log("payload update: ",payloadUpdate);
       await NftModule.update(res.data.token.id, payloadUpdate);
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {

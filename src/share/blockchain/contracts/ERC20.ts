@@ -26,10 +26,13 @@ export class ContractERC20 extends Contract {
 
   async approve(params: { operator: string, amount: number }) {
     await this._beforeSend();
-    const allowance = await this.allowance({ operator: params.operator, owner: this.wallet!.toString() });
+    
+    //Check allowance[owner][operator]
+    const allowance = await this.allowance({ owner: this.wallet!.toString(), operator: params.operator });
     if (params.amount <= allowance) return true;
 
     const amountInWei = await this.toWei(params.amount);
+    //Approve for operator to transfer token-erc20
     return this.send({ method: 'approve', args: [params.operator, amountInWei] })
   }
 

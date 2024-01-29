@@ -14,26 +14,15 @@ import { useClipboard } from "@mantine/hooks";
 import { IconCopy, IconCopyCheck, IconEye, IconSearch, IconShare, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import { DataLoadState } from "../../../types";
+import { AppPayment, DataLoadState } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
 import { UserModule } from "@/modules/user/modules";
 import { onError } from "@/components/modals/modal-error";
 import { onListNft } from "@/components/modals/modal-list-nft";
 import { NftModule } from "@/modules/nft/modules";
-
-const orderTest = {
-  id: '1',
-  event: "Transfer",
-  chainId: '97',
-  tokenId: '1',
-  paymentAddress: '0xaa25Aa7a19f9c426E07dee59b12f944f4d9f1DD3',
-  price: '0.05',
-  seller: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-  buyer: "0x6aaef57a890743e6322feb3275e4006b3ecb8cb5",
-  status: "ĐÃ BÁN",
-  createdAt: '21/01/2024',
-  updatedAt: '21/01/2024',
-}
+import { onBuyNft } from "@/components/modals/modal-buy-nft";
+import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
 
 const ordersTest = [
   {
@@ -86,22 +75,20 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [isLiked, setIsLiked] = useState<boolean>();
   const [isFavourite, setIsFavourite] = useState<boolean>();
   const [comments, setComments] = useState();
-  const [marketOrder, setMarketOrder] = useState(orderTest);
-  const [marketOrders, setMarketOrders] = useState(ordersTest);
+  const [marketOrder, setMarketOrder] = useState<MarketOrder>();
+  const [lastSoldOrder, setLastSoldOrder] = useState<MarketOrder>();
+  const [marketOrders, setMarketOrders] = useState<MarketOrder[]>([]);
   const [user, setUser] = useState<DataLoadState<any>>({ isFetching: false, data: {} });
   const clipboard = useClipboard({ timeout: 500 });
-
-  const isListing = true;
-  const isNotSigned = !account.information && isListing;
-  const isDifferentAccount = user.data.wallet !== token.owner && isListing;
+  const { image, symbol } = renderPayment(collection?.paymentType || AppPayment.ETH);
+  const [isListing, setIsListing] = useState<boolean>();
+  payment.image = image;
+  payment.symbol = symbol;
 
   const fetchCollection = async () => {
     try {
       const res = await CollectionModule.getCollectionByID(token.collectionID);
       setCollection(res.data);
-      const { image, symbol } = renderPayment(res.data.paymentType);
-      payment.image = image;
-      payment.symbol = symbol;
     } catch (error) {
       setCollection(null);
       throw error;
@@ -123,11 +110,32 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   }
 
   const fetchMarketOrders = async () => {
+    try {
+      let res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID });
+      const filteredOrders = res.data.order.filter(v => v.status !== MarketStatus.ISLISTING);
 
+      setMarketOrders(filteredOrders);
+
+      res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, status: MarketStatus.SOLD });
+      setLastSoldOrder(res.data.order[res.data.count - 1]);
+
+    } catch (error) {
+
+    }
   }
 
   const fetchMarketOrderOfToken = async () => {
+    try {
 
+      const checkListed = (await MarketOrderModule.checkTokenIsListed(token.tokenID)).data.isListed;
+      if (checkListed) {
+        const res = await MarketOrderModule.getNewesOrderOfToken(token.tokenID);
+        setIsListing(true);
+        setMarketOrder(res.data[0]);
+      } else setIsListing(false);
+    } catch (error) {
+      // onError(error);
+    }
   }
 
   const checkLikeFavourite = async () => {
@@ -171,7 +179,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
       await NftModule.increaseTotalViews(token.tokenID);
       token.totalViews += 1;
     } catch (error) {
-
+      // onError(error);
     }
   }
 
@@ -180,8 +188,13 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     checkLikeFavourite();
     fetchCollection();
     fetchComments();
+    fetchMarketOrderOfToken();
     fetchMarketOrders();
   }, [account.information])
+
+  useEffect(() => {
+    updateTotalViews();
+  }, [])
 
   return (
     <BoundaryConnectWallet>
@@ -189,6 +202,9 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
       {function () {
         if (!token) return <Skeleton width={'100%'} height={600} />
+
+        const isNotSigned = !account.information;
+        const isDifferentAccount = account.information?.wallet !== token.owner;
 
         return <>
           <Stack mx={20} my={90}>
@@ -208,16 +224,31 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   </AspectRatio>
                 </Card.Section>
 
-                <Group my={10} justify="space-between">
-                  <Text c={theme.colors.text[1]}>Giá hiện tại</Text>
-                  <Group gap={6}>
-                    <Image width={28} height={28} src={payment.image} />
-                    <Text size="20px" c={theme.colors.text[1]} fw="bold">0.0025 {payment.symbol}</Text>
+                {function() {
+                  if (marketOrder) return <Group my={10} justify="space-between">
+                    <Text c={theme.colors.text[1]}>Giá hiện tại</Text>
+                    <Group gap={6}>
+                      <Image width={28} height={28} src={payment.image} />
+                      <Text size="20px" c={theme.colors.text[1]} fw="bold">{marketOrder.price} {payment.symbol}</Text>
+                    </Group>
                   </Group>
-                </Group>
 
-                {isNotSigned || isDifferentAccount && <AppButton
+                  if (lastSoldOrder) return <Group my={10} justify="space-between">
+                    <Text c={theme.colors.text[1]}>Giá bán gần nhất</Text>
+                    <Group gap={6}>
+                      <Image width={28} height={28} src={payment.image} />
+                      <Text size="20px" c={theme.colors.text[1]} fw="bold">{lastSoldOrder.price} {payment.symbol}</Text>
+                    </Group>
+                  </Group>
+
+                  return <Group my={10} justify="space-between">
+                    <Text c={theme.colors.text[1]}>Chưa được bán</Text>
+                  </Group>
+                }()}
+                
+                {(isNotSigned || isDifferentAccount) && isListing && <AppButton
                   async
+                  onClick={() => onBuyNft(marketOrder!)}
                   leftSection={<IconShoppingCartFilled />}
                   radius={theme.radius.md}
                   color={theme.colors.primary[5]}
@@ -226,7 +257,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   Mua ngay
                 </AppButton>}
 
-                <AppButton
+                {!isListing && account.information?.wallet === token.owner && <AppButton
                   async
                   onClick={() => onListNft(token)}
                   leftSection={<IconShoppingCartFilled />}
@@ -235,7 +266,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   height={48}
                 >
                   Đăng bán
-                </AppButton>
+                </AppButton>}
 
               </Card>
 
@@ -339,8 +370,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 <Card mt={20} withBorder shadow="sm" radius={theme.radius.md} p={30}>
                   <Card.Section>
                     <Group align="flex-start" justify="space-between">
-                      <Group align="flex-start">
-                        <Avatar w={64} h={64} src={user.data.avatar} />
+                      <Group gap={6} align="flex-start">
+                        <Avatar w={64} h={64} src={user.data.avatar || '/images/default/avatar.png'} />
                         <Stack gap={0}>
                           <Text fw={500} c={theme.colors.text[1]}>{user.data.username}</Text>
 
@@ -451,11 +482,12 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 <Divider my={10} />
 
                 {function () {
+                  if (!marketOrders) return <Skeleton h={300} w={'100%'} />
 
                   return <>
                     {marketOrders.map((v, k) => <Box key={k}>
                       <Group justify="space-between">
-                        <Text fw={500} c={theme.colors.text[1]}>{v.event}</Text>
+                        <Text fw={500} c={theme.colors.text[1]}>{MarketOrderModule.getMarketEvent(v.event)}</Text>
                         <Text c={theme.colors.text[1]}>{v.price}</Text>
                         <Link href={renderLinkContract(token.contractAddress, token.chainID)} target="_blank" style={{
                           color: theme.colors.blue[6],
@@ -465,7 +497,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                           color: theme.colors.blue[6],
                           textDecoration: 'underline'
                         }}>{StringUtils.compact(v.buyer, 5, 5)}</Link>
-                        <Text c={theme.colors.text[1]}>{v.createdAt}</Text>
+                        <Text c={theme.colors.text[1]}>{DateTimeUtils.formatToShow(v.createdAt)}</Text>
                       </Group>
                       <Divider my={10} />
                     </Box>)}

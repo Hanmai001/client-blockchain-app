@@ -1,20 +1,29 @@
-import { useConfig } from "@/modules/configs/context";
+import { useAccount } from "@/modules/account/context";
+import { renderPayment } from "@/modules/coins/utils";
+import { getContracts, useConfig } from "@/modules/configs/context";
+import { MarketOrderPayload, MarketStatus, TransactionEvent } from "@/modules/marketorder/types";
 import { Nft } from "@/modules/nft/types";
-import { Avatar, Text, Group, Menu, Modal, Stack, Title, UnstyledButton, useMantineTheme, Box, TextInput, NumberInput, ActionIcon, Divider } from "@mantine/core";
+import { useBlockChain } from "@/share/blockchain/context";
+import { ActionIcon, Avatar, Group, Menu, Modal, NumberInput, Stack, Text, Title, UnstyledButton, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconSelector, IconX } from "@tabler/icons-react";
 import { FC, useState } from "react";
 import { AppPayment } from "../../../types";
-import { renderPayment } from "@/modules/coins/utils";
-import { IconSelector, IconX } from "@tabler/icons-react";
 import { AppButton } from "../app/app-button";
+import { onError } from "./modal-error";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { onSuccess } from "./modal-success";
 
 export let onListNft = (nft: Nft) => undefined;
 export const ModalListNft: FC = () => {
   const theme = useMantineTheme();
+  const blockchain = useBlockChain();
+  const account = useAccount();
   const { isDarkMode } = useConfig();
   const [nft, setNft] = useState<Nft>();
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
+  const [price, setPrice] = useState<number>();
   const { image, symbol } = renderPayment(selectedToken);
 
   const payments = [
@@ -33,13 +42,31 @@ export const ModalListNft: FC = () => {
 
   const handleSubmit = async () => {
     try {
+      const payload: MarketOrderPayload = {
+        event: TransactionEvent.TRANSFER,
+        chainID: blockchain.chainId as string,
+        tokenID: nft!.tokenID,
+        tokenAddress: nft!.contractAddress,
+        paymentType: selectedToken,
+        price: price!,
+        seller: account.information?.wallet,
+        status: MarketStatus.ISLISTING
+      }
       
+      console.log("payload: ", payload);
+
+      const res = await MarketOrderModule.create(payload);
+
+      console.log("res: ", res)
+      onClose();
+      onSuccess({title: "Đăng bán thành công"});
     } catch (error) {
-      
+      onClose();
+      onError("Đăng bán thất bại")
     }
   }
 
-  return <Modal centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
+  return <Modal closeOnClickOutside={false} centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
     overlay: {
       zIndex: 100
     }
@@ -90,6 +117,7 @@ export const ModalListNft: FC = () => {
 
         <NumberInput
           my={10}
+          value={price}
           label="Giá bán"
           placeholder="0.001"
           withAsterisk
@@ -105,11 +133,13 @@ export const ModalListNft: FC = () => {
               marginTop: "6px"
             },
           }}
+          onChange={setPrice}
         />
 
         <AppButton
           mt={10}
           async
+          onClick={handleSubmit}
           radius={10}
           color={theme.colors.primary[5]}
           height={50}
@@ -121,3 +151,4 @@ export const ModalListNft: FC = () => {
     }()}
   </Modal>
 }
+

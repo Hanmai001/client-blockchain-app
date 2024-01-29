@@ -208,7 +208,7 @@ export class Contract {
             from: wallet,
             ...options.params,
             gasPrice: 23000,
-            gasLimit: 300000,
+            gasLimit: options.method === 'mintNft' ? 350000 : 200000,
         }) 
         const txReceipt = await tx.wait(1);
         handleOnSubmitted(txReceipt.hash);

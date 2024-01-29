@@ -1,20 +1,23 @@
+import { Query } from "../../../types";
+
 export enum MarketStatus {
-    SOLD = 'Đã bán',
-    ISLISTING = 'Đang bán',
-    CANCELLED = 'Đã hủy'
+    SOLD = 0,
+    ISLISTING = 1,
+    CANCELLED = 2
 }
 
 export enum TransactionEvent {
-  TRANSFER = 'Mua bán'
+  TRANSFER = 1
 }
 
 export interface MarketOrder {
   id: string,
   event: TransactionEvent,
-  chainId: string,
-  tokenId: string,
-  paymentAddress: string,
-  price: string,
+  chainID: string,
+  tokenID: string,
+  tokenAddress: string,
+  paymentType: string,
+  price: number,
   seller: string,
   buyer: string,
   status: MarketStatus,
@@ -24,11 +27,17 @@ export interface MarketOrder {
 
 export interface MarketOrderPayload {
   event: TransactionEvent,
-  chainId: string,
-  tokenId: string,
-  paymentAddress: string,
-  price: string,
+  chainID: string,
+  tokenID: string,
+  tokenAddress: string,
+  paymentType: string,
+  price: number,
   seller: string,
-  buyer: string,
   status: string
+}
+
+export interface MarketOrderQuery extends Query {
+  tokenID?: string,
+  status?: MarketStatus,
+  event?: TransactionEvent
 }

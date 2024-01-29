@@ -53,6 +53,7 @@ export class ContractERC721 extends Contract {
     const isApprovedForAll = await this.call({ method: 'isApprovedForAll', args: [this.wallet!, operator] })
     if (isApprovedForAll) return true;
 
+    //approve for third-party to transfer tokenID
     return this.send({ method: 'setApprovalForAll', args: [operator, true] });
   }
 }

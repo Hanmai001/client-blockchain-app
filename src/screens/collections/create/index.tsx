@@ -95,7 +95,6 @@ export const CollectionCreateScreen: FC = () => {
         method: 'mintCollection',
         args: [payload.creator, res.data.collectionURI],
         params: {
-          from: payload.creator,
           value: feeMint
         }
       });
