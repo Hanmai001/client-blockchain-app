@@ -49,6 +49,8 @@ export class Contract {
         const provider = new ethers.JsonRpcProvider(this.rpcUrlUsed);
         const contract = new ethers.Contract(this.address, this.abi, provider);
 
+        console.log("contract: ", contract)
+
         const read = contract[options.method] as any;
         if (typeof read !== 'function') return reject(new BlockchainError({
             code: BlockchainErrorCode.INVALID_METHOD_PARAMETERS,
@@ -97,19 +99,20 @@ export class Contract {
   async getWalletSelected() {
     if (this.wallet) return this.wallet;
     const provider = await this.getWeb3();
-    this.wallet = await provider.listAccounts().then((res) => res[0]);
+    this.wallet = await provider.listAccounts().then((res) => res[0].address);
     if (!this.wallet) throw new BlockchainError({ 
       code: BlockchainErrorCode.MUST_BE_CONNECT_WALLET
     })
     return this.wallet;
   }
 
+  //update contract's provider, wallet,...
   async _beforeSend(options?: { privateKey?: string }): Promise<any> {
     if (!this.address) throw new BlockchainError({ code: BlockchainErrorCode.CONTRACT_NOT_DEPLOYED_YET });
 
     const provider = await this.getWeb3();
-    console.log('provider: ', provider)
-    if (!this.wallet) this.wallet = await provider.listAccounts().then((res) => res[0]);
+    // console.log('provider: ', provider)
+    if (!this.wallet) this.wallet = await provider.listAccounts().then((res) => res[0].address);
 
     let wallet = this.wallet;
     if (options && options.privateKey) {

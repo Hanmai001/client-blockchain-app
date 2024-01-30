@@ -470,7 +470,7 @@ const Balances: FC = () => {
                       <Avatar size={30} src={renderPayment(key as any).image} />
                       <Stack gap={0}>
                         <Text c={isDarkMode ? 'white' : 'dark'} opacity={0.7} size={'xs'}>{renderPayment(key as any).symbol}</Text>
-                        <Text c={isDarkMode ? 'white' : 'dark'} size={"sm"} style={{ lineHeight: 1 }}>{NumberUtils.round(balances.data[key], 3)}</Text>
+                        <Text c={isDarkMode ? 'white' : 'dark'} size={"sm"} style={{ lineHeight: 1 }}>{NumberUtils.round(balances.data[key], 3) || 0}</Text>
                       </Stack>
                     </Group>
                   </Menu.Item>

@@ -64,7 +64,7 @@ export class MarketOrderModule {
         method: 'buyNftbyErc20',
         args: [order.tokenID, getContracts().erc20s.BCT.address],
         params: {
-          value: +ethers.formatEther(order.price)
+          value: ethers.parseEther(order.price.toString()).toString()
         }
       });
     }

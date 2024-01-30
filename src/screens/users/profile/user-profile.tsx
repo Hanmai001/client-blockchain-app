@@ -2,33 +2,30 @@ import { AccountAvatar } from "@/components/account-avatar";
 import { AppButton } from "@/components/app/app-button";
 import { AppImage } from "@/components/app/app-image";
 import { AppWrapper } from "@/components/app/app-wrapper";
-import { Roles, UserTabsProfile, UserInformation } from "@/modules/user/types";
+import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
+import { CollectionCard } from "@/components/collection-card";
+import { EmptyMessage } from "@/components/empty-message";
+import { ErrorMessage } from "@/components/error-message";
+import { onError } from "@/components/modals/modal-error";
+import { NftCard } from "@/components/nft-card";
+import { useResponsive } from "@/modules/app/hooks";
+import { CollectionModule } from "@/modules/collection/modules";
+import { CollectionStatus, CollectionType } from "@/modules/collection/types";
+import { NftModule } from "@/modules/nft/modules";
+import { NftStatus } from "@/modules/nft/types";
+import { UserInformation, UserTabsProfile } from "@/modules/user/types";
+import { MyCombobox } from "@/screens/marketplace";
 import { StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Divider, Grid, Group, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Grid, Group, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue, useHover } from "@mantine/hooks";
-import { IconCheck, IconCopy, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
-import { useParams } from "next/navigation";
+import { IconCheck, IconCopy, IconEdit, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import classes from '../../../styles/user/UserProfile.module.scss';
-import { MyCombobox } from "@/screens/marketplace";
 import { ListLoadState } from "../../../../types";
-import { NftStatus } from "@/modules/nft/types";
-import { NftCard } from "@/components/nft-card";
-import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
-import { NftModule } from "@/modules/nft/modules";
-import { ErrorMessage } from "@/components/error-message";
-import { EmptyMessage } from "@/components/empty-message";
-import { CollectionModule } from "@/modules/collection/modules";
-import { onError } from "@/components/modals/modal-error";
-import { CollectionCard } from "@/components/collection-card";
-import { useResponsive } from "@/modules/app/hooks";
-import { CollectionStatus, CollectionType } from "@/modules/collection/types";
+import classes from '../../../styles/user/UserProfile.module.scss';
 
 
 export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
-  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
-  const [favouritedTokens, setFavouritedTokens] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
   const [activeTab, setActiveTab] = useState<string | null>(UserTabsProfile.ALL);
   const theme = useMantineTheme();
 
@@ -328,7 +325,16 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         </ActionIcon>
       </Group>}
 
-      <Text c={theme.colors.text[1]} fw="bold" ml={14}>{props.user.username}</Text>
+      <Group gap={2}>
+        <Text c={theme.colors.text[1]} fw="bold" ml={14}>{props.user.username}</Text>
+
+        <ActionIcon
+          c={theme.colors.gray[7]}
+          variant="transparent"
+        >
+          <IconEdit size={20} stroke={1.5}/>
+        </ActionIcon>
+      </Group>
     </Stack>
   )
 }
@@ -362,7 +368,7 @@ const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
 
       listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort });
       if (search.length > 0 && !!listItems.data.tokens) {
-        const nfts = listItems.data.tokens.filter((v, k) => {
+        const nfts = listItems.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
           return false;
         })
@@ -483,7 +489,7 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
       }
       listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter as string : '' });
       if (search.length > 0 && !!listItems.data.collections) {
-        const collections = listItems.data.collections.filter((v, k) => {
+        const collections = listItems.data.collections.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
           return false;
         })
@@ -598,9 +604,14 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
     sm: 4,
     xs: 6
   }
+  enum FavoritedNftStatus {
+    ALL = 'Tất cả',
+    OLDEST = 'Cũ nhất',
+    NEWEST = 'Mới nhất'
+  }
   const theme = useMantineTheme();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState(NftStatus.ALL);
+  const [filter, setFilter] = useState(FavoritedNftStatus.ALL);
   const [activePage, setPage] = useState(1);
   const [debounced] = useDebouncedValue(search, 200);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -613,14 +624,14 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
       let listItems: any;
       let sort = '';
       //get list by filter
-      if (filter !== NftStatus.ALL) {
-        if (filter === NftStatus.OLDEST) sort = '+createdAt';
-        if (filter === NftStatus.NEWEST) sort = '-createdAt';
+      if (filter !== FavoritedNftStatus.ALL) {
+        if (filter === FavoritedNftStatus.OLDEST) sort = '+createdAt';
+        if (filter === FavoritedNftStatus.NEWEST) sort = '-createdAt';
       }
 
       listItems = await NftModule.getFavouritedNftsOfUser({ limit, offset: (activePage - 1) * limit, sort });
       if (search.length > 0 && !!listItems.data.tokens) {
-        const nfts = listItems.data.tokens.filter((v, k) => {
+        const nfts = listItems.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
           return false;
         })
@@ -654,8 +665,8 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <MyCombobox
-          initialValue={NftStatus.ALL}
-          options={NftStatus}
+          initialValue={FavoritedNftStatus.ALL}
+          options={FavoritedNftStatus}
           styles={{
             dropdown: {
               maxHeight: '200px',

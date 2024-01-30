@@ -63,5 +63,6 @@ export interface CollectionUpdatePayload {
 
 export interface CollectionQuery extends Query {
   category?: string,
-  creator?: string
+  creator?: string,
+  active?: boolean
 }

@@ -9,8 +9,10 @@ import { AppButton } from "@/components/app/app-button";
 import { useHover } from "@mantine/hooks";
 import { useAccount } from "@/modules/account/context";
 import { ethers } from "ethers";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconEye, IconEyeBolt, IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
 import { AppRoutes } from "../../app-router";
+import { onError } from "./modals/modal-error";
+import { NftModule } from "@/modules/nft/modules";
 
 export const NftCard: FC<{ nft: Nft }> = (props) => {
   const account = useAccount();
@@ -19,6 +21,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
   const handleContextMenu = (event: any) => {
     event.preventDefault();
   };
+  const isOwner = account.information?.wallet === props.nft.owner;
 
   return (
     <Link href={`/nfts/${props.nft.tokenID}`}>
@@ -53,7 +56,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
           Mua ngay
         </AppButton>}
 
-        {account.information?.wallet === props.nft.owner &&
+        {isOwner &&
           <Link href={`${AppRoutes.nft.edit}/${props.nft.tokenID}`} style={{
             position: "absolute",
             right: 0,

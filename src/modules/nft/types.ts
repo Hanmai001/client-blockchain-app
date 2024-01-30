@@ -65,5 +65,6 @@ export enum NftStatus {
 export interface NftQuery extends Query {
   collectionID?: string,
   creator?: string,
-  owner?: string
+  owner?: string,
+  active?: boolean
 }

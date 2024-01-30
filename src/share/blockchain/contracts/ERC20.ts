@@ -20,6 +20,7 @@ export class ContractERC20 extends Contract {
   }
 
   async allowance(params: { owner: string, operator: string }) {
+    console.log(params);
     return this.call({ method: "allowance", args: [params.owner, params.operator] })
       .then((res) => this.fromWei(res))
   }
@@ -29,6 +30,7 @@ export class ContractERC20 extends Contract {
     
     //Check allowance[owner][operator]
     const allowance = await this.allowance({ owner: this.wallet!.toString(), operator: params.operator });
+    console.log("allowance: ", allowance)
     if (params.amount <= allowance) return true;
 
     const amountInWei = await this.toWei(params.amount);
@@ -49,7 +51,7 @@ export class ContractERC20 extends Contract {
 
   async toWei(amount: any) {
     const tokenUnit = await this.getTokenUnit();
-    return +ethers.formatUnits(`${amount}`, tokenUnit);
+    return ethers.parseUnits(amount.toString(), tokenUnit)
   }
 
   async decimals() {

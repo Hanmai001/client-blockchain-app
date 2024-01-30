@@ -2,35 +2,24 @@ import { AppButton } from "@/components/app/app-button";
 import { Account } from "@/components/app/app-header";
 import { AppLoading } from "@/components/app/app-loading";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
-import { EmptyMessage } from "@/components/empty-message";
-import { ErrorMessage } from "@/components/error-message";
 import { MediaInput } from "@/components/input/media-input";
-import { SelectInputItem } from "@/components/input/select-input-item";
 import { onError } from "@/components/modals/modal-error";
 import { onSuccess } from "@/components/modals/modal-success";
-import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
-import { CollectionModule } from "@/modules/collection/modules";
-import { Collection } from "@/modules/collection/types";
-import { getContracts } from "@/modules/configs/context";
+import { NftModule } from "@/modules/nft/modules";
 import { Nft, NftUpdatePayload } from "@/modules/nft/types";
 import { RequestModule } from "@/modules/request/request";
-import { useBlockChain } from "@/share/blockchain/context";
-import { Box, Card, Flex, Grid, Group, Image, Skeleton, Stack, Text, TextInput, Textarea, Title, Transition, useMantineTheme } from "@mantine/core";
+import { Grid, Group, Stack, Switch, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { FC, useEffect, useState } from "react";
-import { AppRoutes } from "../../../../app-router";
-import { DataLoadState, ListLoadState } from "../../../../types";
-import classes from '../../../styles/nfts/NftCreate.module.scss';
-import { NftModule } from "@/modules/nft/modules";
+import { IconArrowLeft, IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
+import { FC, useState } from "react";
 
-export const NftEditScreen: FC<{token: Nft}> = ({token}) => {
+export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
   const { isMobile, isDesktop } = useResponsive();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
+  const [checked, setChecked] = useState(token.active);
 
   const form = useForm<NftUpdatePayload>({
     initialValues: {
@@ -51,14 +40,14 @@ export const NftEditScreen: FC<{token: Nft}> = ({token}) => {
 
   const onSubmit = form.onSubmit(async (values) => {
     try {
-      let payload = { ...values }
+      let payload = { ...values, active: checked }
       setIsUploading(true);
 
       if (file instanceof File)
         payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, file as File, 400, "source");
-      
+
       await NftModule.updateToken(payload);
-      
+
       onSuccess({ title: 'Cập nhật thành công', message: '' });
     } catch (error) {
       onError(error);
@@ -107,6 +96,22 @@ export const NftEditScreen: FC<{token: Nft}> = ({token}) => {
                   borderRadius: '10px'
                 }}
               >
+                <Switch 
+                  checked={checked}
+                  onChange={(event) => setChecked(event.currentTarget.checked)}
+                  onLabel={<IconEyeFilled size={20} />}
+                  offLabel={<IconEyeClosed size={20}/>}
+                  size="lg"
+                  label="Ẩn/Hiện video để người khác có thể xem video của bạn"
+                  color={theme.colors.primary[5]}
+                  styles={{
+                    label: {
+                      fontSize: '14px',
+                      fontWeight: 500
+                    }
+                  }}
+                />
+
                 <TextInput
                   label="Tiêu đề"
                   placeholder="My title"

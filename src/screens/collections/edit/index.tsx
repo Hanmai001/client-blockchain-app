@@ -10,9 +10,9 @@ import { Collection, CollectionUpdatePayload } from "@/modules/collection/types"
 import { RequestModule } from "@/modules/request/request";
 import { MyCombobox } from "@/screens/marketplace";
 import { chains } from "@/share/blockchain/chain";
-import { Group, Select, Stack, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
+import { Group, Select, Stack, Switch, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { IconArrowLeft, IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import classes from '../../../styles/collections/CollectionCreate.module.scss';
 import { CollectionModule } from "@/modules/collection/modules";
@@ -22,6 +22,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
   const { isMobile } = useResponsive();
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [checked, setChecked] = useState(collection.active);
 
   enum CollectionType {
     TOURISM = 'Du lịch',
@@ -53,7 +54,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
   const onSubmit = form.onSubmit(async (values) => {
     try {
       setIsUploading(true);
-      let payload = { ...values };
+      let payload = { ...values, active: checked };
 
       if (bannerFile instanceof File)
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
@@ -95,6 +96,22 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
             margin: 'auto'
           }}>
             <Stack>
+              <Switch
+                checked={checked}
+                onChange={(event) => setChecked(event.currentTarget.checked)}
+                onLabel={<IconEyeFilled size={20} />}
+                offLabel={<IconEyeClosed size={20} />}
+                size="lg"
+                label="Ẩn/Hiện bộ sưu tập"
+                color={theme.colors.primary[5]}
+                styles={{
+                  label: {
+                    fontSize: '14px',
+                    fontWeight: 500
+                  }
+                }}
+              />
+              
               <MediaInput
                 label="Hình nền"
                 value={collection.bannerURL}

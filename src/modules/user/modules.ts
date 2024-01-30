@@ -23,7 +23,7 @@ export class UserModule {
     return RequestModule.post(`/api/v1/users/login`, payload)
   }
 
-  static async getListUsers(query?: UserQuery): Promise<ListLoadState<UserInformation>> {
+  static async getListUsers(query?: UserQuery): Promise<ListLoadState<UserInformation, 'users'>> {
     return RequestModule.get(`/api/v1/users`, query)
   }
 }

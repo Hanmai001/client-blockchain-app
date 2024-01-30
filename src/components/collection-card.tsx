@@ -7,7 +7,7 @@ import Link from "next/link";
 import { FC } from "react";
 import { AppRoutes } from "../../app-router";
 import { useAccount } from "@/modules/account/context";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconEyeBolt } from "@tabler/icons-react";
 
 interface CollectionCardProps {
   collection: Collection
@@ -17,6 +17,7 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
   const theme = useMantineTheme();
   const { image, symbol } = renderPayment(props.collection.paymentType);
   const account = useAccount();
+  const isOwner = account.information?.wallet === props.collection.creator;
 
   return (
     <Link href={`/collections/${props.collection.collectionID}`}>
@@ -34,7 +35,7 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
           <Box h={40}>
             <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.collection.description, 80)}</Text>
           </Box>
-          
+
           <Group justify="space-between">
             <Text c={theme.colors.gray[6]} size="12px">Average price</Text>
             <Group gap={4}>
@@ -47,7 +48,7 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
           </Group>
         </Stack>
 
-        {account.information?.wallet === props.collection.creator &&
+        {isOwner &&
           <Link href={`${AppRoutes.collection.edit}/${props.collection.collectionID}`} style={{
             position: "absolute",
             right: 0,
