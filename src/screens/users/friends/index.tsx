@@ -32,7 +32,7 @@ export const UserFriendsScreen: FC = () => {
 
   const fetchFriends = async () => {
     try {
-      const res = await UserModule.getListUsers({limit, offset: (activePage - 1) * limit});
+      const res = await UserModule.getListUsers({ limit, offset: (activePage - 1) * limit });
       if (search.length > 0 && !!res.data?.users) {
         const users = res.data.users.filter((v: any, k: any) => {
           if (v.wallet.includes(search) || v.username.includes(search)) return true;
@@ -169,7 +169,7 @@ const FriendBox: FC<FriendBoxProps> = (props) => {
 
   const handleUnfriend = async () => {
     try {
-      
+
     } catch (error) {
       onError("Hủy kết bạn thất bại, vui lòng thử lại sau");
     }

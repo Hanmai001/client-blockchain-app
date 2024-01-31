@@ -1,4 +1,5 @@
 import { getWallet } from "@/share/blockchain/context";
+import { ethers } from "ethers";
 import { AppPayment } from "../../../types";
 import { CoinsModule } from "../coins/modules";
 import { getPaymentContract } from "../coins/utils";
@@ -6,8 +7,6 @@ import { getContracts } from "../configs/context";
 import { RequestModule } from "../request/request";
 import { TokenModule } from "../token/modules";
 import { MarketOrder, MarketOrderPayload, MarketOrderQuery, MarketStatus, TransactionEvent } from "./types";
-import { NftModule } from "../nft/modules";
-import { ethers } from "ethers";
 
 export class MarketOrderModule {
   static async create(payload: MarketOrderPayload) {

@@ -46,7 +46,6 @@ export const MediaInput: FC<MediaInputProps> = (props) => {
         reader.readAsDataURL(file);
         setIsImage(true);
       } else if (file.type.startsWith('video/')) {
-        // Đối với video, hiển thị như là <video />
         setPreviewImage(URL.createObjectURL(file));
         setIsVideo(true);
       } else {

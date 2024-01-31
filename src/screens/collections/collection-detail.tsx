@@ -31,14 +31,6 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
     xs: 6
   }
 
-  const fetchItemsOfCollection = async () => {
-    try {
-
-    } catch (error) {
-
-    }
-  }
-
   const fetchItems = async () => {
     try {
       let listtokens: any;
@@ -51,11 +43,11 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
         if (filter === FilterOptions.OLDEST) sort = '+createdAt';
         if (filter === FilterOptions.NEWEST) sort = '-createdAt';
       }
-    
-      listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort });
+
+      listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort, active: true });
       console.log("fs", listtokens)
       if (search.length > 0 && !!listtokens.data.tokens) {
-        const tokens = listtokens.data.tokens.filter((v, k) => {
+        const tokens = listtokens.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
           return false;
         })
@@ -75,7 +67,6 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 
   useEffect(() => {
     fetchItems();
-    fetchItemsOfCollection();
   }, [])
 
   return <AppWrapper>
@@ -117,7 +108,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
             }}
             classNamesInput={classes.comboboxInput}
             classNamesRoot={classes.comboboxRootInput}
-            onChange={(value) => { setFilter(value)}}
+            onChange={(value) => { setFilter(value) }}
           />
         </Group>
         {function () {
@@ -143,7 +134,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
         }()}
       </Box>
 
-      <Pagination color={theme.colors.primary[5]} total={Math.ceil(items.data.count / 10)} siblings={2} value={activePage} onChange={setPage} styles={{
+      <Pagination color={theme.colors.primary[5]} total={Math.ceil(items.data!.count! / 10)} siblings={2} value={activePage} onChange={setPage} styles={{
         root: {
           margin: "auto",
           marginTop: '40px'
@@ -165,6 +156,19 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 const BannerSection: FC<{ collection: Collection }> = (props) => {
   const theme = useMantineTheme();
   const { symbol } = renderPayment(props.collection.paymentType);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const fetchItemsOfCollection = async () => {
+    try {
+
+    } catch (error) {
+
+    }
+  }
+
+  useEffect(() => {
+    fetchItemsOfCollection();
+  }, [props.collection])
 
   return (
     <AspectRatio ratio={400 / 100} style={{ overflow: 'hidden' }}>
@@ -184,7 +188,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
           </Title>
           <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creator, 2, 5)}</Text>
           <Group justify="space-between" mt={4}>
-            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.totalItems ? props.collection.totalItems : 0} items</Text>
+            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems || 0} items</Text>
             <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
           </Group>
         </Stack>
@@ -192,7 +196,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
         <Group m={theme.spacing.lg} gap={40}>
           <Stack gap={4} style={{ textAlign: "center" }}>
             <Text c={theme.colors.text[0]}>Tổng Video</Text>
-            <Text c={theme.colors.text[0]} fw={500} size="22px">{props.collection.totalItems}</Text>
+            <Text c={theme.colors.text[0]} fw={500} size="22px">{totalItems || 0}</Text>
           </Stack>
 
           <Stack gap={4} style={{ textAlign: "center" }}>

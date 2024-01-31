@@ -14,13 +14,18 @@ import { onError } from "./modal-error";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
 import { onSuccess } from "./modal-success";
 
-export let onListNft = (nft: Nft) => undefined;
+interface State {
+  nft: Nft,
+  onUpdate: () => void
+}
+
+export let onListNft = (state: State) => undefined;
 export const ModalListNft: FC = () => {
   const theme = useMantineTheme();
   const blockchain = useBlockChain();
   const account = useAccount();
   const { isDarkMode } = useConfig();
-  const [nft, setNft] = useState<Nft>();
+  const [state, setState] = useState<State>();
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
   const [price, setPrice] = useState<number>();
@@ -31,8 +36,8 @@ export const ModalListNft: FC = () => {
     { ...renderPayment(AppPayment.BCT), paymentType: AppPayment.BCT },
   ]
 
-  onListNft = (nft) => {
-    setNft(nft);
+  onListNft = (state) => {
+    setState(state);
     open();
   }
 
@@ -45,11 +50,11 @@ export const ModalListNft: FC = () => {
       const payload: MarketOrderPayload = {
         event: TransactionEvent.TRANSFER,
         chainID: blockchain.chainId as string,
-        tokenID: nft!.tokenID,
-        tokenAddress: nft!.contractAddress,
+        tokenID: state!.nft!.tokenID,
+        tokenAddress: state!.nft!.contractAddress,
         paymentType: selectedToken,
         price: price!,
-        seller: account.information?.wallet,
+        seller: account.information?.wallet || '',
         status: MarketStatus.ISLISTING
       }
       
@@ -60,6 +65,8 @@ export const ModalListNft: FC = () => {
       console.log("res: ", res)
       onClose();
       onSuccess({title: "Đăng bán thành công"});
+      
+      state?.onUpdate();
     } catch (error) {
       onClose();
       onError("Đăng bán thất bại")
@@ -72,7 +79,7 @@ export const ModalListNft: FC = () => {
     }
   }}>
     {function () {
-      if (nft) return <Stack gap={0}>
+      if (state?.nft) return <Stack gap={0}>
         <Group mb={20} justify="space-between">
           <Title fw={500} c={theme.colors.text[1]} order={3} style={{ textAlign: "center" }}>Đăng bán</Title>
 

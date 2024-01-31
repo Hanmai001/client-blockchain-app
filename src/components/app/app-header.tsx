@@ -5,9 +5,9 @@ import { getChainId, useConfig } from "@/modules/configs/context";
 import { useSelector } from "@/redux/store";
 import { useBlockChain } from "@/share/blockchain/context";
 import { NumberUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, Avatar, Box, Burger, Card, Center, Drawer, Group, Image, Loader, Menu, MenuItem, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Avatar, Box, Burger, Card, Center, Divider, Drawer, Group, Image, Loader, Menu, MenuItem, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
-import { IconBell, IconFriends, IconHeartBolt, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import { IconBell, IconFriends, IconHeartBolt, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../types";
@@ -23,6 +23,8 @@ import { Nft } from "@/modules/nft/types";
 import { Collection } from "@/modules/collection/types";
 import { EmptyMessage } from "../empty-message";
 import { CollectionModule } from "@/modules/collection/modules";
+import { NftModule } from "@/modules/nft/modules";
+import { UserModule } from "@/modules/user/modules";
 
 interface ResultProps {
   isFetching: boolean,
@@ -92,7 +94,9 @@ export const HeaderSearch: FC = () => {
     try {
       setResults(s => ({ ...s, isInitialized: true }))
       const res = await Promise.all([
+        NftModule.getList({ chainID: blockchain.chainId, search, limit: 5 }),
         CollectionModule.getList({ chainID: blockchain.chainId, search, limit: 5 }),
+        UserModule.getListUsers({ chainID: blockchain.chainId, search, limit: 5 })
       ])
       setResults(s => ({
         ...s,
@@ -100,9 +104,9 @@ export const HeaderSearch: FC = () => {
         isInitialized: true,
         data: {
           ...s.data,
-          nfts: [],
-          collections: res[0].data ? res[0].data.collections : [],
-          users: [],
+          nfts: res[0].data ? res[0].data.tokens : [],
+          collections: res[1].data ? res[1].data.collections : [],
+          users: res[2].data ? res[2].data.users : []
         }
       }))
     } catch (error) {
@@ -156,21 +160,31 @@ export const HeaderSearch: FC = () => {
 
               return <Stack gap={5}>
                 {!!videos.length && <>
-                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
+                  <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Video</Text>
                   <Stack>
-                    {videos.map((item, key) => <Group>
-                      <Stack>
-                        <Text>{item.title}</Text>
-                        <Text c="dimmed">{item.creator}</Text>
-                      </Stack>
-                    </Group>)}
+                    {videos.map((item, key) => <Link key={key} href={`/nfts/${item.tokenID}`}>
+                      <Group className="menu-item" mb={10}>
+                        <AspectRatio style={{
+                          width: '64px',
+                          overflow: 'hidden',
+                          borderRadius: '8px'
+                        }}>
+                          <img src={'/images/default/video.svg'} />
+                        </AspectRatio>
+
+                        <Stack gap={4}>
+                          <Text fw={500} c={theme.colors.text[1]}>{StringUtils.limitCharacters(item.title || '', 15)}</Text>
+                          <Text c="dimmed" size="14px">{StringUtils.limitCharacters(item.owner || '', 15)}</Text>
+                        </Stack>
+                      </Group>
+                    </Link>)}
                   </Stack>
                 </>}
                 {!!collections.length && <>
                   <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Bộ sưu tập</Text>
                   <Stack>
-                    {collections.map((item, key) => <Link href={`/collections/${item.collectionID}`}>
-                      <Group gap={8}>
+                    {collections.map((item, key) => <Link key={key} href={`/collections/${item.collectionID}`}>
+                      <Group className="menu-item" gap={8}>
                         <Image radius={10} src={item.bannerURL} width={64} height={48} />
                         <Stack gap={2}>
                           <Text fw={500} c={theme.colors.text[1]}>{item.title}</Text>
@@ -181,15 +195,24 @@ export const HeaderSearch: FC = () => {
                   </Stack>
                 </>}
                 {!!users.length && <>
-                  <Text size='12px' fw='bold' c={theme.colors.text[1]}>Nhà sáng tạo</Text>
+                  <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Nhà sáng tạo</Text>
                   <Stack>
-                    {users.map((item, key) => <Group>
-                      <Avatar src={item.avatar} />
-                      {/* <Stack>
-                        <Text>{item.title}</Text>
-                        <Text c="dimmed">{item.creator}</Text>
-                      </Stack> */}
-                    </Group>)}
+                    {users.map((item, key) => <Link key={key} href={`/users/${item.wallet}`}>
+                      <Group className="menu-item" gap={8}>
+                        <AspectRatio style={{
+                          width: '48px',
+                          overflow: 'hidden',
+                          borderRadius: '8px'
+                        }}>
+                          <img src={item.avatar || '/images/default/ava.jpeg'} />
+                        </AspectRatio>
+
+                        <Stack gap={4}>
+                          <Text fw={500} c={theme.colors.text[1]}>{StringUtils.limitCharacters(item.username || '', 15)}</Text>
+                          <Text c="dimmed" size="14px">{StringUtils.compact(item.wallet, 5, 5)}</Text>
+                        </Stack>
+                      </Group>
+                    </Link>)}
                   </Stack>
                 </>}
               </Stack>
@@ -203,7 +226,7 @@ export const HeaderSearch: FC = () => {
 export const HeaderSearchMobile: FC = () => {
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);
-  const { chainId } = useBlockChain();
+  const blockchain = useBlockChain();
   const [search, setSearch] = useState('');
   const [debounced] = useDebouncedValue(search, 200);
   const defaultState: ResultProps = { isFetching: false, isInitialized: false, data: { users: [], collections: [], nfts: [], } }
@@ -213,20 +236,23 @@ export const HeaderSearchMobile: FC = () => {
     if (!search) return setResults(defaultState);
 
     try {
-      // setResults(s => ({ ...s, isInitialized: true }))
-      // const res = await Promise.all([
-      // ])
-      // setResults(s => ({
-      //   ...s,
-      //   isFetching: false,
-      //   isInitialized: true,
-      //   data: {
-      //     ...s.data,
-      //     tokens: res[0].data,
-      //     collections: res[1].data,
-      //     users: res[2],
-      //   }
-      // }))
+      setResults(s => ({ ...s, isInitialized: true }))
+      const res = await Promise.all([
+        NftModule.getList({ chainID: blockchain.chainId, search, limit: 5 }),
+        CollectionModule.getList({ chainID: blockchain.chainId, search, limit: 5 }),
+        UserModule.getListUsers({ chainID: blockchain.chainId, search, limit: 5 })
+      ])
+      setResults(s => ({
+        ...s,
+        isFetching: false,
+        isInitialized: true,
+        data: {
+          ...s.data,
+          nfts: res[0].data ? res[0].data.tokens : [],
+          collections: res[1].data ? res[1].data.collections : [],
+          users: res[2].data ? res[2].data.users : []
+        }
+      }))
     } catch (error) {
       setResults(s => ({ ...s, isFetching: false, isInitialized: true }))
     }
@@ -251,20 +277,27 @@ export const HeaderSearchMobile: FC = () => {
         closeButtonProps={{ size: 32 }}
       >
         <Stack>
-          <TextInput placeholder="Nhập từ khóa" rightSection={<IconSearch />} radius={24} miw='100%' styles={{
-            input: {
-              height: '45px',
-              paddingLeft: `${theme.spacing.md}`,
-            },
-            section: {
-              paddingRight: `${theme.spacing.md}`
-            }
-          }} />
+          <TextInput
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
+            placeholder="Nhập từ khóa"
+            rightSection={<IconSearch />}
+            radius={24}
+            miw='100%'
+            styles={{
+              input: {
+                height: '45px',
+                paddingLeft: `${theme.spacing.md}`,
+              },
+              section: {
+                paddingRight: `${theme.spacing.md}`
+              }
+            }} />
 
           {function () {
             if (!results.isInitialized) return null;
 
-            return <Box pos='absolute' ml={5} pr={50}>
+            return <Box>
               {function () {
                 if (results.isFetching) return <Center>
                   <Loader size={"xs"} />
@@ -276,33 +309,66 @@ export const HeaderSearchMobile: FC = () => {
 
                 return <Stack gap={5}>
                   {!!videos.length && <>
-                    <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
-                    {videos.map((item, key) => <Group>
-                      <Stack>
-                        <Text>{item.title}</Text>
-                        <Text c="dimmed">{item.creator}</Text>
-                      </Stack>
-                    </Group>)}
+                    <Text size="14px" fw='bold' c={theme.colors.text[1]}>Video</Text>
+                    <Stack>
+                      {videos.map((item, key) => <Link key={key} href={`/nfts/${item.tokenID}`}>
+                        <Group className="menu-item" mb={10}>
+                          <AspectRatio style={{
+                            width: '64px',
+                            overflow: 'hidden',
+                            borderRadius: '8px'
+                          }}>
+                            <img src={'/images/default/video.svg'} />
+                          </AspectRatio>
+
+                          <Stack gap={4}>
+                            <Text fw={500} c={theme.colors.text[1]}>{StringUtils.limitCharacters(item.title || '', 15)}</Text>
+                            <Text c="dimmed" size="14px">{StringUtils.limitCharacters(item.owner || '', 15)}</Text>
+                          </Stack>
+                        </Group>
+                      </Link>)}
+                    </Stack>
                   </>}
+
+                  <Divider my={5} color="none" />
+
                   {!!collections.length && <>
-                    <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
-                    {collections.map((item, key) => <Group>
-                      <Image src={item.bannerURL} width={92} height={64} />
-                      <Stack>
-                        <Text>{item.title}</Text>
-                        <Text c="dimmed">{item.creator}</Text>
-                      </Stack>
-                    </Group>)}
+                    <Text size="14px" fw='bold' c={theme.colors.text[1]}>Bộ sưu tập</Text>
+                    <Stack>
+                      {collections.map((item, key) => <Link key={key} href={`/collections/${item.collectionID}`}>
+                        <Group className="menu-item">
+                          <Image radius={10} src={item.bannerURL} width={64} height={58} />
+                          <Stack gap={2}>
+                            <Text fw={500} c={theme.colors.text[1]}>{item.title}</Text>
+                            <Text size="12px" c="dimmed">{StringUtils.compact(item.creator, 4, 5)}</Text>
+                          </Stack>
+                        </Group>
+                      </Link>)}
+                    </Stack>
                   </>}
+
+                  <Divider my={5} color="none" />
+
                   {!!users.length && <>
-                    <Text size='12px' fw='bold' c={theme.colors.text[1]}>Video</Text>
-                    {users.map((item, key) => <Group>
-                      <Avatar src={item.avatar} />
-                      {/* <Stack>
-                        <Text>{item.title}</Text>
-                        <Text c="dimmed">{item.creator}</Text>
-                      </Stack> */}
-                    </Group>)}
+                    <Text size="14px" fw='bold' c={theme.colors.text[1]}>Nhà sáng tạo</Text>
+                    <Stack>
+                      {users.map((item, key) => <Link key={key} href={`/users/${item.wallet}`}>
+                        <Group className="menu-item">
+                          <AspectRatio style={{
+                            width: '64px',
+                            overflow: 'hidden',
+                            borderRadius: '8px'
+                          }}>
+                            <img src={item.avatar || '/images/default/ava.jpeg'} />
+                          </AspectRatio>
+
+                          <Stack gap={4}>
+                            <Text fw={500} c={theme.colors.text[1]}>{StringUtils.limitCharacters(item.username || '', 15)}</Text>
+                            <Text c="dimmed" size="14px">{StringUtils.compact(item.wallet, 5, 5)}</Text>
+                          </Stack>
+                        </Group>
+                      </Link>)}
+                    </Stack>
                   </>}
                 </Stack>
               }()}
@@ -338,7 +404,6 @@ export const Account: FC = () => {
 
   const profileMenu = [
     { label: 'Trang cá nhân', route: `${AppRoutes.user.profile}/${account.information?.wallet}`, icon: <IconUserBolt />, },
-    { label: 'Yêu thích', route: 'd', icon: <IconHeartBolt />, },
     { label: 'Bạn bè', route: AppRoutes.user.friends, icon: <IconFriends />, },
     { label: 'Cài đặt', route: 'd', icon: <IconSettings /> },
     { label: 'Chế độ tối', icon: <IconMoonFilled /> }
@@ -367,7 +432,7 @@ export const Account: FC = () => {
       <AppButton
         async
         leftSection={<IconNetwork size={20} />}
-        onClick={() => config.handleChangeChain(blockchain.chainId as ChainId).catch(error => { onError(error) })}
+        onClick={() => config.handleChangeChain(blockchain.chainId as ChainId).catch((error: any) => { onError(error) })}
         color={theme.colors.primary[5]}
         height={45}
         width={156}
@@ -407,6 +472,7 @@ export const Account: FC = () => {
               }}
               leftSection={v.icon}
               py={theme.spacing.md}
+              c={theme.colors.text[1]}
             >
               <Group>
                 <Text>{v.label}</Text>
@@ -414,6 +480,17 @@ export const Account: FC = () => {
               </Group>
             </Menu.Item>
           })}
+
+          <Menu.Divider />
+
+          <Menu.Item
+            onClick={() => account.signOut()}
+            leftSection={<IconLogout />}
+            py={theme.spacing.md}
+            c={theme.colors.text[1]}
+          >
+            <Text>Đăng xuất</Text>
+          </Menu.Item>
         </Menu.Dropdown>
       }()}
 

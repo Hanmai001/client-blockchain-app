@@ -10,7 +10,7 @@ import { Nft } from "@/modules/nft/types";
 import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Avatar, Box, Card, Divider, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
-import { useClipboard } from "@mantine/hooks";
+import { useClipboard, useDebouncedValue } from "@mantine/hooks";
 import { IconCopy, IconCopyCheck, IconEye, IconSearch, IconShare, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
@@ -23,6 +23,7 @@ import { NftModule } from "@/modules/nft/modules";
 import { onBuyNft } from "@/components/modals/modal-buy-nft";
 import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { EmptyMessage } from "@/components/empty-message";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
@@ -39,6 +40,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [user, setUser] = useState<DataLoadState<any>>({ isFetching: false, data: {} });
   const clipboard = useClipboard({ timeout: 500 });
   const { image, symbol } = renderPayment(collection?.paymentType || AppPayment.ETH);
+  const [search, setSearch] = useState('');
+  const [debounced] = useDebouncedValue(search, 200);
   const [isListing, setIsListing] = useState<boolean>();
   payment.image = image;
   payment.symbol = symbol;
@@ -70,13 +73,21 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const fetchMarketOrders = async () => {
     try {
       let res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID });
-      const filteredOrders = res.data.order.filter(v=> v.status !== MarketStatus.ISLISTING);
+      const filteredOrders = res.data.order.filter((v: any) => {
+        if (search.length > 0) {
+          const satisfiedSearch = MarketOrderModule.getMarketEvent(v.event)?.includes(search)
+            || v.buyer.includes(search)
+            || v.seller.includes(search)
+            || v.price.toString().includes(search);
+          if (v.status !== MarketStatus.ISLISTING && satisfiedSearch) return true;
+          else return false;
+        }
+        if (v.status !== MarketStatus.ISLISTING) return true;
+      });
 
       setMarketOrders(filteredOrders);
-
       res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, status: MarketStatus.SOLD });
       setLastSoldOrder(res.data.order[res.data.count - 1]);
-
     } catch (error) {
 
     }
@@ -146,9 +157,13 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     checkLikeFavourite();
     fetchCollection();
     fetchComments();
-    fetchMarketOrderOfToken();
     fetchMarketOrders();
-  }, [account.information])
+    fetchMarketOrderOfToken();
+  }, [account.information, isListing])
+
+  useEffect(() => {
+    fetchMarketOrders();
+  }, [debounced])
 
   useEffect(() => {
     updateTotalViews();
@@ -182,7 +197,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   </AspectRatio>
                 </Card.Section>
 
-                {function() {
+                {function () {
                   if (marketOrder) return <Group my={10} justify="space-between">
                     <Text c={theme.colors.text[1]}>Giá hiện tại</Text>
                     <Group gap={6}>
@@ -203,10 +218,10 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     <Text c={theme.colors.text[1]}>Chưa được bán</Text>
                   </Group>
                 }()}
-                
+
                 {(isNotSigned || isDifferentAccount) && isListing && <AppButton
                   async
-                  onClick={() => onBuyNft(marketOrder!)}
+                  onClick={() => onBuyNft({ order: marketOrder!, onUpdate: () => setIsListing(false) })}
                   leftSection={<IconShoppingCartFilled />}
                   radius={theme.radius.md}
                   color={theme.colors.primary[5]}
@@ -217,7 +232,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
                 {!isListing && account.information?.wallet === token.owner && <AppButton
                   async
-                  onClick={() => onListNft(token)}
+                  onClick={() => onListNft({ nft: token, onUpdate: () => setIsListing(true) })}
                   leftSection={<IconShoppingCartFilled />}
                   radius={theme.radius.md}
                   color={theme.colors.primary[5]}
@@ -425,7 +440,10 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   section: {
                     paddingRight: `${theme.spacing.md}`
                   }
-                }} />
+                }}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
               </Card.Section>
 
               <Card.Section>
@@ -441,6 +459,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
                 {function () {
                   if (!marketOrders) return <Skeleton h={300} w={'100%'} />
+
+                  if (marketOrders.length === 0) return <Group w={'100%'} justify="center"><EmptyMessage message="Chưa phát sinh giao dịch" /></Group>
 
                   return <>
                     {marketOrders.map((v, k) => <Box key={k}>

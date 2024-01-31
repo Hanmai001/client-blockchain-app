@@ -23,6 +23,12 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [checked, setChecked] = useState(collection.active);
+  const [oldMetadata, setOldMetadata] = useState({
+    title: collection.title,
+    bannerURL: collection.bannerURL,
+    description: collection.description,
+    category: collection.category,
+  })
 
   enum CollectionType {
     TOURISM = 'Du lịch',
@@ -51,15 +57,27 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
     },
   })
 
+  const isMetadataChanged = () => {
+    return (
+      form.getInputProps('bannerURL').value !== oldMetadata.bannerURL ||
+      form.getInputProps('description').value !== oldMetadata.description ||
+      form.getInputProps('category').value !== oldMetadata.category ||
+      form.getInputProps('title').value !== oldMetadata.title
+    );
+  };
+
   const onSubmit = form.onSubmit(async (values) => {
     try {
       setIsUploading(true);
+      const checkMetadataChanged = isMetadataChanged();
+
       let payload = { ...values, active: checked };
 
       if (bannerFile instanceof File)
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
 
-      await CollectionModule.updateCollection(payload);
+      await CollectionModule.updateCollection(payload, checkMetadataChanged);
+
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
       onError("Tạo Bộ sưu tập không thành công!!!");
@@ -111,7 +129,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                   }
                 }}
               />
-              
+
               <MediaInput
                 label="Hình nền"
                 value={collection.bannerURL}

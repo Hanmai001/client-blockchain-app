@@ -79,6 +79,15 @@ input, textarea {
   }
 }
 
+.menu-item {
+  padding: 10px 8px;
+  border-radius: 8px;
+  
+  &:hover {
+    background-color: #efe3ff;
+  }
+}
+
 .tab-list {
   border-radius: 8px;
 

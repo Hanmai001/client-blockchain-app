@@ -16,18 +16,24 @@ import { NftStatus } from "@/modules/nft/types";
 import { UserInformation, UserTabsProfile } from "@/modules/user/types";
 import { MyCombobox } from "@/screens/marketplace";
 import { StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Grid, Group, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Card, Grid, Group, Menu, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue, useHover } from "@mantine/hooks";
-import { IconCheck, IconCopy, IconEdit, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
+import { IconBarrierBlock, IconCheck, IconCopy, IconEdit, IconFriendsOff, IconLockAccess, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/user/UserProfile.module.scss';
+import { useAccount } from "@/modules/account/context";
+import { UserModule } from "@/modules/user/modules";
+import { RequestModule } from "@/modules/request/request";
+import { onSuccess } from "@/components/modals/modal-success";
 
 
 export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
   const [activeTab, setActiveTab] = useState<string | null>(UserTabsProfile.ALL);
+  const account = useAccount();
   const theme = useMantineTheme();
+  const isSignedUser = account.information?.wallet === user.wallet;
 
   return (
     <AppWrapper>
@@ -72,7 +78,12 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
               </Tabs.Panel>
 
               <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
-                <TabFavouritedNfts user={user} />
+                {isSignedUser ? <TabFavouritedNfts user={user} /> : <Group mt={100} justify="center">
+                  <Stack align="center">
+                    <IconLockAccess size={48} stroke={1.5} color={theme.colors.gray[7]} />
+                    <Text fw={500} c={theme.colors.gray[7]}>Bạn không có quyền xem</Text>
+                  </Stack>
+                </Group>}
               </Tabs.Panel>
 
             </Tabs>
@@ -85,9 +96,12 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
 
 const UserCover: FC<{ user: UserInformation }> = (props) => {
   const theme = useMantineTheme();
+  const account = useAccount();
   const { hovered, ref } = useHover();
   const [image, setImage] = useState(props.user.cover || '/images/default/bg-user.jpg');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const isSignedUser = account.information?.wallet === props.user.wallet;
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -100,25 +114,35 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
         return;
       }
 
-      // Tạo một đường dẫn URL cho hình ảnh và đặt nó trong state để hiển thị trước
       const reader = new FileReader();
       reader.onload = () => {
         setPreviewImage(reader.result as string);
       };
       reader.readAsDataURL(file);
+      setFile(file);
     }
   }, []);
 
   const removeImage = (e: any) => {
     setPreviewImage(null);
+    setFile(null);
     e.stopPropagation();
   };
 
   const handleChangeBanner = async () => {
     try {
-      //api put
+      let coverURL = null;
+      if (file instanceof File)
+        coverURL = await RequestModule.uploadMedia(`/api/v1/users/cover`, file as File, 400, "cover");
+      if (coverURL) {
+        await UserModule.update({ cover: coverURL });
+        setImage(coverURL);
+        setFile(null);
+        setPreviewImage(null);
+        onSuccess({ title: "Cập nhật hình nền thành công" });
+      }
     } catch (error) {
-
+      onError("Có lỗi xảy ra, vui lòng thử lại")
     }
   }
 
@@ -129,7 +153,7 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
   });
 
   return (
-    <AspectRatio ref={ref} ratio={400 / 100} style={{ overflow: 'hidden', cursor: hovered ? 'pointer' : 'none' }}>
+    <AspectRatio ref={ref} ratio={400 / 100} style={{ overflow: 'hidden', cursor: hovered && isSignedUser ? 'pointer' : 'normal' }}>
       <AppImage src={image} alt="" />
 
       <Group
@@ -139,7 +163,7 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
         }}
         w={'100%'}
       >
-        {previewImage && <Group pos="relative" style={{
+        {isSignedUser && previewImage && <Group pos="relative" style={{
           top: 0,
           bottom: 0,
           right: 0,
@@ -171,7 +195,7 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
           </Group>
         </Group>}
 
-        {hovered && !previewImage && <div
+        {isSignedUser && hovered && !previewImage && <div
           {...getRootProps({
             className: classes.dropzone,
           })}
@@ -206,9 +230,16 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
 const UserAvatar: FC<{ user: UserInformation }> = (props) => {
   const theme = useMantineTheme();
   const { hovered, ref } = useHover();
-  const [image, setImage] = useState(props.user.cover || '/images/default/bg-user.jpg');
+  const account = useAccount();
+  const [username, setUsername] = useState(props.user.username);
+  const [image, setImage] = useState(props.user.avatar || '/images/default/avatar.png');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isEditName, setIsEditName] = useState(false);
+  const [opened, setOpened] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const clipboard = useClipboard({ timeout: 500 });
+  const isSignedUser = account.information?.wallet === props.user.wallet;
+  const isFriend = true;
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -227,19 +258,57 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         setPreviewImage(reader.result as string);
       };
       reader.readAsDataURL(file);
+      setFile(file);
     }
   }, []);
 
   const removeImage = (e: any) => {
     setPreviewImage(null);
+    setFile(null);
     e.stopPropagation();
   };
 
   const handleChangeAvatar = async () => {
     try {
-      //api put
+      let avatarURL = null;
+      if (file instanceof File)
+        avatarURL = await RequestModule.uploadMedia(`/api/v1/users/avatar`, file as File, 400, "avatar");
+
+      if (avatarURL) {
+        await UserModule.update({ avatar: avatarURL });
+        setImage(avatarURL);
+        setFile(null);
+        setPreviewImage(null);
+        onSuccess({ title: "Cập nhật ảnh đại diện thành công" });
+      }
+    } catch (error) {
+      onError("Có lỗi xảy ra, vui lòng thử lại")
+    }
+  }
+
+  const handleAddfriend = async () => {
+    try {
+
+    } catch (error) {
+      onError("Không thể kết bạn");
+    }
+  }
+
+  const updateUserInfo = async () => {
+    try {
+      const res = await UserModule.update({ username });
+      props.user.username = res.data.username;
+      setIsEditName(false);
     } catch (error) {
 
+    }
+  }
+
+  const handleUnfriend = async () => {
+    try {
+
+    } catch (error) {
+      onError("Hủy kết bạn thất bại, vui lòng thử lại sau");
     }
   }
 
@@ -259,10 +328,10 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
       }} ref={ref}>
         <AccountAvatar
           size={98}
-          src={props.user.avatar}
+          src={image}
         />
 
-        {previewImage && <div
+        {isSignedUser && previewImage && <div
           className={classes.dropzone}
           style={{ borderRadius: '50%' }}
         >
@@ -272,7 +341,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
           />
         </div>}
 
-        {hovered && !previewImage && <div
+        {isSignedUser && hovered && !previewImage && <div
           {...getRootProps({
             className: classes.dropzone,
           })}
@@ -305,13 +374,49 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
           <IconCopy size={20} stroke={1.5} />
         </ActionIcon>
         {clipboard.copied && <Text c={theme.colors.gray[7]}>Đã sao chép</Text>}
+
+        {!isSignedUser && !isFriend && <AppButton
+          async
+          color={theme.colors.primary[5]}
+          leftSection={<IconPlus size={20} />}
+          ml={40}
+        >
+          Kết bạn
+        </AppButton>}
+
+        {isFriend && <Box pos="relative">
+          <AppButton
+            onClick={() => setOpened(!opened)}
+            async
+            variant="outline"
+            color={theme.colors.primary[5]}
+            leftSection={<IconCheck size={20} />}
+          >
+            Bạn bè
+          </AppButton>
+
+          {opened && <Card shadow="md" p={10} withBorder style={{
+            position: 'absolute',
+            zIndex: 10
+          }}>
+            <AppButton
+              onClick={handleUnfriend}
+              variant="transparent"
+              leftSection={<IconFriendsOff
+                size={20} />}
+              color={theme.colors.text[1]}
+            >
+              Hủy kết bạn
+            </AppButton>
+          </Card>}
+        </Box>}
       </Group>
 
       {previewImage && <Group ml={14}>
         <ActionIcon
           variant="outline"
           color={theme.colors.green[7]}
-          onClick={removeImage}
+          onClick={handleChangeAvatar}
         >
           <IconCheck />
         </ActionIcon>
@@ -325,16 +430,38 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         </ActionIcon>
       </Group>}
 
-      <Group gap={2}>
+      {isEditName ? <Group mt={10}>
+        <TextInput
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+
+        <ActionIcon
+          onClick={updateUserInfo}
+          variant="outline"
+          color={theme.colors.green[7]}
+        >
+          <IconCheck />
+        </ActionIcon>
+
+        <AppButton
+          onClick={() => { setIsEditName(false); setUsername(props.user.username) }}
+          variant="light"
+          color={theme.colors.gray[7]}
+        >
+          Hủy
+        </AppButton>
+      </Group> : <Group gap={2}>
         <Text c={theme.colors.text[1]} fw="bold" ml={14}>{props.user.username}</Text>
 
         <ActionIcon
+          onClick={() => setIsEditName(true)}
           c={theme.colors.gray[7]}
           variant="transparent"
         >
-          <IconEdit size={20} stroke={1.5}/>
+          <IconEdit size={20} stroke={1.5} />
         </ActionIcon>
-      </Group>
+      </Group>}
     </Stack>
   )
 }
@@ -375,11 +502,11 @@ const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
         listItems.data.tokens = nfts;
         listItems.data.count = nfts.length;
       }
-      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data.tokens, count: listItems.data.count } }));
+      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data.tokens || [], count: listItems.data.count || 0 } }));
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {
       setTokens(s => ({ ...s, isFetching: false }));
-      onError(error);
+      // onError(error);
     }
   }
 
@@ -487,6 +614,7 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
         if (status === CollectionStatus.NEWEST) sort = '-createdAt';
         if (status === CollectionStatus.OLDEST) sort = '+createdAt';
       }
+
       listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter as string : '' });
       if (search.length > 0 && !!listItems.data.collections) {
         const collections = listItems.data.collections.filter((v: any, k: any) => {
@@ -507,7 +635,7 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
 
   useEffect(() => {
     fetchItems();
-  }, [activePage, filter, debounced])
+  }, [activePage, filter, status, debounced])
 
   return (
     <>
@@ -638,11 +766,11 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
         listItems.data.tokens = nfts;
         listItems.data.count = nfts.length;
       }
-      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data.tokens, count: listItems.data.count } }));
+      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data?.tokens || [], count: listItems.data?.count || 0 } }));
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {
       setTokens(s => ({ ...s, isFetching: false }));
-      onError(error);
+      // onError(error);
     }
   }
 

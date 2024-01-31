@@ -15,6 +15,10 @@ export class UserModule {
     return user.data;
   }
 
+  static async update(payload: any) {
+    return RequestModule.put(`/api/v1/users`, payload)
+  }
+
   static async authenticate(): Promise<{message?: string, data: UserInformation}> {
     return RequestModule.get(`/api/v1/users/details`);
   }

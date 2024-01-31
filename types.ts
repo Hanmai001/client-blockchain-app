@@ -1,4 +1,3 @@
-import { ChainId } from "@/share/blockchain/types";
 
 export type ObjectID = string;
 
@@ -14,7 +13,7 @@ export enum AppPayment {
 }
 
 export interface Query {
-  chainID?: ChainId
+  chainID?: string
   offset?: number
   limit?: number,
   sort?: any,

@@ -1,4 +1,4 @@
-import { Query } from "../../../types";
+import { AppPayment, Query } from "../../../types";
 
 export enum MarketStatus {
     SOLD = 0,
@@ -16,7 +16,7 @@ export interface MarketOrder {
   chainID: string,
   tokenID: string,
   tokenAddress: string,
-  paymentType: string,
+  paymentType: AppPayment,
   price: number,
   seller: string,
   buyer: string,
@@ -30,10 +30,10 @@ export interface MarketOrderPayload {
   chainID: string,
   tokenID: string,
   tokenAddress: string,
-  paymentType: string,
+  paymentType: AppPayment,
   price: number,
   seller: string,
-  status: string
+  status: MarketStatus
 }
 
 export interface MarketOrderQuery extends Query {

@@ -1,12 +1,10 @@
-import { useAccount } from "@/modules/account/context"
-import { Group, Stack, Text } from "@mantine/core"
-import { useClipboard } from "@mantine/hooks"
-import { ethers } from "ethers"
-import { FC, useEffect, useState } from "react"
-import { AccountAvatar } from "./account-avatar"
-import { StringUtils } from "@/share/utils"
 import { AccountInformation } from "@/modules/account/types"
 import { UserInformation } from "@/modules/user/types"
+import { StringUtils } from "@/share/utils"
+import { Group, Stack, Text } from "@mantine/core"
+import { useClipboard } from "@mantine/hooks"
+import { FC, useEffect, useState } from "react"
+import { AccountAvatar } from "./account-avatar"
 
 
 interface AccountInfoProps {

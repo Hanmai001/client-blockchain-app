@@ -1,33 +1,32 @@
-import { useAccount } from "@/modules/account/context";
 import { renderPayment } from "@/modules/coins/utils";
-import { getContracts, useConfig } from "@/modules/configs/context";
-import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
-import { useBlockChain } from "@/share/blockchain/context";
+import { useConfig } from "@/modules/configs/context";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { MarketOrder } from "@/modules/marketorder/types";
 import { ActionIcon, Avatar, Group, Modal, NumberInput, Stack, Text, Title, UnstyledButton, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconX } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../types";
 import { AppButton } from "../app/app-button";
-import { onError } from "./modal-error";
-import { AppModule } from "@/modules/app/modules";
 import { onSuccess } from "./modal-success";
-import { MarketOrderModule } from "@/modules/marketorder/modules";
 
-export let onBuyNft = (order: MarketOrder) => undefined;
+interface State {
+  order: MarketOrder,
+  onUpdate: () => void
+}
+
+export let onBuyNft = (state: State) => undefined;
 export const ModalBuyNft: FC = () => {
   const theme = useMantineTheme();
-  const blockchain = useBlockChain();
-  const account = useAccount();
   const { isDarkMode } = useConfig();
-  const [order, setOrder] = useState<MarketOrder>();
+  const [state, setState] = useState<State>();
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedToken, setSelectedToken] = useState<string | undefined>();
   const [price, setPrice] = useState<number | string>();
-  const { image, symbol } = renderPayment(order?.paymentType || AppPayment.ETH);
+  const { image, symbol } = renderPayment(state?.order.paymentType || AppPayment.ETH);
 
-  onBuyNft = (order) => {
-    setOrder(order);
+  onBuyNft = (state) => {
+    setState(state);
     open();
   }
 
@@ -37,11 +36,11 @@ export const ModalBuyNft: FC = () => {
 
   const handleSubmit = async () => {
     try { 
-      console.log(order)
-      await MarketOrderModule.purchaseItem(order!);
+      await MarketOrderModule.purchaseItem(state?.order!);
 
       onClose();
-      onSuccess({title: 'Mua thành công', message: "Bạn có thể kiểm tra"})
+      onSuccess({title: 'Mua thành công', message: "Bạn có thể kiểm tra"});
+      state?.onUpdate();
     } catch (error) {
       onClose();
       throw error
@@ -49,9 +48,9 @@ export const ModalBuyNft: FC = () => {
   }
 
   useEffect(() => {
-    setPrice(order?.price);
-    setSelectedToken(order?.paymentType);
-  }, [order])
+    setPrice(state?.order?.price);
+    setSelectedToken(state?.order?.paymentType);
+  }, [state])
 
   return <Modal closeOnClickOutside={false} centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
     overlay: {
@@ -59,7 +58,7 @@ export const ModalBuyNft: FC = () => {
     }
   }}>
     {function () {
-      if (order) return <Stack gap={0}>
+      if (state?.order) return <Stack gap={0}>
         <Group mb={20} justify="space-between">
           <Title fw={500} c={theme.colors.text[1]} order={3} style={{ textAlign: "center" }}>Mua</Title>
 

@@ -20,6 +20,10 @@ export class NftModule {
     return RequestModule.get(`/api/v1/tokens/${id}`);
   }
 
+  static async getNftsByCollectionID(id: string): Promise<any> {
+    return RequestModule.get(`/api/v1/tokens/${id}`);
+  }
+
   static async getAllNftsOfUser(wallet: string, query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {
     return RequestModule.get(`/api/v1/tokens/user/${wallet}`, query);
   }

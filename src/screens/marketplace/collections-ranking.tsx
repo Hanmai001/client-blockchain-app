@@ -24,11 +24,11 @@ export const CollectionsRanking: FC<{type: string | null}> = (props) => {
     try {
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, sort: '+averagePrice', limit: 5 })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, sort: '+averagePrice', limit: 5, active: true })
         filteredRes = res.data!.collections.filter(v => true);
 
       } else {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, sort: '+averagePrice', limit: 5 })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, sort: '+averagePrice', limit: 5, active: true })
         filteredRes = res.data!.collections.filter(v => true);
       }
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));

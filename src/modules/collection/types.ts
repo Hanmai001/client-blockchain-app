@@ -1,4 +1,3 @@
-import { ChainId } from "@/share/blockchain/types";
 import { AppPayment, Query } from "../../../types";
 
 export enum CollectionType {
@@ -24,7 +23,7 @@ export interface Collection {
   collectionID: string,
   id: string,
   creator: string,
-  chainID: ChainId,
+  chainID: string,
   title: string,
   description: string,
   bannerURL: string,
@@ -41,7 +40,7 @@ export interface Collection {
 
 export interface CollectionPayload {
   creator: string,
-  chainID: ChainId,
+  chainID: string,
   title: string,
   bannerURL: string | '',
   description: string,
@@ -52,7 +51,7 @@ export interface CollectionPayload {
 
 export interface CollectionUpdatePayload {
   collectionID: string,
-  chainID: ChainId,
+  chainID: string,
   title: string,
   bannerURL: string,
   description: string,

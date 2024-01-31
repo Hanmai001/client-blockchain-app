@@ -63,11 +63,11 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
     try {
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, active: true })
         filteredRes = res.data!.collections.filter(v => true);
 
       } else {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, active: true })
         filteredRes = res.data!.collections.filter(v => true);
       }
       filteredRes = getRandomItems(filteredRes, 9);

@@ -18,7 +18,7 @@ interface FeaturedProps {
 }
 export const ListCollections: FC<{ type: string | null }> = (props) => {
   const defaultState: FeaturedProps = { isFetching: true, data: { collections: [], count: 0 } }
-  const [collections, setCollections] = useState(defaultState);
+  const [collections, setCollections] = useState<ListLoadState<Collection, 'collections'>>(defaultState);
   const [featuredRes, setFeaturedRes] = useState<FeaturedProps[]>([]);
   const blockchain = useBlockChain();
   const theme = useMantineTheme();
@@ -33,7 +33,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
   const fetchFeaturedCollections = async (category: CollectionType) => {
     try {
       const featuredResItem = await CollectionModule.getList({ chainID: blockchain.chainId, category: category as string, sort: '+averagePrice', limit: 3, active: true });
-      const tempFeaturedResItem = { isFetching: false, data: { collections: featuredResItem.data ? featuredResItem.data.collections : [], count: featuredResItem.data ? featuredResItem.data.count : 0 } };
+      const tempFeaturedResItem = { isFetching: false, data: { collections: featuredResItem.data?.collections || [], count: featuredResItem.data?.count || 0 } };
       setFeaturedRes(s => [...s, tempFeaturedResItem]);
     } catch (error) {
       onError(error);
@@ -93,7 +93,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
               <EmptyMessage />
             ) : (
               <Grid mt={10} gutter={theme.spacing.md}>
-                {(featuredRes[k] as any).data.collections.map((item, index) => (
+                {(featuredRes[k] as any).data.collections.map((item: any, index: any) => (
                   <Grid.Col key={index} span={{ ...gridColumns }}>
                     <CollectionCard key={k} collection={item} />
                   </Grid.Col>
@@ -116,16 +116,16 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
             ))}
           </Grid>
 
-          if (collections.data.count < 1) return <EmptyMessage />
+          if (collections.data?.count === 0) return <EmptyMessage />
 
           return <Grid mt={10} gutter={theme.spacing.md}>
-            {collections.data.collections.map((v, k) => <Grid.Col key={k} span={{ ...gridColumns }}>
+            {collections.data?.collections.map((v, k) => <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>)}
           </Grid>
         }()}
 
-        <Pagination color={theme.colors.primary[5]} total={Math.ceil(collections.data.count / 10)} siblings={2} value={activePage} onChange={setPage} styles={{
+        <Pagination color={theme.colors.primary[5]} total={Math.ceil(collections.data!.count! / 10)} siblings={2} value={activePage} onChange={setPage} styles={{
           root: {
             marginTop: '80px',
             display: 'flex',

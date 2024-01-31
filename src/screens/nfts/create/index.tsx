@@ -114,7 +114,7 @@ export const CreateNftScreen: FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await CollectionModule.getList({ chainID: blockchain.chainId, creator: form.values.creator });
+      const res = await CollectionModule.getCollecionsOfUser(account.information?.wallet!, { chainID: blockchain.chainId });
       setCollections(s => ({ ...s, isFetching: false, data: { collections: res.data!.collections, count: res.data!.count } }));
     };
 

@@ -8,7 +8,7 @@ export class CollectionModule {
     return RequestModule.post(`/api/v1/collections`, payload)
   }
 
-  static async getList(query?: CollectionQuery): Promise<ListLoadState<Collection>> {
+  static async getList(query?: CollectionQuery): Promise<ListLoadState<Collection, 'collections'>> {
     return RequestModule.get(`/api/v1/collections`, query);
   }
 
@@ -21,17 +21,19 @@ export class CollectionModule {
   }
 
   static async getCollecionsOfUser(wallet: string, query?: CollectionQuery): Promise<ListLoadState<Collection>> {
-    return RequestModule.get(`/api/v1/collections`, {creator: wallet});
+    return RequestModule.get(`/api/v1/collections/user/${wallet}`, query);
   }
 
-  static async updateCollection(payload: CollectionUpdatePayload): Promise<any> {
+  static async updateCollection(payload: CollectionUpdatePayload, checkMetadataChanged: boolean): Promise<any> {
      const res =  await this.update(payload.collectionID, payload);
 
-    const contract = TokenModule.getContractERC721(payload.contractAddress);
+    if (checkMetadataChanged) {
+      const contract = TokenModule.getContractERC721(payload.contractAddress);
 
-    let txReceipt = await contract.send({
-      method: 'updateBaseCollectionURI',
-      args: [res.data.tokenURI, payload.collectionID],
-    });
+      let txReceipt = await contract.send({
+        method: 'updateBaseCollectionURI',
+        args: [res.data.collectionURI, payload.collectionID],
+      });
+    }
   }
 }

@@ -58,7 +58,7 @@ export const FriendsScreen: FC = () => {
       return { token: v, user: user };
     });
 
-    const usersResult = await Promise.all(userPromises);
+    const usersResult = await Promise.all(userPromises!);
     setUsers(usersResult);
   };
 
