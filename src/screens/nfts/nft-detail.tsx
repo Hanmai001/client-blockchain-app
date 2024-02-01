@@ -96,7 +96,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const fetchMarketOrderOfToken = async () => {
     try {
 
-      const checkListed = (await MarketOrderModule.checkTokenIsListed(token.tokenID)).data.isListed;
+      const checkListed = await MarketOrderModule.checkTokenIsListed(token.tokenID);
       if (checkListed) {
         const res = await MarketOrderModule.getNewesOrderOfToken(token.tokenID);
         setIsListing(true);

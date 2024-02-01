@@ -7,26 +7,28 @@ import { CollectionCard } from "@/components/collection-card";
 import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
 import { onError } from "@/components/modals/modal-error";
+import { onSuccess } from "@/components/modals/modal-success";
 import { NftCard } from "@/components/nft-card";
+import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { CollectionModule } from "@/modules/collection/modules";
 import { CollectionStatus, CollectionType } from "@/modules/collection/types";
 import { NftModule } from "@/modules/nft/modules";
 import { NftStatus } from "@/modules/nft/types";
+import { RequestModule } from "@/modules/request/request";
+import { UserModule } from "@/modules/user/modules";
 import { UserInformation, UserTabsProfile } from "@/modules/user/types";
 import { MyCombobox } from "@/screens/marketplace";
 import { StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Card, Grid, Group, Menu, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Card, Grid, Group, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue, useHover } from "@mantine/hooks";
-import { IconBarrierBlock, IconCheck, IconCopy, IconEdit, IconFriendsOff, IconLockAccess, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
+import { IconCheck, IconCopy, IconEdit, IconFriendsOff, IconLockAccess, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/user/UserProfile.module.scss';
-import { useAccount } from "@/modules/account/context";
-import { UserModule } from "@/modules/user/modules";
-import { RequestModule } from "@/modules/request/request";
-import { onSuccess } from "@/components/modals/modal-success";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { MarketStatus } from "@/modules/marketorder/types";
 
 
 export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
@@ -487,13 +489,30 @@ const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
       setTokens(s => ({ ...s, isFetching: true, data: { tokens: [], count: 0 } }));
       let listItems: any;
       let sort = '';
+      let status: any;
       //get list by filter
       if (filter !== NftStatus.ALL) {
         if (filter === NftStatus.OLDEST) sort = '+createdAt';
         if (filter === NftStatus.NEWEST) sort = '-createdAt';
+        if (filter === NftStatus.ISLISTING) status = MarketStatus.ISLISTING;
+        if (filter === NftStatus.SOLD) status = MarketStatus.SOLD;
       }
 
       listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort });
+
+      if (filter === NftStatus.ISLISTING || filter === NftStatus.SOLD) {
+        const nfts = [];
+        for (const v of listItems.data.tokens) {
+          const checkIsListing = await MarketOrderModule.checkTokenIsListed(v.tokenID);
+
+          if (checkIsListing) {
+            nfts.push(v);
+          }
+        }
+        listItems.data.tokens = nfts;
+        listItems.data.count = nfts.length;
+      }
+
       if (search.length > 0 && !!listItems.data.tokens) {
         const nfts = listItems.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;

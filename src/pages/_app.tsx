@@ -15,6 +15,7 @@ import { ErrorModal } from '@/components/modals/modal-error';
 import { ModalSuccess } from '@/components/modals/modal-success';
 import { ModalListNft } from '@/components/modals/modal-list-nft';
 import { ModalBuyNft } from '@/components/modals/modal-buy-nft';
+import { ChatProvider } from '@/modules/chat/context';
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -60,11 +61,13 @@ export default function ({ Component, pageProps }: AppProps) {
   >
     <BlockChainProvider>
       <ConfigsProvider>
-        <Provider store={store}>
-          <App>
-            <Component {...pageProps} />
-          </App>
-        </Provider>
+        <ChatProvider>
+          <Provider store={store}>
+            <App>
+              <Component {...pageProps} />
+            </App>
+          </Provider>
+        </ChatProvider>
       </ConfigsProvider>
     </BlockChainProvider>
   </MantineProvider>

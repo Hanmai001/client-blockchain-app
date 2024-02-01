@@ -10,7 +10,8 @@ export const AppRoutes = {
   },
   user: {
     profile: '/users',
-    friends: '/users/friends'
+    friends: '/users/friends',
+    messages: '/users/messages'
   },
   friends: '/friends'
 }

@@ -49,8 +49,6 @@ export class Contract {
         const provider = new ethers.JsonRpcProvider(this.rpcUrlUsed);
         const contract = new ethers.Contract(this.address, this.abi, provider);
 
-        console.log("contract: ", contract)
-
         const read = contract[options.method] as any;
         if (typeof read !== 'function') return reject(new BlockchainError({
             code: BlockchainErrorCode.INVALID_METHOD_PARAMETERS,

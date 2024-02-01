@@ -1,7 +1,10 @@
+import { error } from "console";
 import { ListLoadState } from "../../../types";
+import { getWallet } from "../account/context";
 import { RequestModule } from "../request/request";
 import { TokenModule } from "../token/modules";
 import { Nft, NftPayload, NftQuery, NftUpdatePayload } from "./types";
+import { MarketOrderModule } from "../marketorder/modules";
 
 export class NftModule {
   static async getList(query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {

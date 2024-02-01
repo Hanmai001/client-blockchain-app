@@ -56,8 +56,7 @@ export enum NftStatus {
   ALL = 'Tất cả',
   ISLISTING = 'Đang bán',
   SOLD = 'Đã bán',
-  UNLISTING = 'Không bán',
-  NEREST_RECIEVE = 'Nhận gần đây',
+  // UNLISTING = 'Không bán',
   OLDEST = 'Cũ nhất',
   NEWEST = 'Mới nhất'
 }

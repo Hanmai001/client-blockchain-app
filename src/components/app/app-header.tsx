@@ -42,6 +42,7 @@ export const AppHeader: FC = () => {
   const [scroll, scrollTo] = useWindowScroll();
   const { isDarkMode } = useConfig();
   const { isMobile, isTablet, isDesktop } = useResponsive();
+  const router = useRouter();
 
   return (
     <header className={scroll.y <= 10 ? classes.headerNormal : classes.headerScroll} style={{
@@ -58,11 +59,22 @@ export const AppHeader: FC = () => {
 
         <Group gap={theme.spacing.sm} justify="flex-end">
           {isDesktop && <>
-            <ActionIcon variant="light" color={theme.colors.primary[5]} size={28} h={40} w={42}>
+            <ActionIcon
+              onClick={() => router.push(AppRoutes.user.messages)}
+              variant="light"
+              color={theme.colors.primary[5]}
+              size={28}
+              h={40}
+              w={42}>
               <IconMessage2 size={26} />
             </ActionIcon>
 
-            <ActionIcon variant="light" color={theme.colors.primary[5]} size={28} h={40} w={42}>
+            <ActionIcon
+              variant="light"
+              color={theme.colors.primary[5]}
+              size={28}
+              h={40}
+              w={42}>
               <IconBell size={26} />
             </ActionIcon>
           </>}

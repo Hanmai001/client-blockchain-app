@@ -26,7 +26,9 @@ export class MarketOrderModule {
   }
 
   static async checkTokenIsListed(id: string) {
-    return RequestModule.get(`/api/v1/orders/${id}/isListed`)
+    const checkListed = (await RequestModule.get(`/api/v1/orders/${id}/isListed`)).data.isListed;
+    console.log(checkListed)
+    return checkListed;
   }
 
   static async getNewesOrderOfToken(id: string) {

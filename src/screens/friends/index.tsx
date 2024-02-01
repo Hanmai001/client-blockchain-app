@@ -155,7 +155,7 @@ export const FriendsScreen: FC = () => {
   </AppWrapper>
 }
 
-const LoadingComponent: FC = () => {
+export const LoadingComponent: FC = () => {
 
   return <div className="loading">
     <div className="dot"></div>
