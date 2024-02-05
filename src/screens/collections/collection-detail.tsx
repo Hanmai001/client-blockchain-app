@@ -3,7 +3,9 @@ import { AppImage } from "@/components/app/app-image";
 import { AppWrapper } from "@/components/app/app-wrapper";
 import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
+import { useAccount } from "@/modules/account/context";
 import { renderPayment } from "@/modules/coins/utils";
+import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
 import { NftModule } from "@/modules/nft/modules";
 import { FilterOptions } from "@/modules/nft/types";
@@ -21,6 +23,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
   const [activePage, setPage] = useState(1);
   const [items, setItems] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
   const theme = useMantineTheme();
+  const account = useAccount();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState(FilterOptions.ALL);
   const [debounced] = useDebouncedValue(search, 200);
@@ -37,15 +40,15 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
       let sort = '';
       //get list by filter
       if (filter !== FilterOptions.ALL) {
-        if (filter === FilterOptions.MOST_VIEWS) sort = '+totalViews';
-        if (filter === FilterOptions.MOST_SHARES) sort = '+totalShare';
-        if (filter === FilterOptions.MOST_LIKES) sort = '+totalLikes';
+        if (filter === FilterOptions.MOST_VIEWS) sort = '-totalViews';
+        if (filter === FilterOptions.MOST_SHARES) sort = '-totalShare';
+        if (filter === FilterOptions.MOST_LIKES) sort = '-listOfLikedUsers';
         if (filter === FilterOptions.OLDEST) sort = '+createdAt';
         if (filter === FilterOptions.NEWEST) sort = '-createdAt';
       }
 
-      listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort, active: true });
-      console.log("fs", listtokens)
+      const isSignedUser = account.information?.wallet === collection.creatorCollection;
+      listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort, active: isSignedUser ? null : true });
       if (search.length > 0 && !!listtokens.data.tokens) {
         const tokens = listtokens.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
@@ -63,7 +66,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 
   useEffect(() => {
     fetchItems();
-  }, [debounced, filter])
+  }, [debounced, filter, account.information?.wallet])
 
   useEffect(() => {
     fetchItems();
@@ -94,7 +97,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
           />
 
           <MyCombobox
-            initialValue={FilterOptions.ALL}
+            initialvalue={FilterOptions.ALL}
             options={FilterOptions}
             styles={{
               dropdown: {
@@ -106,8 +109,8 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
             classNames={{
               dropdown: 'hidden-scroll-bar'
             }}
-            classNamesInput={classes.comboboxInput}
-            classNamesRoot={classes.comboboxRootInput}
+            classnamesinput={classes.comboboxInput}
+            classnamesroot={classes.comboboxRootInput}
             onChange={(value) => { setFilter(value) }}
           />
         </Group>
@@ -160,7 +163,16 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
 
   const fetchItemsOfCollection = async () => {
     try {
+      const listtokens = await NftModule.getList({ collectionID: props.collection.collectionID });
+      setTotalItems(listtokens.data?.count || 0);
+    } catch (error) {
 
+    }
+  }
+
+  const updateTotalViews = async () => {
+    try {
+      await CollectionModule.increaseTotalViews(props.collection.collectionID);
     } catch (error) {
 
     }
@@ -168,6 +180,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
 
   useEffect(() => {
     fetchItemsOfCollection();
+    updateTotalViews();
   }, [props.collection])
 
   return (
@@ -186,7 +199,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
           <Title size={18} c={theme.colors.text[0]}>
             {props.collection.title}
           </Title>
-          <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creator, 2, 5)}</Text>
+          <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
           <Group justify="space-between" mt={4}>
             <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems || 0} items</Text>
             <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>

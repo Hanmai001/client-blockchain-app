@@ -69,14 +69,17 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
   const onSubmit = form.onSubmit(async (values) => {
     try {
       setIsUploading(true);
-      const checkMetadataChanged = isMetadataChanged();
 
       let payload = { ...values, active: checked };
 
-      if (bannerFile instanceof File)
+      if (bannerFile instanceof File) {
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
+        form.setFieldValue('bannerURL', payload.bannerURL);
+      }
 
-      await CollectionModule.updateCollection(payload, checkMetadataChanged);
+      const checkMetadataChanged = isMetadataChanged();
+      const res = await CollectionModule.updateCollection(payload, checkMetadataChanged);
+      collection = res;
 
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
@@ -161,7 +164,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                 />
 
                 <MyCombobox
-                  initialValue={CollectionType.TOURISM}
+                  initialvalue={CollectionType.TOURISM}
                   options={CollectionType}
                   label="Thể loại"
                   styles={{
@@ -174,8 +177,8 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                   classNames={{
                     dropdown: 'hidden-scroll-bar'
                   }}
-                  classNamesInput={classes.comboboxInput}
-                  classNamesRoot={classes.comboboxRootInput}
+                  classnamesinput={classes.comboboxInput}
+                  classnamesroot={classes.comboboxRootInput}
                   onChange={(value: CollectionType) => form.setFieldValue("category", value)}
                 />
 

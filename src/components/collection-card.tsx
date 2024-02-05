@@ -17,7 +17,7 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
   const theme = useMantineTheme();
   const { image, symbol } = renderPayment(props.collection.paymentType);
   const account = useAccount();
-  const isOwner = account.information?.wallet === props.collection.creator;
+  const isOwner = account.information?.wallet === props.collection.creatorCollection;
 
   return (
     <Link href={`/collections/${props.collection.collectionID}`}>

@@ -45,7 +45,7 @@ export const CollectionCreateScreen: FC = () => {
   const form = useForm<CollectionPayload>({
     initialValues: {
       chainID: getChainId(),
-      creator: '',
+      creatorCollection: '',
       title: '',
       bannerURL: '',
       description: '',
@@ -66,10 +66,10 @@ export const CollectionCreateScreen: FC = () => {
 
   const getWallet = async () => {
     if (!!account.information && account.information.wallet)
-      form.setFieldValue('creator', ethers.getAddress(account.information.wallet));
+      form.setFieldValue('creatorCollection', ethers.getAddress(account.information.wallet));
     else {
       const wallet = (await blockchain.connectWallet("metamask")).wallet;
-      form.setFieldValue('creator', ethers.getAddress(wallet));
+      form.setFieldValue('creatorCollection', ethers.getAddress(wallet));
     }
   }
   useEffect(() => {
@@ -91,9 +91,11 @@ export const CollectionCreateScreen: FC = () => {
 
       const res = await CollectionModule.create(payload);
 
+      console.log(res)
+
       let txReceipt = await contractMarket.send({
         method: 'mintCollection',
-        args: [payload.creator, res.data.collectionURI],
+        args: [payload.creatorCollection, res.data.collectionURI],
         params: {
           value: feeMint
         }
@@ -102,7 +104,7 @@ export const CollectionCreateScreen: FC = () => {
       // console.log(txReceipt)
 
       const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString() };
-      await CollectionModule.update(res.data.collection.id, payloadUpdate);
+      await CollectionModule.updateAfterMint(res.data.collection.id, payloadUpdate);
 
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
@@ -169,7 +171,7 @@ export const CollectionCreateScreen: FC = () => {
                   />
 
                   <MyCombobox
-                    initialValue={CollectionType.TOURISM}
+                    initialvalue={CollectionType.TOURISM}
                     options={CollectionType}
                     label="Thể loại"
                     styles={{
@@ -182,8 +184,8 @@ export const CollectionCreateScreen: FC = () => {
                     classNames={{
                       dropdown: 'hidden-scroll-bar'
                     }}
-                    classNamesInput={classes.comboboxInput}
-                    classNamesRoot={classes.comboboxRootInput}
+                    classnamesinput={classes.comboboxInput}
+                    classnamesroot={classes.comboboxRootInput}
                     onChange={(value: CollectionType) => form.setFieldValue("category", value)}
                   />
 

@@ -11,11 +11,17 @@ export class NftModule {
     return RequestModule.get(`/api/v1/tokens`, query);
   }
 
+  static async getListNftsOfFriends(query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {
+    // if (!getWallet()) throw Error("Wallet must be provided");
+
+    return RequestModule.get(`/api/v1/friends/tokens`, query);
+  }
+
   static async create(payload: NftPayload): Promise<any> {
     return RequestModule.post(`/api/v1/tokens`, payload);
   }
 
-  static async update(id: string, payload: any): Promise<any> {
+  static async updateAfterMint(id: string, payload: any): Promise<any> {
     return RequestModule.put(`/api/v1/tokens/${id}`, payload);
   }
 
@@ -57,14 +63,18 @@ export class NftModule {
     return RequestModule.patch(`/api/v1/tokens/${id}/view`);
   }
 
-  static async updateToken(payload: NftUpdatePayload): Promise<any> {
-     const res =  await NftModule.update(payload.tokenID, payload);
+  static async updateToken(payload: NftUpdatePayload, checkMetadataChanged: boolean): Promise<Nft> {
+     const res = await RequestModule.put(`/api/v1/tokens/tokenID/${payload.tokenID}`, payload);
 
-    const contract = TokenModule.getContractERC721(payload.contractAddress);
+     if (checkMetadataChanged && res.data) {
+      console.log("res: ", res)
+      const contract = TokenModule.getContractERC721(payload.contractAddress);
+      let txReceipt = await contract.send({
+        method: 'updateBaseNftURI',
+        args: [res.data.tokenURI, payload.tokenID],
+      });
+    }
 
-    let txReceipt = await contract.send({
-      method: 'updateBaseNftURI',
-      args: [res.data.tokenURI, payload.tokenID],
-    });
+    return res.data.token;
   }
 }

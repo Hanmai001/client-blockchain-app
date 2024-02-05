@@ -110,6 +110,7 @@ export const HeaderSearch: FC = () => {
         CollectionModule.getList({ chainID: blockchain.chainId, search, limit: 5 }),
         UserModule.getListUsers({ chainID: blockchain.chainId, search, limit: 5 })
       ])
+      // console.log(res)
       setResults(s => ({
         ...s,
         isFetching: false,
@@ -160,6 +161,8 @@ export const HeaderSearch: FC = () => {
             position: "absolute",
             width: '100%',
             top: "50px",
+            maxHeight: '600px',
+            overflowY: 'scroll'
           }}>
             {function () {
               if (results.isFetching) return <Center>
@@ -173,11 +176,10 @@ export const HeaderSearch: FC = () => {
               return <Stack gap={5}>
                 {!!videos.length && <>
                   <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Video</Text>
-                  <Stack>
+                  <Stack gap={0}>
                     {videos.map((item, key) => <Link key={key} href={`/nfts/${item.tokenID}`}>
                       <Group className="menu-item" mb={10}>
-                        <AspectRatio style={{
-                          width: '64px',
+                        <AspectRatio ratio={64 / 48} w={64} style={{
                           overflow: 'hidden',
                           borderRadius: '8px'
                         }}>
@@ -194,13 +196,16 @@ export const HeaderSearch: FC = () => {
                 </>}
                 {!!collections.length && <>
                   <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Bộ sưu tập</Text>
-                  <Stack>
+                  <Stack gap={0}>
                     {collections.map((item, key) => <Link key={key} href={`/collections/${item.collectionID}`}>
                       <Group className="menu-item" gap={8}>
-                        <Image radius={10} src={item.bannerURL} width={64} height={48} />
+                        <AspectRatio ratio={64 / 48} w={64} style={{ overflow: 'hidden' }}>
+                          <Image radius={10} src={item.bannerURL} />
+                        </AspectRatio>
+
                         <Stack gap={2}>
                           <Text fw={500} c={theme.colors.text[1]}>{item.title}</Text>
-                          <Text size="12px" c="dimmed">{StringUtils.compact(item.creator, 4, 5)}</Text>
+                          <Text size="12px" c="dimmed">{StringUtils.compact(item.creatorCollection, 4, 5)}</Text>
                         </Stack>
                       </Group>
                     </Link>)}
@@ -208,11 +213,10 @@ export const HeaderSearch: FC = () => {
                 </>}
                 {!!users.length && <>
                   <Text size="14px" mb={5} fw='bold' c={theme.colors.text[1]}>Nhà sáng tạo</Text>
-                  <Stack>
+                  <Stack gap={0}>
                     {users.map((item, key) => <Link key={key} href={`/users/${item.wallet}`}>
                       <Group className="menu-item" gap={8}>
-                        <AspectRatio style={{
-                          width: '48px',
+                        <AspectRatio ratio={1} w={48} style={{
                           overflow: 'hidden',
                           borderRadius: '8px'
                         }}>
@@ -352,7 +356,7 @@ export const HeaderSearchMobile: FC = () => {
                           <Image radius={10} src={item.bannerURL} width={64} height={58} />
                           <Stack gap={2}>
                             <Text fw={500} c={theme.colors.text[1]}>{item.title}</Text>
-                            <Text size="12px" c="dimmed">{StringUtils.compact(item.creator, 4, 5)}</Text>
+                            <Text size="12px" c="dimmed">{StringUtils.compact(item.creatorCollection, 4, 5)}</Text>
                           </Stack>
                         </Group>
                       </Link>)}

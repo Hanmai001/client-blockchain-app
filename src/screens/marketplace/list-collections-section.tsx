@@ -1,13 +1,12 @@
+import { EmptyMessage } from "@/components/empty-message";
 import { onError } from "@/components/modals/modal-error";
 import { CollectionModule } from "@/modules/collection/modules";
+import { Collection, CollectionType } from "@/modules/collection/types";
 import { useBlockChain } from "@/share/blockchain/context";
-import { Box, Grid, Group, Pagination, Skeleton, Stack, Title, rem, useMantineTheme } from "@mantine/core";
+import { Box, Grid, Pagination, Skeleton, Stack, Title, rem, useMantineTheme } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { CollectionCard } from "../../components/collection-card";
-import { Collection, CollectionType } from "@/modules/collection/types";
-import { ErrorMessage } from "@/components/error-message";
-import { EmptyMessage } from "@/components/empty-message";
 
 interface FeaturedProps {
   isFetching: boolean,

@@ -7,7 +7,7 @@ import { getProvider } from "@/share/blockchain/context"
 
 export const renderPayment = (payment: AppPayment, specificChainId?: ChainId) => {
   const chainId = specificChainId || getChainId();
-  let symbol: string = payment
+  let symbol: string = payment;
 
   if (payment === AppPayment.ETH) {
     const chain = chains.find((v) => v.chainId === chainId)

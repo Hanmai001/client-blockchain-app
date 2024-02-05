@@ -1,20 +1,21 @@
+import { ListLoadState } from "../../../types";
 import { RequestModule } from "../request/request";
-import { FriendPayloadRequest } from "./types";
+import { FriendPayloadRequest, FriendQuery } from "./types";
 
-export class FriendRequest {
-  static async getFriendRequest(wallet: string) {
-    return RequestModule.get(``);
+export class FriendRequestModule {
+  static async getListFriends(query?: FriendQuery): Promise<ListLoadState<FriendRequestModule, 'users '>> {
+    return RequestModule.get(`/api/v1/friends/myFriends`, query);
   }
 
   static async create(payload: FriendPayloadRequest) {
-    return RequestModule.post(``, payload);
+    return RequestModule.post(`/api/v1/friends`, payload);
   }
 
   static async update(payload: any) {
-    return RequestModule.put(``, payload);
+    return RequestModule.patch(`/api/v1/friends`, payload);
   }
 
-  static async checkIsFriend(wallet: string) {
-    return RequestModule.get(``)
+  static async getListFriendRequests(query: FriendQuery) {
+    return RequestModule.get(`/api/v1/friends`, query);
   }
 }

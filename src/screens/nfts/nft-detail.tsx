@@ -2,35 +2,35 @@ import { AppButton } from "@/components/app/app-button";
 import { AppFooter } from "@/components/app/app-footer";
 import { AppHeader } from "@/components/app/app-header";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
+import { EmptyMessage } from "@/components/empty-message";
+import { onBuyNft } from "@/components/modals/modal-buy-nft";
+import { onError } from "@/components/modals/modal-error";
+import { onListNft } from "@/components/modals/modal-list-nft";
 import { useAccount } from "@/modules/account/context";
 import { renderPayment } from "@/modules/coins/utils";
 import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
+import { NftModule } from "@/modules/nft/modules";
 import { Nft } from "@/modules/nft/types";
+import { UserModule } from "@/modules/user/modules";
 import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Avatar, Box, Card, Divider, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
-import { IconCopy, IconCopyCheck, IconEye, IconSearch, IconShare, IconShoppingCartFilled } from "@tabler/icons-react";
+import { IconCopy, IconCopyCheck, IconEye, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import { AppPayment, DataLoadState } from "../../../types";
+import { DataLoadState } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
-import { UserModule } from "@/modules/user/modules";
-import { onError } from "@/components/modals/modal-error";
-import { onListNft } from "@/components/modals/modal-list-nft";
-import { NftModule } from "@/modules/nft/modules";
-import { onBuyNft } from "@/components/modals/modal-buy-nft";
-import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
-import { MarketOrderModule } from "@/modules/marketorder/modules";
-import { EmptyMessage } from "@/components/empty-message";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
   const account = useAccount();
   const blockchain = useBlockChain();
   const [collection, setCollection] = useState<Collection | null>();
-  const payment = { image: '', symbol: '' };
+  const [payment, setPayment] = useState({ image: '', symbol: '' });
   const [isLiked, setIsLiked] = useState<boolean>();
   const [isFavourite, setIsFavourite] = useState<boolean>();
   const [comments, setComments] = useState();
@@ -39,12 +39,9 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [marketOrders, setMarketOrders] = useState<MarketOrder[]>([]);
   const [user, setUser] = useState<DataLoadState<any>>({ isFetching: false, data: {} });
   const clipboard = useClipboard({ timeout: 500 });
-  const { image, symbol } = renderPayment(collection?.paymentType || AppPayment.ETH);
   const [search, setSearch] = useState('');
   const [debounced] = useDebouncedValue(search, 200);
   const [isListing, setIsListing] = useState<boolean>();
-  payment.image = image;
-  payment.symbol = symbol;
 
   const fetchCollection = async () => {
     try {
@@ -86,8 +83,6 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
       });
 
       setMarketOrders(filteredOrders);
-      res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, status: MarketStatus.SOLD });
-      setLastSoldOrder(res.data.order[res.data.count - 1]);
     } catch (error) {
 
     }
@@ -96,12 +91,22 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const fetchMarketOrderOfToken = async () => {
     try {
 
-      const checkListed = await MarketOrderModule.checkTokenIsListed(token.tokenID);
+      const checkListed = await MarketOrderModule.checkTokenIsListed(token.tokenID, { status: MarketStatus.ISLISTING });
+      // console.log("check is listed: ", checkListed);
       if (checkListed) {
-        const res = await MarketOrderModule.getNewesOrderOfToken(token.tokenID);
+        const res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, limit: 1, offset: 0, status: MarketStatus.ISLISTING });
+        const { image, symbol } = renderPayment(res.data.order[0].paymentType);
+        setPayment({ image, symbol });
         setIsListing(true);
-        setMarketOrder(res.data[0]);
-      } else setIsListing(false);
+        setMarketOrder(res.data.order[0]);
+        setLastSoldOrder(undefined);
+      } else {
+        const res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, status: MarketStatus.SOLD, sort: '-createdAt' });
+        const { image, symbol } = renderPayment(res.data.order[0].paymentType);
+        setPayment({ image, symbol });
+        setIsListing(false);
+        setLastSoldOrder(res.data.order[0]);
+      }
     } catch (error) {
       // onError(error);
     }
@@ -159,7 +164,12 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     fetchComments();
     fetchMarketOrders();
     fetchMarketOrderOfToken();
-  }, [account.information, isListing])
+  }, [account.information])
+
+  useEffect(() => {
+    fetchMarketOrders();
+    fetchMarketOrderOfToken();
+  }, [isListing, token.owner])
 
   useEffect(() => {
     fetchMarketOrders();
@@ -167,7 +177,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
   useEffect(() => {
     updateTotalViews();
-  }, [])
+  }, [token])
 
   return (
     <BoundaryConnectWallet>
@@ -176,8 +186,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
       {function () {
         if (!token) return <Skeleton width={'100%'} height={600} />
 
-        const isNotSigned = !account.information;
-        const isDifferentAccount = account.information?.wallet !== token.owner;
+        let isNotSigned = !account.information;
+        let isDifferentAccount = account.information?.wallet !== token.owner;
 
         return <>
           <Stack mx={20} my={90}>
@@ -198,7 +208,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 </Card.Section>
 
                 {function () {
-                  if (marketOrder) return <Group my={10} justify="space-between">
+                  if (marketOrder && isListing) return <Group my={10} justify="space-between">
                     <Text c={theme.colors.text[1]}>Giá hiện tại</Text>
                     <Group gap={6}>
                       <Image width={28} height={28} src={payment.image} />
@@ -206,10 +216,10 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     </Group>
                   </Group>
 
-                  if (lastSoldOrder) return <Group my={10} justify="space-between">
+                  if (lastSoldOrder && !isListing) return <Group my={10} justify="space-between">
                     <Text c={theme.colors.text[1]}>Giá bán gần nhất</Text>
                     <Group gap={6}>
-                      <Image width={28} height={28} src={payment.image} />
+                      <Image radius={'50%'} width={28} height={28} src={payment.image} />
                       <Text size="20px" c={theme.colors.text[1]} fw="bold">{lastSoldOrder.price} {payment.symbol}</Text>
                     </Group>
                   </Group>
@@ -221,7 +231,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
                 {(isNotSigned || isDifferentAccount) && isListing && <AppButton
                   async
-                  onClick={() => onBuyNft({ order: marketOrder!, onUpdate: () => setIsListing(false) })}
+                  onClick={() => onBuyNft({ order: marketOrder!, onUpdate: () => { setIsListing(false); token.owner = account.information!.wallet!; } })}
                   leftSection={<IconShoppingCartFilled />}
                   radius={theme.radius.md}
                   color={theme.colors.primary[5]}
@@ -239,6 +249,17 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   height={48}
                 >
                   Đăng bán
+                </AppButton>}
+
+                {isListing && account.information?.wallet === token.owner && <AppButton
+                  async
+                  //onClick={() => onListNft({ nft: token, onUpdate: () => setIsListing(true) })}
+                  leftSection={<IconShoppingCartCancel />}
+                  radius={theme.radius.md}
+                  color={theme.colors.primary[5]}
+                  height={48}
+                >
+                  Hủy
                 </AppButton>}
 
               </Card>
@@ -365,8 +386,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     </Group>
                   </Card.Section>
 
-                  <Card.Section>
-                    <Spoiler maxHeight={50} showLabel="Xem thêm" hideLabel="Ẩn" styles={{
+                  <Card.Section mt={10}>
+                    <Spoiler c={theme.colors.text[1]} maxHeight={50} showLabel="Xem thêm" hideLabel="Ẩn" styles={{
                       control: {
                         color: theme.colors.primary[5]
                       },

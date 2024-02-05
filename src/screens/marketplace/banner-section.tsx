@@ -135,7 +135,7 @@ const BannerSlide: FC<{ collection: Collection }> = (props) => {
               <Title size={18} c={theme.colors.text[0]}>
                 {props.collection.title}
               </Title>
-              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creator, 2, 5)}</Text>
+              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
               <Group justify="space-between" mt={4}>
                 <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems} items</Text>
                 <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>

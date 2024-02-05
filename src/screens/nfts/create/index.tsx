@@ -99,7 +99,7 @@ export const CreateNftScreen: FC = () => {
       });
 
       const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
-      await NftModule.update(res.data.token.id, payloadUpdate);
+      await NftModule.updateAfterMint(res.data.token.id, payloadUpdate);
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {
       onError(error);

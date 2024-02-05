@@ -12,7 +12,7 @@ export class CollectionModule {
     return RequestModule.get(`/api/v1/collections`, query);
   }
 
-  static async update(id: string, payload: any) {
+  static async updateAfterMint(id: string, payload: any) {
     return RequestModule.put(`/api/v1/collections/${id}`, payload);
   }
 
@@ -24,8 +24,8 @@ export class CollectionModule {
     return RequestModule.get(`/api/v1/collections/user/${wallet}`, query);
   }
 
-  static async updateCollection(payload: CollectionUpdatePayload, checkMetadataChanged: boolean): Promise<any> {
-     const res =  await this.update(payload.collectionID, payload);
+  static async updateCollection(payload: CollectionUpdatePayload, checkMetadataChanged: boolean): Promise<Collection> {
+     const res = await RequestModule.put(`/api/v1/collections/collectionID/${payload.collectionID}`, payload);
 
     if (checkMetadataChanged) {
       const contract = TokenModule.getContractERC721(payload.contractAddress);
@@ -35,5 +35,10 @@ export class CollectionModule {
         args: [res.data.collectionURI, payload.collectionID],
       });
     }
+    return res.data.collection;
+  }
+
+  static async increaseTotalViews(id: string): Promise<any> {
+    return RequestModule.patch(`/api/v1/collections/${id}/view`);
   }
 }

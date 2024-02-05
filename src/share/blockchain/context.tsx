@@ -17,7 +17,7 @@ export let getContractERC20: GetContractERC20;
 export let getContractERC721: GetContractERC721;
 export let getBlockchainConfig: () => BlockChainProviderProps | undefined = () => undefined;
 export let getChain: GetChain;
-export let getChainId: () => ChainId | undefined;
+export let getChainId: () => ChainId | string | undefined;
 
 export const blockChainContext = createContext({} as BlockChainContext);
 
@@ -163,12 +163,13 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     forceUpdate();
   }
 
-  getChain = (chainId: ChainId) => {
+  getChain = (chainId: string) => {
     const chain = chains.find(v => v.chainId === chainId);
     if (!chain) throw Error("Chain does not supported yet");
 
     return chain;
   }
+
   getContract = (params) => {
     const chainId = params.chainId || status.chainId as ChainId;
     return new Contract({

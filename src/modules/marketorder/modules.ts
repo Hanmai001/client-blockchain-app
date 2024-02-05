@@ -1,6 +1,6 @@
 import { getWallet } from "@/share/blockchain/context";
 import { ethers } from "ethers";
-import { AppPayment } from "../../../types";
+import { AppPayment, ListLoadState } from "../../../types";
 import { CoinsModule } from "../coins/modules";
 import { getPaymentContract } from "../coins/utils";
 import { getContracts } from "../configs/context";
@@ -25,14 +25,10 @@ export class MarketOrderModule {
     return RequestModule.get(`/api/v1/orders`, query);
   }
 
-  static async checkTokenIsListed(id: string) {
-    const checkListed = (await RequestModule.get(`/api/v1/orders/${id}/isListed`)).data.isListed;
+  static async checkTokenIsListed(id: string, query: MarketOrderQuery): Promise<ListLoadState<MarketOrder, 'order'>> {
+    const checkListed = (await RequestModule.get(`/api/v1/orders/${id}/isListed`, query)).data.isListed;
     console.log(checkListed)
     return checkListed;
-  }
-
-  static async getNewesOrderOfToken(id: string) {
-    return RequestModule.get(`/api/v1/orders/${id}/newest`)
   }
  
   static async update(id: string, payload: any) {
@@ -48,6 +44,7 @@ export class MarketOrderModule {
     let txReceipt;
     
     if (order.paymentType !== AppPayment.BCT) {
+      console.log("buy by ETH")
       txReceipt = await contractMarket.send({
         method: 'buyNftbyETH',
         args: [order.tokenID],
@@ -56,10 +53,11 @@ export class MarketOrderModule {
         }
       });
     } else {
+      console.log("buy by erc20 token")
       await getPaymentContract(order.paymentType)?.approve({
         operator: contractMarket.address,
         amount: order.price
-      })
+      });
 
       txReceipt = await contractMarket.send({
         method: 'buyNftbyErc20',

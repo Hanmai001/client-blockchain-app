@@ -14,6 +14,9 @@ import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/collections/CollectionDetail.module.scss';
+import { FriendRequestModule } from "@/modules/friend-request/modules";
+import { FriendRequestStatus } from "@/modules/friend-request/types";
+import { getChainId } from "@/share/blockchain/context";
 
 enum UserFriendsTabs {
   FRIENDS = 'Bạn bè',
@@ -28,11 +31,24 @@ export const UserFriendsScreen: FC = () => {
   const [debounced] = useDebouncedValue(search, 200);
   const [users, setUsers] = useState<ListLoadState<UserInformation, 'users'>>({ isFetching: true, data: { users: [], count: 0 } });
   const [activeTab, setActiveTab] = useState<string | null>(UserFriendsTabs.FRIENDS);
+  const [forceUpdate, setForceUpdate] = useState(1);
   const limit = 20;
 
   const fetchFriends = async () => {
     try {
-      const res = await UserModule.getListUsers({ limit, offset: (activePage - 1) * limit });
+      let res: any;
+      if (activeTab === UserFriendsTabs.FRIENDS) {
+        res = await FriendRequestModule.getListFriends({ limit, offset: (activePage - 1) * limit });
+      } else {
+        res = await FriendRequestModule.getListFriendRequests({ limit, offset: (activePage - 1) * limit, status: FriendRequestStatus.ISPENDING, to: account.information?.wallet });
+        const requesters = [];
+        for (const v of res.data.request) {
+          const from = await UserModule.getByWallet(v.from);
+          requesters.push(from);
+        }
+        res.data.users = requesters;
+        res.data.count = requesters.length;
+      }
       if (search.length > 0 && !!res.data?.users) {
         const users = res.data.users.filter((v: any, k: any) => {
           if (v.wallet.includes(search) || v.username.includes(search)) return true;
@@ -49,7 +65,7 @@ export const UserFriendsScreen: FC = () => {
 
   useEffect(() => {
     fetchFriends();
-  }, [account.information, debounced])
+  }, [account.information, debounced, activeTab, forceUpdate])
 
   return <>
     <AppHeader />
@@ -86,7 +102,12 @@ export const UserFriendsScreen: FC = () => {
                 maxWidth: '35%'
               }}>
                 {Object.values(UserFriendsTabs).map((v, k) => (
-                  <Tabs.Tab rightSection={<Text>({users.data?.count})</Text>} value={v} key={k}>{v}</Tabs.Tab>
+                  <Tabs.Tab
+                    //rightSection={<Text>({users.data?.count})</Text>}
+                    value={v}
+                    key={k}>
+                    {v}
+                  </Tabs.Tab>
                 ))}
               </Tabs.List>
 
@@ -106,7 +127,7 @@ export const UserFriendsScreen: FC = () => {
 
                     return <>
                       {users.data.users.map((v, k) => (
-                        <FriendBox user={v} type="friend" />
+                        <FriendBox key={k} onUpdate={() => setForceUpdate(s => s + 1)} user={v} type="friend" />
                       ))}
                     </>
                   }()}
@@ -129,7 +150,7 @@ export const UserFriendsScreen: FC = () => {
 
                     return <>
                       {users.data.users.map((v, k) => (
-                        <FriendBox user={v} type="request" />
+                        <FriendBox key={k} onUpdate={() => setForceUpdate(s => s + 1)} user={v} type="request" />
                       ))}
                     </>
                   }()}
@@ -161,15 +182,18 @@ export const UserFriendsScreen: FC = () => {
 
 interface FriendBoxProps {
   user: UserInformation,
-  type?: 'friend' | 'request'
+  type?: 'friend' | 'request',
+  onUpdate: () => void
 }
 
 const FriendBox: FC<FriendBoxProps> = (props) => {
   const theme = useMantineTheme();
+  const account = useAccount();
 
   const handleUnfriend = async () => {
     try {
-
+      await FriendRequestModule.update({ status: FriendRequestStatus.CANCELLED, to: props.user.wallet, from: account.information?.wallet, chainID: getChainId() });
+      props.onUpdate();
     } catch (error) {
       onError("Hủy kết bạn thất bại, vui lòng thử lại sau");
     }
@@ -177,7 +201,8 @@ const FriendBox: FC<FriendBoxProps> = (props) => {
 
   const handleAddfriend = async () => {
     try {
-
+      await FriendRequestModule.update({ status: FriendRequestStatus.ISFRIEND, to: props.user.wallet, from: account.information?.wallet, chainID: getChainId() });
+      props.onUpdate();
     } catch (error) {
       onError("Đồng ý thất bại, vui lòng thử lại sau");
     }

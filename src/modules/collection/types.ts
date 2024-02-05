@@ -22,7 +22,7 @@ export enum CollectionStatus {
 export interface Collection {
   collectionID: string,
   id: string,
-  creator: string,
+  creatorCollection: string,
   chainID: string,
   title: string,
   description: string,
@@ -39,7 +39,7 @@ export interface Collection {
 }
 
 export interface CollectionPayload {
-  creator: string,
+  creatorCollection: string,
   chainID: string,
   title: string,
   bannerURL: string | '',
@@ -63,5 +63,5 @@ export interface CollectionUpdatePayload {
 export interface CollectionQuery extends Query {
   category?: string,
   creator?: string,
-  active?: boolean
+  active?: boolean | null
 }

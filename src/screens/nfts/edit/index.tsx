@@ -20,6 +20,12 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
   const [checked, setChecked] = useState(token.active);
+  const [oldMetadata, setOldMetadata] = useState({
+    title: token.title,
+    source: token.source,
+    description: token.description,
+  })
+
 
   const form = useForm<NftUpdatePayload>({
     initialValues: {
@@ -38,15 +44,28 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
     },
   })
 
+  const isMetadataChanged = () => {
+    return (
+      form.getInputProps('source').value !== oldMetadata.source ||
+      form.getInputProps('description').value !== oldMetadata.description ||
+      form.getInputProps('title').value !== oldMetadata.title
+    );
+  };
+
   const onSubmit = form.onSubmit(async (values) => {
     try {
       let payload = { ...values, active: checked }
       setIsUploading(true);
 
-      if (file instanceof File)
+      if (file instanceof File) {
         payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, file as File, 400, "source");
+        form.setFieldValue('source', payload.source);
+      }
 
-      await NftModule.updateToken(payload);
+      const checkMetadataChanged = isMetadataChanged();
+
+      const res = await NftModule.updateToken(payload, checkMetadataChanged);
+      token = res;
 
       onSuccess({ title: 'Cập nhật thành công', message: '' });
     } catch (error) {
@@ -96,11 +115,11 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
                   borderRadius: '10px'
                 }}
               >
-                <Switch 
+                <Switch
                   checked={checked}
                   onChange={(event) => setChecked(event.currentTarget.checked)}
                   onLabel={<IconEyeFilled size={20} />}
-                  offLabel={<IconEyeClosed size={20}/>}
+                  offLabel={<IconEyeClosed size={20} />}
                   size="lg"
                   label="Ẩn/Hiện video để người khác có thể xem video của bạn"
                   color={theme.colors.primary[5]}

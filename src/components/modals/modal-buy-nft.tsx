@@ -35,11 +35,11 @@ export const ModalBuyNft: FC = () => {
   }
 
   const handleSubmit = async () => {
-    try { 
+    try {
       await MarketOrderModule.purchaseItem(state?.order!);
 
       onClose();
-      onSuccess({title: 'Mua thành công', message: "Bạn có thể kiểm tra"});
+      onSuccess({ title: 'Mua thành công', message: "Bạn có thể kiểm tra" });
       state?.onUpdate();
     } catch (error) {
       onClose();

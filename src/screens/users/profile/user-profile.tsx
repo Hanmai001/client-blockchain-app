@@ -29,6 +29,9 @@ import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/user/UserProfile.module.scss';
 import { MarketOrderModule } from "@/modules/marketorder/modules";
 import { MarketStatus } from "@/modules/marketorder/types";
+import { FriendRequestModule } from "@/modules/friend-request/modules";
+import { FriendRequest, FriendRequestStatus } from "@/modules/friend-request/types";
+import { getChainId } from "@/share/blockchain/context";
 
 
 export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
@@ -72,11 +75,11 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
               </Tabs.List>
 
               <Tabs.Panel value={UserTabsProfile.ALL}>
-                <TabNfts user={user} />
+                <TabNfts user={user} isSignedUser={isSignedUser} />
               </Tabs.Panel>
 
               <Tabs.Panel value={UserTabsProfile.CREATED_COLLECTIONS}>
-                <TabCollections user={user} />
+                <TabCollections user={user} isSignedUser={isSignedUser} />
               </Tabs.Panel>
 
               <Tabs.Panel value={UserTabsProfile.FAVOURITE}>
@@ -235,13 +238,16 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
   const account = useAccount();
   const [username, setUsername] = useState(props.user.username);
   const [image, setImage] = useState(props.user.avatar || '/images/default/avatar.png');
+  const [friendRequest, setFriendRequest] = useState<FriendRequest>();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isEditName, setIsEditName] = useState(false);
   const [opened, setOpened] = useState(false);
+  const [isFriend, setIsFriend] = useState(false);
+  const [isRecipientFriendRequest, setisRecipientFriendRequest] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const clipboard = useClipboard({ timeout: 500 });
   const isSignedUser = account.information?.wallet === props.user.wallet;
-  const isFriend = true;
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -270,6 +276,19 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
     e.stopPropagation();
   };
 
+  const getFriendRequest = async () => {
+    try {
+      let res = await FriendRequestModule.getListFriendRequests({ to: props.user.wallet, sort: '-createdAt' });
+      console.log("request: ", res)
+      setFriendRequest(res.data.request[0]);
+      setIsFriend(res.data.request[0].status === FriendRequestStatus.ISFRIEND);
+      setIsPending(res.data.request[0].status === FriendRequestStatus.ISPENDING);
+      setisRecipientFriendRequest(account.information?.wallet === res.data.request[0].to && res.data.request[0].status === FriendRequestStatus.ISPENDING);
+    } catch (error) {
+
+    }
+  }
+
   const handleChangeAvatar = async () => {
     try {
       let avatarURL = null;
@@ -290,7 +309,9 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   const handleAddfriend = async () => {
     try {
-
+      const res = await FriendRequestModule.create({ chainID: getChainId()!, to: props.user!.wallet!, from: account.information!.wallet!, status: FriendRequestStatus.ISPENDING })
+      setIsFriend(false);
+      setIsPending(true);
     } catch (error) {
       onError("Không thể kết bạn");
     }
@@ -308,11 +329,29 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   const handleUnfriend = async () => {
     try {
-
+      await FriendRequestModule.update({ status: FriendRequestStatus.CANCELLED, to: props.user.wallet, from: account.information?.wallet, chainID: getChainId() });
+      setIsFriend(false);
+      setIsPending(false);
+      setisRecipientFriendRequest(false);
     } catch (error) {
       onError("Hủy kết bạn thất bại, vui lòng thử lại sau");
     }
   }
+
+  const handleAcceptFriendRequest = async () => {
+    try {
+      await FriendRequestModule.update({ status: FriendRequestStatus.ISFRIEND, to: props.user.wallet, from: account.information?.wallet, chainID: getChainId() });
+      setIsFriend(true);
+      setIsPending(false);
+      setisRecipientFriendRequest(false);
+    } catch (error) {
+      onError("Hủy kết bạn thất bại, vui lòng thử lại sau");
+    }
+  }
+
+  useEffect(() => {
+    getFriendRequest();
+  }, [isFriend, isPending])
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { 'image/jpeg': [], 'image/png': [] },
@@ -377,36 +416,48 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         </ActionIcon>
         {clipboard.copied && <Text c={theme.colors.gray[7]}>Đã sao chép</Text>}
 
-        {!isSignedUser && !isFriend && <AppButton
+        {!isSignedUser && !isFriend && !isPending && <AppButton
+          onClick={handleAddfriend}
           async
           color={theme.colors.primary[5]}
           leftSection={<IconPlus size={20} />}
-          ml={40}
         >
           Kết bạn
         </AppButton>}
 
-        {isFriend && <Box pos="relative">
+        {!isSignedUser && (isFriend || isPending) && <Box pos="relative">
           <AppButton
             onClick={() => setOpened(!opened)}
             async
-            variant="outline"
+            variant={isRecipientFriendRequest ? "filled" : "outline"}
             color={theme.colors.primary[5]}
             leftSection={<IconCheck size={20} />}
           >
-            Bạn bè
+            {isFriend ? "Bạn bè" : isRecipientFriendRequest ? "Chấp nhận" : "Đang chờ"}
           </AppButton>
 
           {opened && <Card shadow="md" p={10} withBorder style={{
             position: 'absolute',
             zIndex: 10
           }}>
+            {isRecipientFriendRequest && <AppButton
+              onClick={handleAcceptFriendRequest}
+              variant="transparent"
+              leftSection={<IconPlus size={20} />}
+              color={theme.colors.text[1]}
+              justify="left"
+              height={40}
+            >
+              Chấp nhận lời mời
+            </AppButton>}
+
             <AppButton
               onClick={handleUnfriend}
               variant="transparent"
-              leftSection={<IconFriendsOff
-                size={20} />}
+              leftSection={<IconFriendsOff size={20} />}
               color={theme.colors.text[1]}
+              justify="left"
+              height={40}
             >
               Hủy kết bạn
             </AppButton>
@@ -456,19 +507,19 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
       </Group> : <Group gap={2}>
         <Text c={theme.colors.text[1]} fw="bold" ml={14}>{props.user.username}</Text>
 
-        <ActionIcon
+        {isSignedUser && <ActionIcon
           onClick={() => setIsEditName(true)}
           c={theme.colors.gray[7]}
           variant="transparent"
         >
           <IconEdit size={20} stroke={1.5} />
-        </ActionIcon>
+        </ActionIcon>}
       </Group>}
     </Stack>
   )
 }
 
-const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
+const TabNfts: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, isSignedUser }) => {
   const [tokens, setTokens] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
   const gridColumns = {
     lg: 3,
@@ -498,12 +549,12 @@ const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
         if (filter === NftStatus.SOLD) status = MarketStatus.SOLD;
       }
 
-      listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort });
+      listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, active: isSignedUser ? null : true });
 
       if (filter === NftStatus.ISLISTING || filter === NftStatus.SOLD) {
         const nfts = [];
         for (const v of listItems.data.tokens) {
-          const checkIsListing = await MarketOrderModule.checkTokenIsListed(v.tokenID);
+          const checkIsListing = await MarketOrderModule.checkTokenIsListed(v.tokenID, { status: MarketStatus.ISLISTING });
 
           if (checkIsListing) {
             nfts.push(v);
@@ -548,7 +599,7 @@ const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <MyCombobox
-          initialValue={NftStatus.ALL}
+          initialvalue={NftStatus.ALL}
           options={NftStatus}
           styles={{
             dropdown: {
@@ -560,8 +611,8 @@ const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
           classNames={{
             dropdown: 'hidden-scroll-bar'
           }}
-          classNamesInput="combobox-input"
-          classNamesRoot="combobox-root-input"
+          classnamesinput="combobox-input"
+          classnamesroot="combobox-root-input"
           onChange={(val) => { setFilter(val) }}
         />
       </Group>
@@ -604,7 +655,7 @@ const TabNfts: FC<{ user: UserInformation }> = ({ user }) => {
   )
 }
 
-const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
+const TabCollections: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, isSignedUser }) => {
   const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
   const gridColumns = {
     lg: 3,
@@ -634,7 +685,7 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
         if (status === CollectionStatus.OLDEST) sort = '+createdAt';
       }
 
-      listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter as string : '' });
+      listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter as string : '', active: isSignedUser ? null : true });
       if (search.length > 0 && !!listItems.data.collections) {
         const collections = listItems.data.collections.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
@@ -671,7 +722,7 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <MyCombobox
-          initialValue={CollectionType.ALL}
+          initialvalue={CollectionType.ALL}
           options={CollectionType}
           styles={{
             dropdown: {
@@ -683,12 +734,12 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
           classNames={{
             dropdown: 'hidden-scroll-bar'
           }}
-          classNamesInput="combobox-input"
-          classNamesRoot="combobox-root-input"
+          classnamesinput="combobox-input"
+          classnamesroot="combobox-root-input"
           onChange={(val) => { setFilter(val) }}
         />
         <MyCombobox
-          initialValue={CollectionStatus.ALL}
+          initialvalue={CollectionStatus.ALL}
           options={CollectionStatus}
           styles={{
             dropdown: {
@@ -700,8 +751,8 @@ const TabCollections: FC<{ user: UserInformation }> = ({ user }) => {
           classNames={{
             dropdown: 'hidden-scroll-bar'
           }}
-          classNamesInput="combobox-input"
-          classNamesRoot="combobox-root-input"
+          classnamesinput="combobox-input"
+          classnamesroot="combobox-root-input"
           onChange={(val) => { setStatus(val) }}
         />
       </Group>
@@ -812,7 +863,7 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <MyCombobox
-          initialValue={FavoritedNftStatus.ALL}
+          initialvalue={FavoritedNftStatus.ALL}
           options={FavoritedNftStatus}
           styles={{
             dropdown: {
@@ -824,8 +875,8 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
           classNames={{
             dropdown: 'hidden-scroll-bar'
           }}
-          classNamesInput="combobox-input"
-          classNamesRoot="combobox-root-input"
+          classnamesinput="combobox-input"
+          classnamesroot="combobox-root-input"
           onChange={(val) => { setFilter(val) }}
         />
       </Group>

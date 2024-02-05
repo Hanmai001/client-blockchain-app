@@ -65,5 +65,5 @@ export interface NftQuery extends Query {
   collectionID?: string,
   creator?: string,
   owner?: string,
-  active?: boolean
+  active?: boolean | null
 }

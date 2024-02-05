@@ -1,13 +1,11 @@
-import { FC, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
-import { AccountContext, AccountInformation, SignIn, SignOut } from "./types";
-import { UserInformation, UserSignInPayload, UserSignInResponse } from "../user/types";
+import { onError } from "@/components/modals/modal-error";
 import { useBlockChain } from "@/share/blockchain/context";
-import { AccountAccessToken } from "./acess-token";
-import { UserModule } from "../user/modules";
-import { ethers } from "ethers";
-import { OnErrorModal, onError } from "@/components/modals/modal-error";
-import * as EthereumjsUtil from "ethereumjs-util";
+import { FC, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
 import { CoinsModule } from "../coins/modules";
+import { UserModule } from "../user/modules";
+import { UserInformation, UserSignInPayload } from "../user/types";
+import { AccountAccessToken } from "./acess-token";
+import { AccountContext, AccountInformation, SignIn, SignOut } from "./types";
 
 
 const accountContext = createContext<AccountContext>({} as any);

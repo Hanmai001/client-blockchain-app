@@ -30,8 +30,8 @@ export const MarketplaceScreen = () => {
             </Tabs.List>
           </Tabs>
 
-          {isMobile && <MyCombobox 
-            initialValue={CollectionType.ALL}
+          {isMobile && <MyCombobox
+            initialvalue={CollectionType.ALL}
             options={CollectionType}
             styles={{
               dropdown: {
@@ -42,21 +42,21 @@ export const MarketplaceScreen = () => {
             }}
             classNames={{
               dropdown: 'hidden-scroll-bar'
-            }} 
-            classNamesInput={classes.comboboxInput}
+            }}
+            classnamesinput={classes.comboboxInput}
           />}
 
-          <BannerSection type={activeTab}/>
+          <BannerSection type={activeTab} />
 
           <Grid w={'100%'}>
             <Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
               <Stack>
-                <ListCollections type={activeTab}/>
+                <ListCollections type={activeTab} />
               </Stack>
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, md: 4, lg: 4 }}>
-              <CollectionsRanking type={activeTab}/>
+              <CollectionsRanking type={activeTab} />
             </Grid.Col>
           </Grid>
 
@@ -70,9 +70,9 @@ export const MarketplaceScreen = () => {
 
 interface MyComboBox extends ComboboxProps {
   label?: string,
-  classNamesInput?: any,
-  classNamesRoot?: any,
-  initialValue: string,
+  classnamesinput?: any,
+  classnamesroot?: any,
+  initialvalue: string,
   options: Object,
   value?: string,
   onChange?: (v: any) => any,
@@ -82,7 +82,7 @@ export const MyCombobox: FC<MyComboBox> = (props) => {
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
-  const [value, setValue] = useState<string | null>(props.initialValue || props.value!);
+  const [value, setValue] = useState<string | null>(props.initialvalue || props.value!);
 
   const options = Object.values(props.options).map((v, k) => (
     <Combobox.Option py={12} className={v === value ? classes.comboboxOptionSelected : classes.comboboxOption} value={v} key={k}>
@@ -95,7 +95,9 @@ export const MyCombobox: FC<MyComboBox> = (props) => {
     onOptionSubmit={(val) => {
       setValue(val);
       combobox.closeDropdown();
-      props.onChange(val);
+
+      if (props.onChange)
+        props.onChange(val);
     }}
     {...props as any}
   >
@@ -112,8 +114,8 @@ export const MyCombobox: FC<MyComboBox> = (props) => {
         rightSectionPointerEvents="none"
         onClick={() => combobox.toggleDropdown()}
         classNames={{
-          input: props.classNamesInput,
-          root: props.classNamesRoot,
+          input: props.classnamesinput,
+          root: props.classnamesroot,
         }}
       >
         {value}

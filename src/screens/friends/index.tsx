@@ -26,23 +26,23 @@ export const FriendsScreen: FC = () => {
   const clipboard = useClipboard({ timeout: 500 });
   const { isMobile, isTablet } = useResponsive();
   const [hasMore, setHasMore] = useState(true);
-  const limit = isMobile ? 20 : 2;
+  const limit = isMobile ? 20 : 1;
 
   const fetchItems = async () => {
     try {
-      const listItems = await NftModule.getList({ chainID: getChainId(), limit, offset: (activePage - 1) * limit });
+      const listItems = await NftModule.getListNftsOfFriends({ chainID: getChainId(), limit, offset: (activePage - 1) * limit });
       if (listItems.data?.tokens.length === 0) {
         setHasMore(false);
-        return;
+        return null;
       }
 
       setHasMore(true);
-      const prevItems = items.data!.tokens.concat(listItems.data?.tokens);
-      setItems(s => ({ ...s, isFetching: false, data: { tokens: prevItems || [], count: prevItems.length || 0 } }));
+      // const prevItems = items.data!.tokens.concat(listItems.data?.tokens);
+      const prevItems = items.data!.tokens;
+      setItems(s => ({ ...s, isFetching: false, data: { tokens: [...prevItems, ...listItems.data!.tokens] || [], count: prevItems.length || 0 } }));
     } catch (error) {
       setItems(s => ({ ...s, isFetching: false, data: { tokens: [], count: 0 } }))
       // onError(error);
-      throw error
     }
   }
 
@@ -68,7 +68,7 @@ export const FriendsScreen: FC = () => {
 
   useEffect(() => {
     fetchItems();
-  }, [account.information, activePage])
+  }, [account.information?.wallet, activePage])
 
   useEffect(() => {
     fetchUsers();

@@ -1,3 +1,5 @@
+import { Query } from "../../../types"
+
 export enum FriendRequestStatus {
     ISPENDING = 0,
     ISFRIEND = 1,
@@ -9,7 +11,7 @@ export interface FriendRequest {
   chainID: string,
   from: string //wallet user,
   to: string //wallet user,
-  status: FriendRequest,
+  status: FriendRequestStatus,
   createdAt: Date,
   updatedAt: Date,
 }
@@ -18,5 +20,11 @@ export interface FriendPayloadRequest {
   chainID: string,
   from: string //wallet user,
   to: string //wallet user,
-  status: FriendRequest,
+  status: FriendRequestStatus,
 }
+
+export interface FriendQuery extends Query {
+  to?: string,
+  status?: FriendRequestStatus
+}
+
