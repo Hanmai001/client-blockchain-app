@@ -85,26 +85,7 @@ export const CollectionCreateScreen: FC = () => {
       if (bannerFile instanceof File)
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
 
-      const contractMarket = getContracts().ercs.MARKETPLACE;
-
-      const feeMint = await contractMarket.call({ method: 'getFeeMint' })
-
-      const res = await CollectionModule.create(payload);
-
-      console.log(res)
-
-      let txReceipt = await contractMarket.send({
-        method: 'mintCollection',
-        args: [payload.creatorCollection, res.data.collectionURI],
-        params: {
-          value: feeMint
-        }
-      });
-
-      // console.log(txReceipt)
-
-      const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString() };
-      await CollectionModule.updateAfterMint(res.data.collection.id, payloadUpdate);
+      await CollectionModule.mintCollection(payload);
 
       onSuccess({ title: 'Tạo thành công', message: '' });
     } catch (error) {

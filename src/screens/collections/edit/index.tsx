@@ -81,9 +81,9 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
       const res = await CollectionModule.updateCollection(payload, checkMetadataChanged);
       collection = res;
 
-      onSuccess({ title: 'Tạo thành công', message: '' });
+      onSuccess({ title: 'Cập nhật thành công', message: '' });
     } catch (error) {
-      onError("Tạo Bộ sưu tập không thành công!!!");
+      onError("Cập nhật thất bại");
     } finally {
       setIsUploading(false);
     }

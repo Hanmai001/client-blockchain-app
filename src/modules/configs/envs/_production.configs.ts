@@ -12,7 +12,7 @@ export const productionConfigs: Configs = {
         BCT: '0xfEbD70Cc6EbEedb5fA9FabFE88031F9c9911FE4a',
       },
       erc721s: {
-        BLOCKCLIP_NFT: '0x00591b1757fE77BF33E53a781a2c944448Ca9fE9',
+        BLOCKCLIP_NFT: '0x5089fbbA3a13103bf0683ebC7b11887Cf39810E3',
       },
       ercs: {
         MARKETPLACE: '0x689e86CAA4A62825570994cA8F4632177Ab14828'

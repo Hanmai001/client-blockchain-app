@@ -1,4 +1,5 @@
 import { ListLoadState } from "../../../types";
+import { getContracts } from "../configs/context";
 import { RequestModule } from "../request/request";
 import { TokenModule } from "../token/modules";
 import { Collection, CollectionPayload, CollectionQuery, CollectionUpdatePayload } from "./types";
@@ -22,6 +23,25 @@ export class CollectionModule {
 
   static async getCollecionsOfUser(wallet: string, query?: CollectionQuery): Promise<ListLoadState<Collection>> {
     return RequestModule.get(`/api/v1/collections/user/${wallet}`, query);
+  }
+
+  static async mintCollection(payload: CollectionPayload) {
+    const contractMarket = getContracts().ercs.MARKETPLACE;
+    const feeMint = await contractMarket.call({ method: 'getFeeMint' })
+    const res = await CollectionModule.create(payload);
+
+    console.log(res)
+
+    let txReceipt = await contractMarket.send({
+      method: 'mintCollection',
+      args: [payload.creatorCollection, res.data.collectionURI],
+      params: {
+        value: feeMint
+      }
+    });
+
+    const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString() };
+    await this.updateAfterMint(res.data.collection.id, payloadUpdate);
   }
 
   static async updateCollection(payload: CollectionUpdatePayload, checkMetadataChanged: boolean): Promise<Collection> {

@@ -5,6 +5,7 @@ import { RequestModule } from "../request/request";
 import { TokenModule } from "../token/modules";
 import { Nft, NftPayload, NftQuery, NftUpdatePayload } from "./types";
 import { MarketOrderModule } from "../marketorder/modules";
+import { getContracts } from "../configs/context";
 
 export class NftModule {
   static async getList(query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {
@@ -19,6 +20,23 @@ export class NftModule {
 
   static async create(payload: NftPayload): Promise<any> {
     return RequestModule.post(`/api/v1/tokens`, payload);
+  }
+
+  static async mintNft(payload: NftPayload) {
+    const contractMarket = getContracts().ercs.MARKETPLACE;
+    const feeMint = await contractMarket.call({ method: 'getFeeMint' })
+    const res = await NftModule.create(payload);
+
+    let txReceipt = await contractMarket.send({
+      method: 'mintNft',
+      args: [payload.creator, res.data.tokenURI, payload.collectionID],
+      params: {
+        value: feeMint
+      }
+    });
+
+    const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
+    await NftModule.updateAfterMint(res.data.token.id, payloadUpdate);
   }
 
   static async updateAfterMint(id: string, payload: any): Promise<any> {

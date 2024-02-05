@@ -69,7 +69,7 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
 
       onSuccess({ title: 'Cập nhật thành công', message: '' });
     } catch (error) {
-      onError(error);
+      onError("Cập nhật thất bại");
     } finally {
       setIsUploading(false);
     }
