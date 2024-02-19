@@ -28,9 +28,7 @@ export class CollectionModule {
   static async mintCollection(payload: CollectionPayload) {
     const contractMarket = getContracts().ercs.MARKETPLACE;
     const feeMint = await contractMarket.call({ method: 'getFeeMint' })
-    const res = await CollectionModule.create(payload);
-
-    console.log(res)
+    const res = await this.create(payload);
 
     let txReceipt = await contractMarket.send({
       method: 'mintCollection',

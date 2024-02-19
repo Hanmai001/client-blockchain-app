@@ -485,3 +485,15 @@ $icon-base-size: 20px;
     opacity: 0;
   }
 }
+
+//PAGINATION
+.pagination-control {
+
+  &:hover {
+    background-color: #efe3ff;
+  }
+
+  &[data-active] {
+    background-color: #8c36fa;
+  }
+}

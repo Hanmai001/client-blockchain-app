@@ -16,6 +16,8 @@ import { ModalSuccess } from '@/components/modals/modal-success';
 import { ModalListNft } from '@/components/modals/modal-list-nft';
 import { ModalBuyNft } from '@/components/modals/modal-buy-nft';
 import { ChatProvider } from '@/modules/chat/context';
+import { ModalCancel } from '@/components/modals/modal-cancel';
+import { ModalShareNft } from '@/components/modals/modal-share-nft';
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -29,6 +31,8 @@ const App: FC<PropsWithChildren> = (props) => {
         <ErrorModal />
         <ModalListNft />
         <ModalBuyNft />
+        <ModalCancel />
+        <ModalShareNft />
       </main>
     </AccountProvider>
   )

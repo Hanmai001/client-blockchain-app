@@ -65,12 +65,6 @@ export const CreateNftScreen: FC = () => {
       form.setFieldValue('creator', ethers.getAddress(account.information.wallet));
       form.setFieldValue('owner', ethers.getAddress(account.information.wallet));
     }
-
-    else {
-      const wallet = (await blockchain.connectWallet("metamask")).wallet;
-      form.setFieldValue('creator', ethers.getAddress(wallet));
-      form.setFieldValue('owner', ethers.getAddress(wallet));
-    }
   }
 
   const onSubmit = form.onSubmit(async (values) => {
@@ -94,22 +88,21 @@ export const CreateNftScreen: FC = () => {
   })
 
   useEffect(() => {
-    getWallet();
-  }, [])
-
-  useEffect(() => {
     const fetchData = async () => {
-      const res = await CollectionModule.getCollecionsOfUser(account.information?.wallet!, { chainID: blockchain.chainId });
-      setCollections(s => ({ ...s, isFetching: false, data: { collections: res.data!.collections, count: res.data!.count } }));
+      if (account.information?.wallet) {
+        const res = await CollectionModule.getCollecionsOfUser(account.information.wallet, { chainID: blockchain.chainId });
+        setCollections(s => ({ ...s, isFetching: false, data: { collections: res.data!.collections, count: res.data!.count } }));
+      }
     };
 
     fetchData();
-  }, [account.information]);
+    getWallet();
+  }, [account.information?.wallet]);
 
   return (
     <BoundaryConnectWallet>
       {isUploading && <AppLoading visible={isUploading} />}
-      <Stack px={40} mt={20}>
+      <Stack px={isMobile ? 15 : 40} mt={20}>
         <form onSubmit={onSubmit}>
           <Group justify="space-between">
             <Group>
@@ -130,7 +123,7 @@ export const CreateNftScreen: FC = () => {
               <MediaInput
                 label="Video"
                 withAsterisk
-                width={"95%"}
+                width={"100%"}
                 height={500}
                 radius={10}
                 acceptance="video"

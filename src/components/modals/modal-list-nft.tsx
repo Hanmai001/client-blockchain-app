@@ -57,15 +57,15 @@ export const ModalListNft: FC = () => {
         seller: account.information?.wallet || '',
         status: MarketStatus.ISLISTING
       }
-      
-      console.log("payload: ", payload);
+
+      // console.log("payload: ", payload);
 
       const res = await MarketOrderModule.create(payload);
 
-      console.log("res: ", res)
+      // console.log("res: ", res)
       onClose();
-      onSuccess({title: "Đăng bán thành công"});
-      
+      onSuccess({ title: "Đăng bán thành công" });
+
       state?.onUpdate();
     } catch (error) {
       onClose();

@@ -39,5 +39,7 @@ export interface MarketOrderPayload {
 export interface MarketOrderQuery extends Query {
   tokenID?: string,
   status?: MarketStatus,
-  event?: TransactionEvent
+  event?: TransactionEvent,
+  sort?: string,
+  active?: boolean | null
 }

@@ -4,6 +4,7 @@ import { AppImage } from "@/components/app/app-image";
 import { AppWrapper } from "@/components/app/app-wrapper";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { CollectionCard } from "@/components/collection-card";
+import { MyCombobox } from "@/components/combobox/my-combobox";
 import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
 import { onError } from "@/components/modals/modal-error";
@@ -11,28 +12,36 @@ import { onSuccess } from "@/components/modals/modal-success";
 import { NftCard } from "@/components/nft-card";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
+import { useChatContext } from "@/modules/chat/context";
+import { ChatModule } from "@/modules/chat/modules";
 import { CollectionModule } from "@/modules/collection/modules";
 import { CollectionStatus, CollectionType } from "@/modules/collection/types";
+import { FriendRequestModule } from "@/modules/friend-request/modules";
+import { FriendRequest, FriendRequestStatus } from "@/modules/friend-request/types";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { MarketStatus } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
 import { NftStatus } from "@/modules/nft/types";
 import { RequestModule } from "@/modules/request/request";
 import { UserModule } from "@/modules/user/modules";
-import { UserInformation, UserTabsProfile } from "@/modules/user/types";
-import { MyCombobox } from "@/screens/marketplace";
+import { UserInformation } from "@/modules/user/types";
+import { getChainId } from "@/share/blockchain/context";
 import { StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Box, Card, Grid, Group, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue, useHover } from "@mantine/hooks";
-import { IconCheck, IconCopy, IconEdit, IconFriendsOff, IconLockAccess, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
+import { IconCheck, IconCopy, IconEdit, IconFriendsOff, IconLockAccess, IconMessage, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/user/UserProfile.module.scss';
-import { MarketOrderModule } from "@/modules/marketorder/modules";
-import { MarketStatus } from "@/modules/marketorder/types";
-import { FriendRequestModule } from "@/modules/friend-request/modules";
-import { FriendRequest, FriendRequestStatus } from "@/modules/friend-request/types";
-import { getChainId } from "@/share/blockchain/context";
 
+enum UserTabsProfile {
+  ALL = 'Video',
+  CREATED_COLLECTIONS = 'Bộ sưu tập',
+  FAVOURITE = 'Đã yêu thích',
+  ACTIVITY = 'Hoạt động'
+}
 
 export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
   const [activeTab, setActiveTab] = useState<string | null>(UserTabsProfile.ALL);
@@ -235,6 +244,7 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
 const UserAvatar: FC<{ user: UserInformation }> = (props) => {
   const theme = useMantineTheme();
   const { hovered, ref } = useHover();
+  const chatContext = useChatContext();
   const account = useAccount();
   const [username, setUsername] = useState(props.user.username);
   const [image, setImage] = useState(props.user.avatar || '/images/default/avatar.png');
@@ -247,6 +257,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
   const [isPending, setIsPending] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const clipboard = useClipboard({ timeout: 500 });
+  const router = useRouter();
   const isSignedUser = account.information?.wallet === props.user.wallet;
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -279,7 +290,6 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
   const getFriendRequest = async () => {
     try {
       let res = await FriendRequestModule.getListFriendRequests({ to: props.user.wallet, sort: '-createdAt' });
-      console.log("request: ", res)
       setFriendRequest(res.data.request[0]);
       setIsFriend(res.data.request[0].status === FriendRequestStatus.ISFRIEND);
       setIsPending(res.data.request[0].status === FriendRequestStatus.ISPENDING);
@@ -346,6 +356,19 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
       setisRecipientFriendRequest(false);
     } catch (error) {
       onError("Hủy kết bạn thất bại, vui lòng thử lại sau");
+    }
+  }
+
+  const handleStartChat = async () => {
+    try {
+      const data = await chatContext.checkIfAvailableChat(props.user.wallet);
+      if (!data) {
+        await chatContext.createChat({ firstUser: account.information?.wallet, secondUser: props.user.wallet });
+      } else await chatContext.handleChangeChat(data.id, data.secondUser);
+
+      router.push("/users/messages");
+    } catch (error) {
+      onError("Có lỗi xảy ra, vui lòng thử lại sau")
     }
   }
 
@@ -463,6 +486,16 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
             </AppButton>
           </Card>}
         </Box>}
+
+        {!isSignedUser && <AppButton
+          onClick={handleStartChat}
+          async
+          variant="outline"
+          color={theme.colors.primary[5]}
+          leftSection={<IconMessage size={20} />}
+        >
+          Nhắn tin
+        </AppButton>}
       </Group>
 
       {previewImage && <Group ml={14}>
@@ -545,11 +578,18 @@ const TabNfts: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, i
       if (filter !== NftStatus.ALL) {
         if (filter === NftStatus.OLDEST) sort = '+createdAt';
         if (filter === NftStatus.NEWEST) sort = '-createdAt';
-        if (filter === NftStatus.ISLISTING) status = MarketStatus.ISLISTING;
-        if (filter === NftStatus.SOLD) status = MarketStatus.SOLD;
       }
 
-      listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, active: isSignedUser ? null : true });
+      if (filter === NftStatus.ISLISTING) {
+        listItems = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, active: isSignedUser ? null : true });
+        console.log("list tokens: ", listItems)
+      }
+      if (filter === NftStatus.SOLD) {
+        listItems = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, active: isSignedUser ? null : true });
+        console.log("list tokens: ", listItems)
+      } else {
+        listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, active: isSignedUser ? null : true });
+      }
 
       if (filter === NftStatus.ISLISTING || filter === NftStatus.SOLD) {
         const nfts = [];
@@ -828,6 +868,7 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
       }
 
       listItems = await NftModule.getFavouritedNftsOfUser({ limit, offset: (activePage - 1) * limit, sort });
+      console.log(listItems)
       if (search.length > 0 && !!listItems.data.tokens) {
         const nfts = listItems.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
@@ -836,7 +877,8 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
         listItems.data.tokens = nfts;
         listItems.data.count = nfts.length;
       }
-      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data?.tokens || [], count: listItems.data?.count || 0 } }));
+      console.log("tokens: ", listItems)
+      setTokens(s => ({ ...s, isFetching: false, data: { tokens: listItems.data?.tokens, count: listItems.data?.count } }));
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {
       setTokens(s => ({ ...s, isFetching: false }));

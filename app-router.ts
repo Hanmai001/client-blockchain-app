@@ -13,5 +13,10 @@ export const AppRoutes = {
     friends: '/users/friends',
     messages: '/users/messages'
   },
+  admin: {
+    dashboard: '/admin',
+    profile: '/admin/profile',
+    users: '/admin/users'
+  },
   friends: '/friends'
 }

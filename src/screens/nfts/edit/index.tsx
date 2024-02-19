@@ -12,7 +12,7 @@ import { RequestModule } from "@/modules/request/request";
 import { Grid, Group, Stack, Switch, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconArrowLeft, IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
@@ -73,7 +73,15 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
     } finally {
       setIsUploading(false);
     }
-  })
+  });
+
+  useEffect(() => {
+    setOldMetadata({
+      title: token.title,
+      source: token.source,
+      description: token.description,
+    })
+  }, [token])
 
   return (
     <BoundaryConnectWallet>

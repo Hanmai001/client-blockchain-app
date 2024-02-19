@@ -10,14 +10,17 @@ import { Collection } from "@/modules/collection/types";
 import { NftModule } from "@/modules/nft/modules";
 import { FilterOptions } from "@/modules/nft/types";
 import { StringUtils } from "@/share/utils";
-import { AspectRatio, Box, Grid, Group, Pagination, Skeleton, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Box, Grid, Group, Pagination, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconSearch } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { NftCard } from "../../components/nft-card";
 import classes from '../../styles/collections/CollectionDetail.module.scss';
-import { MyCombobox } from "../marketplace";
+import { MyCombobox } from "@/components/combobox/my-combobox";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { MarketStatus } from "@/modules/marketorder/types";
+import { useResponsive } from "@/modules/app/hooks";
 
 export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const [activePage, setPage] = useState(1);
@@ -27,6 +30,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState(FilterOptions.ALL);
   const [debounced] = useDebouncedValue(search, 200);
+  const { isMobile, isTablet } = useResponsive();
 
   const gridColumns = {
     lg: 3,
@@ -40,6 +44,8 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
       let sort = '';
       //get list by filter
       if (filter !== FilterOptions.ALL) {
+        // if (filter === FilterOptions.PRICE_TO_HIGH) sort = '+price';
+        // if (filter === FilterOptions.PRICE_TO_LOW) sort = '-price';
         if (filter === FilterOptions.MOST_VIEWS) sort = '-totalViews';
         if (filter === FilterOptions.MOST_SHARES) sort = '-totalShare';
         if (filter === FilterOptions.MOST_LIKES) sort = '-listOfLikedUsers';
@@ -48,7 +54,17 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
       }
 
       const isSignedUser = account.information?.wallet === collection.creatorCollection;
-      listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort, active: isSignedUser ? null : true });
+
+      if (filter === FilterOptions.PRICE_TO_HIGH) {
+        listtokens = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, sort: '+price', active: isSignedUser ? null : true });
+        console.log("list tokens: ", listtokens)
+      } else if (filter === FilterOptions.PRICE_TO_LOW) {
+        listtokens = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, sort: '-price', active: isSignedUser ? null : true });
+        console.log("list tokens: ", listtokens)
+      } else {
+        listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort, active: isSignedUser ? null : true });
+      }
+
       if (search.length > 0 && !!listtokens.data.tokens) {
         const tokens = listtokens.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
@@ -56,7 +72,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
         })
         listtokens.data.tokens = tokens;
       }
-      setItems(s => ({ ...s, isFetching: false, data: { tokens: listtokens.data.tokens, count: listtokens.data.count } }));
+      setItems(s => ({ ...s, isFetching: false, data: { tokens: listtokens.data.tokens || [], count: listtokens.data.count || 0 } }));
     } catch (error) {
       setItems(s => ({ ...s, isFetching: false, data: { tokens: [], count: 0 } }))
       // onError(error);
@@ -80,9 +96,15 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
         return <BannerSection collection={collection} />
       }()}
 
+      <Group mx={theme.spacing.md}>
+        <img src="/images/default/note.svg" width={24} height={24} />
+        <Spoiler maxHeight={120} showLabel="Xem thêm" hideLabel="Ẩn" >
+          <Text c={theme.colors.gray[7]}>{collection.description}</Text>
+        </Spoiler>
+      </Group>
 
-      <Box m={theme.spacing.md}>
-        <Group mb={theme.spacing.lg}>
+      <Box mx={theme.spacing.md}>
+        <Group grow={isTablet ? true : false} mb={theme.spacing.lg} justify={isTablet ? "space-between" : ''}>
           <Text c={theme.colors.text[1]} fw={500}>{items.data?.count !== 0 ? items.data?.tokens.length : 0} {"kết quả"}</Text>
           <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
             input: {
@@ -146,9 +168,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
           padding: '20px 15px',
         }
       }}
-        classNames={{
-          control: classes.control
-        }}
+        className="pagination-control"
       />
     </Stack>
 
@@ -160,6 +180,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
   const theme = useMantineTheme();
   const { symbol } = renderPayment(props.collection.paymentType);
   const [totalItems, setTotalItems] = useState(0);
+  const { isMobile } = useResponsive();
 
   const fetchItemsOfCollection = async () => {
     try {
@@ -184,7 +205,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
   }, [props.collection])
 
   return (
-    <AspectRatio ratio={400 / 100} style={{ overflow: 'hidden' }}>
+    <AspectRatio ratio={isMobile ? 400 / 200 : 400 / 100} style={{ overflow: 'hidden' }}>
       <AppImage src={props.collection.bannerURL} alt="" />
 
       <Group
@@ -195,7 +216,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
         }}
         w={'100%'}
       >
-        <Stack color={theme.white} gap={4} m={theme.spacing.lg} style={{ zIndex: 2 }}>
+        <Stack color={theme.white} gap={4} m={isMobile ? 'auto' : theme.spacing.lg} style={{ zIndex: 2 }}>
           <Title size={18} c={theme.colors.text[0]}>
             {props.collection.title}
           </Title>
@@ -206,20 +227,20 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
           </Group>
         </Stack>
 
-        <Group m={theme.spacing.lg} gap={40}>
+        <Group m={isMobile ? 'auto' : theme.spacing.lg} gap={isMobile ? 20 : 40}>
           <Stack gap={4} style={{ textAlign: "center" }}>
             <Text c={theme.colors.text[0]}>Tổng Video</Text>
-            <Text c={theme.colors.text[0]} fw={500} size="22px">{totalItems || 0}</Text>
+            <Text c={theme.colors.text[0]} fw={500} size={isMobile ? "18px" : "22px"}>{totalItems || 0}</Text>
           </Stack>
 
           <Stack gap={4} style={{ textAlign: "center" }}>
             <Text c={theme.colors.text[0]}>Lượt xem</Text>
-            <Text c={theme.colors.text[0]} fw={500} size="22px">{props.collection.totalViews}</Text>
+            <Text c={theme.colors.text[0]} fw={500} size={isMobile ? "18px" : "22px"}>{props.collection.totalViews}</Text>
           </Stack>
 
           <Stack gap={4} style={{ textAlign: "center" }}>
             <Text c={theme.colors.text[0]}>Tỷ giá trung bình</Text>
-            <Text c={theme.colors.text[0]} fw={500} size="22px">{props.collection.averagePrice} {symbol}</Text>
+            <Text c={theme.colors.text[0]} fw={500} size={isMobile ? "18px" : "22px"}>{props.collection.averagePrice} {symbol}</Text>
           </Stack>
         </Group>
       </Group>

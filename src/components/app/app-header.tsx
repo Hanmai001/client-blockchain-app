@@ -1,30 +1,27 @@
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
-import { renderPayment } from "@/modules/coins/utils";
-import { getChainId, useConfig } from "@/modules/configs/context";
-import { useSelector } from "@/redux/store";
+import { CollectionModule } from "@/modules/collection/modules";
+import { Collection } from "@/modules/collection/types";
+import { useConfig } from "@/modules/configs/context";
+import { NftModule } from "@/modules/nft/modules";
+import { Nft } from "@/modules/nft/types";
+import { UserModule } from "@/modules/user/modules";
 import { useBlockChain } from "@/share/blockchain/context";
-import { NumberUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Avatar, Box, Burger, Card, Center, Divider, Drawer, Group, Image, Loader, Menu, MenuItem, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { ChainId } from "@/share/blockchain/types";
+import { StringUtils } from "@/share/utils";
+import { ActionIcon, AspectRatio, Box, Burger, Card, Center, Divider, Drawer, Group, Image, Loader, Menu, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
-import { IconBell, IconFriends, IconHeartBolt, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSelector, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import { IconBell, IconFriends, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
-import { AppPayment } from "../../../types";
+import { AppRoutes } from "../../../app-router";
 import classes from "../../styles/app/AppHeader.module.scss";
+import { Balances } from "../account-balances";
 import { AccountInfo } from "../account-info";
 import { ConnectWallet } from "../buttons/connect-wallet";
 import { onError } from "../modals/modal-error";
 import { AppButton } from "./app-button";
-import Link from "next/link";
-import { AppRoutes } from "../../../app-router";
-import { ChainId } from "@/share/blockchain/types";
-import { Nft } from "@/modules/nft/types";
-import { Collection } from "@/modules/collection/types";
-import { EmptyMessage } from "../empty-message";
-import { CollectionModule } from "@/modules/collection/modules";
-import { NftModule } from "@/modules/nft/modules";
-import { UserModule } from "@/modules/user/modules";
 
 interface ResultProps {
   isFetching: boolean,
@@ -408,7 +405,8 @@ export const MenuAccountMobile: FC = () => {
     </Drawer>
   </>
 }
-export const Account: FC = () => {
+
+const Account: FC = () => {
   const account = useAccount();
   const config = useConfig();
   const blockchain = useBlockChain();
@@ -511,68 +509,5 @@ export const Account: FC = () => {
       }()}
 
     </Menu>
-  )
-}
-
-const Balances: FC = () => {
-  const account = useAccount();
-  const blockchain = useBlockChain();
-  const balances = useSelector(s => s.coinBalances);
-  const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
-  const theme = useMantineTheme();
-  const { isDarkMode } = useConfig();
-  const { image, symbol } = renderPayment(selectedToken);
-
-  if (!account.information) return;
-
-  if (getChainId() !== blockchain.chainId) return;
-
-  return (
-    <>
-      {function () {
-        if (balances.isFetching) return <Skeleton height={35} width={100} />
-        if (!balances.data) return null;
-
-        return (
-          <Group gap={10}>
-            <Menu shadow="md" openDelay={100} closeDelay={200}>
-              <Menu.Target>
-                <UnstyledButton w={150} style={(theme) => ({
-                  borderRadius: "24px",
-                  backgroundColor: theme.colors.primary[0]
-                })}>
-                  <Group gap={4} justify="space-between">
-                    <Avatar size={38} src={image} />
-                    <Text c={isDarkMode ? 'white' : 'dark'} size="sm" style={{ lineHeight: 1 }}>{NumberUtils.round(balances.data[selectedToken], 3)}</Text>
-                    <IconSelector color={theme.colors.primary[5]} />
-                  </Group>
-                </UnstyledButton>
-              </Menu.Target>
-
-
-              <Menu.Dropdown miw={150}>
-                <Menu.Label>
-                  Balances
-                </Menu.Label>
-                {Object.keys(balances.data).map((key) => {
-                  return <Menu.Item
-                    key={key}
-                    onClick={() => (setSelectedToken(key as AppPayment))}
-                  >
-                    <Group gap={8}>
-                      <Avatar size={30} src={renderPayment(key as any).image} />
-                      <Stack gap={0}>
-                        <Text c={isDarkMode ? 'white' : 'dark'} opacity={0.7} size={'xs'}>{renderPayment(key as any).symbol}</Text>
-                        <Text c={isDarkMode ? 'white' : 'dark'} size={"sm"} style={{ lineHeight: 1 }}>{NumberUtils.round(balances.data[key], 3) || 0}</Text>
-                      </Stack>
-                    </Group>
-                  </Menu.Item>
-                })}
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
-        )
-      }()}
-    </>
   )
 }

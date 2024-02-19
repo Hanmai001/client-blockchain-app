@@ -1,9 +1,10 @@
 import { AppCreateButton } from '@/components/app/app-create-button';
 import { AppWrapper } from '@/components/app/app-wrapper';
+import { MyCombobox } from '@/components/combobox/my-combobox';
 import { useResponsive } from '@/modules/app/hooks';
 import { CollectionType } from '@/modules/collection/types';
-import { Box, Combobox, ComboboxProps, Grid, InputBase, Stack, Tabs, rem, useCombobox, useMantineTheme } from '@mantine/core';
-import { FC, useState } from 'react';
+import { Box, Grid, Stack, Tabs, rem, useMantineTheme } from '@mantine/core';
+import { useState } from 'react';
 import classes from '../../styles/Marketplace.module.scss';
 import { BannerSection } from './banner-section';
 import { CollectionsRanking } from './collections-ranking';
@@ -44,6 +45,7 @@ export const MarketplaceScreen = () => {
               dropdown: 'hidden-scroll-bar'
             }}
             classnamesinput={classes.comboboxInput}
+            onChange={(val) => setActiveTab(val)}
           />}
 
           <BannerSection type={activeTab} />
@@ -66,64 +68,4 @@ export const MarketplaceScreen = () => {
       <AppCreateButton />
     </AppWrapper>
   )
-}
-
-interface MyComboBox extends ComboboxProps {
-  label?: string,
-  classnamesinput?: any,
-  classnamesroot?: any,
-  initialvalue: string,
-  options: Object,
-  value?: string,
-  onChange?: (v: any) => any,
-}
-
-export const MyCombobox: FC<MyComboBox> = (props) => {
-  const combobox = useCombobox({
-    onDropdownClose: () => combobox.resetSelectedOption(),
-  });
-  const [value, setValue] = useState<string | null>(props.initialvalue || props.value!);
-
-  const options = Object.values(props.options).map((v, k) => (
-    <Combobox.Option py={12} className={v === value ? classes.comboboxOptionSelected : classes.comboboxOption} value={v} key={k}>
-      {v}
-    </Combobox.Option>
-  ))
-
-  return <Combobox
-    store={combobox}
-    onOptionSubmit={(val) => {
-      setValue(val);
-      combobox.closeDropdown();
-
-      if (props.onChange)
-        props.onChange(val);
-    }}
-    {...props as any}
-  >
-    <Combobox.Target>
-      <InputBase
-        value={props.value}
-        onChange={props.onChange}
-        withAsterisk
-        label={props.label}
-        component="button"
-        type="button"
-        pointer
-        rightSection={<Combobox.Chevron />}
-        rightSectionPointerEvents="none"
-        onClick={() => combobox.toggleDropdown()}
-        classNames={{
-          input: props.classnamesinput,
-          root: props.classnamesroot,
-        }}
-      >
-        {value}
-      </InputBase>
-    </Combobox.Target>
-
-    <Combobox.Dropdown>
-      <Combobox.Options>{options}</Combobox.Options>
-    </Combobox.Dropdown>
-  </Combobox>
 }

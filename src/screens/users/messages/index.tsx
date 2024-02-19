@@ -19,6 +19,7 @@ export const MessagesScreen: FC = () => {
   const theme = useMantineTheme();
 
   return <AppShell
+    mah={'100vh'}
     header={{ height: 70 }}
     navbar={{ width: { sm: 70, md: 360, lg: 360 }, breakpoint: 'sm' }}
     styles={{
@@ -54,7 +55,6 @@ const SideBoxChats: FC = () => {
   const [chats, setChats] = useState<any[]>([]);
   const [activePage, setPage] = useState(1);
   const { isMobile, isTablet } = useResponsive();
-  const [hasMore, setHasMore] = useState(true);
 
   const fetchChats = async () => {
     try {
@@ -68,17 +68,17 @@ const SideBoxChats: FC = () => {
       }
       setChats(res);
     } catch (error) {
-
+      setChats([]);
     }
   }
 
-  const handleSelectChatBox = (chatID: string, recipient: string) => {
-    chatContext.handleChangeChat(chatID, recipient);
+  const handleSelectChatBox = async (chatID: string, recipient: string) => {
+    await chatContext.handleChangeChat(chatID, recipient);
   }
 
   useEffect(() => {
     fetchChats();
-  }, [chatContext.chats, chatContext.selectedChat])
+  }, [chatContext.chats, chatContext.messages])
 
   return <Stack pl={20} mt={20}>
     <Box mr={20}>
@@ -103,13 +103,10 @@ const SideBoxChats: FC = () => {
         overflowY: 'scroll'
       }}
       height={'calc(100vh - 160px)'}
-      dataLength={chats.length || 0}
-      next={() => setPage(activePage + 1)}
-      hasMore={hasMore}
+      dataLength={chats.length}
+      next={() => chatContext.setActivePageChats()}
+      hasMore={chats.length < chatContext.chatCount ? true : false}
       loader={<Group justify="center"><Loader color={theme.colors.primary[5]} size={24} /></Group>}
-      endMessage={
-        <></>
-      }
     >
       {function () {
         if (chats.length === 0) return <EmptyMessage />
@@ -129,12 +126,10 @@ const MainChat: FC = () => {
   const [input, setInput] = useState<string>("");
   const [istyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
-  const [activePage, setPage] = useState(1);
   const [recipient, setRecipient] = useState<UserInformation>();
   const { isMobile, isTablet } = useResponsive();
-  const [hasMore, setHasMore] = useState(true);
 
-  const handleSenMessages = async () => {
+  const handleSendMessages = async () => {
     try {
       //api send message payload: {content, chatID}
       chatContext.sendMessages(input);
@@ -148,10 +143,9 @@ const MainChat: FC = () => {
     try {
       const res = [];
       for (const v of chatContext.messages) {
-        const user = await UserModule.getByWallet(v.sender);
+        const user = await UserModule.getByWallet(v.senderID);
         res.push({ ...v, sender: user });
       }
-
       setMessages(res);
     } catch (error) {
 
@@ -168,8 +162,11 @@ const MainChat: FC = () => {
 
   useEffect(() => {
     fetchMessages();
+  }, [chatContext.selectedChat, chatContext.messages]);
+
+  useEffect(() => {
     fetchRecipient();
-  }, [chatContext.selectedChat, chatContext.messages])
+  }, [chatContext.recipient])
 
   return <Stack h={'calc(100vh - 70px)'} justify="space-between">
     <Group p={10} style={{
@@ -190,21 +187,12 @@ const MainChat: FC = () => {
       }}
       height={'calc(100vh - 240px)'}
       dataLength={messages.length || 0}
-      next={() => chatContext.setActivePage()}
-      hasMore={hasMore}
+      next={chatContext.setActivePageMessages}
+      hasMore={messages.length < chatContext.messageCount ? true : false}
       loader={<Group justify="center"><Loader color={theme.colors.primary[5]} size={24} /></Group>}
       inverse={true}
-      endMessage={
-        <></>
-      }
     >
-      {function () {
-        if (messages.length === 0) return <EmptyMessage />
-
-        return <>
-          {messages.map((v, k) => <UserMessage key={k} message={v} />)}
-        </>
-      }()}
+      {messages.map((v, k) => <UserMessage key={k} message={v} />)}
     </InfiniteScroll>
 
     <Group p={10} h={80} style={{
@@ -217,7 +205,7 @@ const MainChat: FC = () => {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            handleSenMessages();
+            handleSendMessages();
           }
         }}
         placeholder="Aa"

@@ -22,7 +22,7 @@ export const ChatBox: FC<{ chat: any, onChange: (chatID: string, recipient: stri
 
     <Stack h={64} gap={0} justify="center">
       <Text c={theme.colors.text[1]} fw={500}>{StringUtils.limitCharacters(chat.recipient.username, 15)}</Text>
-      <Text c={theme.colors.gray[7]}>{chat.lastText}</Text>
+      <Text c={theme.colors.gray[7]}>{StringUtils.limitCharacters(chat.lastMessage?.content || '', 20) || "Chưa có tin nhắn"}</Text>
     </Stack>
   </Group>
 }

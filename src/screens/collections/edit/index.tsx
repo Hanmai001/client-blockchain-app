@@ -8,14 +8,14 @@ import { onSuccess } from "@/components/modals/modal-success";
 import { useResponsive } from "@/modules/app/hooks";
 import { Collection, CollectionUpdatePayload } from "@/modules/collection/types";
 import { RequestModule } from "@/modules/request/request";
-import { MyCombobox } from "@/screens/marketplace";
 import { chains } from "@/share/blockchain/chain";
 import { Group, Select, Stack, Switch, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconArrowLeft, IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
-import classes from '../../../styles/collections/CollectionCreate.module.scss';
 import { CollectionModule } from "@/modules/collection/modules";
+import classes from '../../../styles/components/combobox.module.scss';
+import { MyCombobox } from "@/components/combobox/my-combobox";
 
 export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const theme = useMantineTheme();
@@ -90,8 +90,13 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
   })
 
   useEffect(() => {
-
-  }, [isUploading])
+    setOldMetadata({
+      title: collection.title,
+      bannerURL: collection.bannerURL,
+      description: collection.description,
+      category: collection.category,
+    })
+  }, [collection])
 
   return (
     <BoundaryConnectWallet>

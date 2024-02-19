@@ -1,178 +1,87 @@
 import { useBlockChain } from "@/share/blockchain/context";
 import { FC, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
+import { ChatModule } from "./modules";
 import { ChatPropsContext, ChatStatus, Message } from "./types";
 
 export const ChatContext = createContext<any>({} as any);
-
-const messagesTest = [
-  {
-    readBy: '',
-    id: "1",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Hello There",
-    chatID: "1",
-    createdAt: "2021-05-18T17:01:33.332Z",
-    updatedAt: "2021-05-18T17:01:33.332Z",
-  },
-  {
-    readBy: '',
-    id: "2",
-    sender: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    content: "Yo Wassup!",
-    chatID: "1",
-    createdAt: "2021-05-18T17:08:14.447Z",
-    updatedAt: "2021-05-18T17:08:14.447Z",
-  },
-  {
-    readBy: '',
-    id: "1",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Hello There",
-    chatID: "1",
-    createdAt: "2021-05-18T17:01:33.332Z",
-    updatedAt: "2021-05-18T17:01:33.332Z",
-  },
-  {
-    readBy: '',
-    id: "2",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Yo Wassup!",
-    chatID: "1",
-    createdAt: "2021-05-18T17:08:14.447Z",
-    updatedAt: "2021-05-18T17:08:14.447Z",
-  },
-  {
-    readBy: '',
-    id: "1",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Hello There",
-    chatID: "1",
-    createdAt: "2021-05-18T17:01:33.332Z",
-    updatedAt: "2021-05-18T17:01:33.332Z",
-  },
-  {
-    readBy: '',
-    id: "2",
-    sender: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    content: "Yo Wassup!",
-    chatID: "1",
-    createdAt: "2021-05-18T17:08:14.447Z",
-    updatedAt: "2021-05-18T17:08:14.447Z",
-  },
-  {
-    readBy: '',
-    id: "1",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Hello There",
-    chatID: "1",
-    createdAt: "2021-05-18T17:01:33.332Z",
-    updatedAt: "2021-05-18T17:01:33.332Z",
-  },
-  {
-    readBy: '',
-    id: "2",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Yo Wassup!",
-    chatID: "1",
-    createdAt: "2021-05-18T17:08:14.447Z",
-    updatedAt: "2021-05-18T17:08:14.447Z",
-  },
-  {
-    readBy: '',
-    id: "1",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Hello There",
-    chatID: "1",
-    createdAt: "2021-05-18T17:01:33.332Z",
-    updatedAt: "2021-05-18T17:01:33.332Z",
-  },
-  {
-    readBy: '',
-    id: "2",
-    sender: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    content: "Yo Wassup!",
-    chatID: "1",
-    createdAt: "2021-05-18T17:08:14.447Z",
-    updatedAt: "2021-05-18T17:08:14.447Z",
-  },
-  {
-    readBy: '',
-    id: "1",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Hello There",
-    chatID: "1",
-    createdAt: "2021-05-18T17:01:33.332Z",
-    updatedAt: "2021-05-18T17:01:33.332Z",
-  },
-  {
-    readBy: '',
-    id: "2",
-    sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    content: "Yo Wassup!",
-    chatID: "1",
-    createdAt: "2021-05-18T17:08:14.447Z",
-    updatedAt: "2021-05-18T17:08:14.447Z",
-  },
-];
-
-const chatsTest = [
-  {
-    id: '0',
-    firstUser: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    secondUser: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    lastText: 'Helloooo',
-  },
-  {
-    id: '1',
-    firstUser: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-    secondUser: '0x6AaEF57A890743E6322Feb3275E4006b3Ecb8cb5',
-    lastText: 'Helloooo',
-  },
-];
 
 //sever for chat
 const ENDPOINT = "http://localhost:5000";
 var socket: Socket;
 
 export const ChatProvider: FC<PropsWithChildren> = (props) => {
-  const [status, setStatus] = useState<ChatStatus>({ messages: [], selectedChat: '', recipient: '', chats: [] });
+  const [status, setStatus] = useState<ChatStatus>({ messages: [], selectedChat: '', recipient: '', chats: [], messageCount: 0, chatCount: 0 });
   const blockchain = useBlockChain();
-  const [socketConnected, setSocketConnected] = useState(false);
-  const [activePage, setPage] = useState(1);
-  const limit = 20;
+  const [activePageMessages, setPageMessages] = useState(1);
+  const [occurCreateChat, setOccurChat] = useState(false);
+  const [activePageChats, setPageChats] = useState(1);
+  const [isSent, setIsSent] = useState(false);
+  const limitMessages = 20, limitChats = 10;
 
   const handleChangeChat = async (chatID: string, recipient: string) => {
     try {
-      console.log(chatID, recipient)
-      setStatus(s => ({ ...s, selectedChat: chatID, recipient, messages: messagesTest }))
+      setPageMessages(1);
+      // console.log(chatID, status.recipient, recipient)
+      // if(status.selectedChat !== chatID)
+      setStatus(s => ({ ...s, selectedChat: chatID, recipient, messages: [], messageCount: 0 }));
     } catch (error) {
-      throw error;
+      setStatus(s => ({ ...s }))
     }
   }
 
-  const fetchMessages = async () => {
+  const checkIfAvailableChat = async (recipient: string) => {
+    try {
+      const res = await ChatModule.checkAvailableChat(recipient);
+      if (Object.keys(res.data).length === 0) return null;
+      return res.data;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  const createChat = async (payload: any) => {
+    try {
+      const res = await ChatModule.createChat(payload);
+      if (res.data) {
+        setOccurChat(true);
+        const prevChats = status.chats;
+        setStatus(s => ({ ...s, chats: [...prevChats, res.data], selectedChat: res.data.id, recipient: res.data.secondUser, chatCount: prevChats.length + 1, messages: [], messageCount: 0 }));
+        setPageMessages(1);
+      }
+    } catch (error) {
+      setStatus(s => ({ ...s }));
+      setPageMessages(1);
+    }
+  }
+
+  const fetchMessages = async (chatID?: string) => {
     try {
       //api get messages
+      const res = await ChatModule.fetchMessages({ chatID: chatID ? chatID : status.selectedChat, limit: limitMessages, offset: isSent ? 0 : (activePageMessages - 1) * limitMessages, sort: '-createdAt' });
 
-      setStatus(s => ({ ...s, messages: messagesTest }));
-      socket.emit('join chat', status.selectedChat);
+      console.log("status: ", status)
+      if (res.data?.messages.length === 0 && activePageMessages > 1) {
+        return null;
+      }
+
+      let prevItems = status.messages;
+      if (isSent) prevItems = [];
+      
+      setStatus(s => ({ ...s, messages: [...prevItems, ...res.data.messages], messageCount: res.data.count }));
     } catch (error) {
-      throw error;
+      setStatus(s => ({ ...s, messages: [], messageCount: 0 }));
     }
   }
 
   const initialize = async () => {
     try {
-      if (blockchain.wallet) {
+      if (blockchain.wallet && !occurCreateChat) {
         let recipient = '';
-        if (blockchain.wallet === chatsTest[0].firstUser) recipient = chatsTest[0].secondUser;
-        else recipient = chatsTest[0].firstUser;
-
-        console.log("recipient: ", recipient)
-
-        setStatus(s => ({ ...s, messages: messagesTest, chats: chatsTest, selectedChat: chatsTest[0].id, recipient }));
-      }
+        if (blockchain.wallet === status.chats[0].firstUser) recipient = status.chats[0].secondUser;
+        else recipient = status.chats[0].firstUser;
+        setStatus(s => ({ ...s, recipient }));
+      } else setOccurChat(false);
     } catch (error) {
 
     }
@@ -182,82 +91,87 @@ export const ChatProvider: FC<PropsWithChildren> = (props) => {
     try {
       if (!blockchain.wallet) return;
       //api get messages
-
-      setStatus(s => ({ ...s, chats: chatsTest }));
+      const res = await ChatModule.getListOfChats({ user: blockchain.wallet, limit: limitChats, offset: (activePageChats - 1) * limitChats });
+      if (res.data?.chats.length === 0) {
+        return null;
+      }
+      const prevItems = status.chats;
+      setStatus(s => ({ ...s, chats: [...prevItems, ...res.data.chats] || [], selectedChat: res.data.chats[0].id || [], chatCount: res.data.count }));
     } catch (error) {
-      throw error;
+      setStatus(s => ({ ...s, chats: [], chatCount: 0 }));
     }
   }
 
   const sendMessages = async (input: string) => {
     try {
-      //api send message payload: {content, chatID}
-      // const payload = { content: '', chatID: status.selectedChat };
-      // const res = await ChatModule.sendMessage(payload);
-      // socket.emit("new message", res.data);
-
-      const res = {
-        data: {
-          readBy: '',
-          id: "2",
-          sender: '0xCf56d1C5b9f0ac7dCaE5399e5f82f29066d978bc',
-          content: input,
-          chatID: "1",
-          createdAt: "2021-05-18T17:08:14.447Z",
-          updatedAt: "2021-05-18T17:08:14.447Z",
-        }
-      }; //test
-      console.log("send", input)
-      setStatus(s => ({ ...s, messages: [res.data, ...status.messages] }));
+      const payload = { content: input, chatID: status.selectedChat, senderID: blockchain.wallet };
+      const res = await ChatModule.sendMessage(payload);
+      const count = status.messages.length;
+      setStatus(s => ({ ...s, messages: [res.data, ...status.messages], messageCount: count + 1 }));
+      setIsSent(true);
     } catch (error) {
-      throw error;
+      setStatus(s => ({ ...s, messages: [] }));
     }
   }
 
-  const setActivePage = () => {
-    setPage(activePage + 1);
+  const setActivePageMessages = () => {
+    setPageMessages(s => s + 1);
+  }
+
+  const setActivePageChats = () => {
+    setPageChats(s => s + 1);
   }
 
   useEffect(() => {
-    if (blockchain.wallet) return;
-    socket = io(ENDPOINT);
-    //send event "setup" to sever
-    socket.emit("setup", {
-      chatID: status.selectedChat,
-      recipient: status.recipient
+    if (!blockchain.wallet) return;
+    socket = io(ENDPOINT, {
+      query: {
+        wallet: status.recipient
+      }
     });
-
-    socket.on("connected", () => setSocketConnected(true));
     // socket.on("typing", () => setIsTyping(true));
     // socket.on("stop typing", () => setIsTyping(false));
-  }, [status.selectedChat]);
+  }, [status.recipient]);
 
   useEffect(() => {
-    try {
+    fetchChatsOfUser();
+  }, [blockchain.wallet, activePageChats])
+
+  useEffect(() => {
+    fetchMessages();
+  }, [status.selectedChat, status.recipient, activePageMessages]);
+
+  useEffect(() => {
+    if (isSent) {
       fetchMessages();
-      console.log("fetch messages", status.selectedChat)
-    } catch (error) {
-      throw error;
+      setIsSent(false);
     }
-  }, [blockchain.wallet, activePage]);
+  }, [isSent])
 
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved: Message) => {
-      if (newMessageRecieved.chatID === status.selectedChat)
-        setStatus(s => ({ ...s, messages: [...status.messages, newMessageRecieved] }));
-    });
+    if (socket) {
+      socket.on("newMessage", (newMessage: Message) => {
+        console.log("new message: ", newMessage)
+        if (newMessage.chatID === status.selectedChat) {
+          console.log(status.selectedChat, newMessage.chatID)
+          setStatus(s => ({ ...s, messages: [newMessage, ...status.messages] }));
+        }
+      });
+    }
   });
 
   useEffect(() => {
     initialize();
-  }, [blockchain.wallet])
+  }, [blockchain.wallet, status.chats])
 
   const context: ChatPropsContext = {
     ...status,
-    socketConnected,
     sendMessages,
+    checkIfAvailableChat,
+    createChat,
     handleChangeChat: handleChangeChat,
-    setActivePage
+    setActivePageMessages: setActivePageMessages,
+    setActivePageChats: setActivePageChats
   }
 
   return <ChatContext.Provider

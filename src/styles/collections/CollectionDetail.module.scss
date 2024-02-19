@@ -1,3 +1,16 @@
+.comboboxInput {
+  height: 45px;
+  border-radius: 10px;
+
+  &:focus {
+    border-color: #d3b0ff;
+  }
+}
+
+.comboboxRootInput {
+  min-width: 20%;
+}
+
 .video {
   &:hover {
     cursor: pointer;
@@ -24,29 +37,6 @@
   animation: fadeOut 0.2s ease-in-out;
 }
 
-.comboboxInput {
-  height: 45px;
-  border-radius: 10px;
-
-  &:focus {
-    border-color: #d3b0ff;
-  }
-}
-
-.comboboxRootInput {
-  min-width: 20%;
-}
-
-.control {
-
-  &:hover {
-    background-color: #efe3ff;
-  }
-
-  &[data-active] {
-    background-color: #8c36fa;
-  }
-}
 @keyframes fadeIn {
   0% {
     transform: translateY(100%);

@@ -17,6 +17,7 @@ import classes from '../../../styles/collections/CollectionDetail.module.scss';
 import { FriendRequestModule } from "@/modules/friend-request/modules";
 import { FriendRequestStatus } from "@/modules/friend-request/types";
 import { getChainId } from "@/share/blockchain/context";
+import { useResponsive } from "@/modules/app/hooks";
 
 enum UserFriendsTabs {
   FRIENDS = 'Bạn bè',
@@ -32,6 +33,7 @@ export const UserFriendsScreen: FC = () => {
   const [users, setUsers] = useState<ListLoadState<UserInformation, 'users'>>({ isFetching: true, data: { users: [], count: 0 } });
   const [activeTab, setActiveTab] = useState<string | null>(UserFriendsTabs.FRIENDS);
   const [forceUpdate, setForceUpdate] = useState(1);
+  const { isMobile, isTablet } = useResponsive();
   const limit = 20;
 
   const fetchFriends = async () => {
@@ -71,15 +73,15 @@ export const UserFriendsScreen: FC = () => {
     <AppHeader />
     <Box my={100}>
       <BoundaryConnectWallet>
-        <Card shadow="md" px={25} withBorder maw='80%' style={{
+        <Card shadow="md" px={25} withBorder maw={isTablet ? '90%' : '80%'} style={{
           margin: 'auto'
         }}>
-          <Stack >
+          <Stack>
             <Group justify="space-between">
               <Title order={3} c={theme.colors.text[1]}>Bạn bè</Title>
 
               <Group>
-                <TextInput placeholder="Nhập từ khóa" miw={300} rightSection={<IconSearch />} radius={10} styles={{
+                <TextInput placeholder="Nhập từ khóa" miw={isTablet ? '100%' : 300} rightSection={<IconSearch />} radius={10} styles={{
                   input: {
                     height: '45px',
                   },
@@ -99,7 +101,7 @@ export const UserFriendsScreen: FC = () => {
               tab: "tab-button",
             }}>
               <Tabs.List mb={20} grow style={{
-                maxWidth: '35%'
+                maxWidth: isMobile ? '100%' : '35%'
               }}>
                 {Object.values(UserFriendsTabs).map((v, k) => (
                   <Tabs.Tab
@@ -167,9 +169,7 @@ export const UserFriendsScreen: FC = () => {
                 padding: '20px 15px',
               }
             }}
-              classNames={{
-                control: classes.control
-              }}
+              className="pagination-control"
             />
           </Stack>
         </Card>
@@ -189,6 +189,7 @@ interface FriendBoxProps {
 const FriendBox: FC<FriendBoxProps> = (props) => {
   const theme = useMantineTheme();
   const account = useAccount();
+  const { isMobile, isTablet } = useResponsive();
 
   const handleUnfriend = async () => {
     try {
@@ -208,7 +209,7 @@ const FriendBox: FC<FriendBoxProps> = (props) => {
     }
   }
 
-  return <Group flex="0 1 46%" mb={60} justify="space-between">
+  return <Group flex={isMobile ? "0 1 100%" : "0 1 46%"} mb={60} justify="space-between">
     <Link href={`/users/${props.user.wallet}`}>
       <Group>
         <AspectRatio style={{

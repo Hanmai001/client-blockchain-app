@@ -7,6 +7,7 @@ import { getContracts } from "../configs/context";
 import { RequestModule } from "../request/request";
 import { TokenModule } from "../token/modules";
 import { MarketOrder, MarketOrderPayload, MarketOrderQuery, MarketStatus, TransactionEvent } from "./types";
+import { Nft } from "../nft/types";
 
 export class MarketOrderModule {
   static async create(payload: MarketOrderPayload) {
@@ -17,7 +18,6 @@ export class MarketOrderModule {
       operator: contractMarket.address,
       tokenId: payload.tokenID
     });
-      
     return RequestModule.post(`/api/v1/orders`, payload);
   }
 
@@ -27,7 +27,6 @@ export class MarketOrderModule {
 
   static async checkTokenIsListed(id: string, query: MarketOrderQuery): Promise<ListLoadState<MarketOrder, 'order'>> {
     const checkListed = (await RequestModule.get(`/api/v1/orders/${id}/isListed`, query)).data.isListed;
-    console.log(checkListed)
     return checkListed;
   }
  
@@ -73,6 +72,10 @@ export class MarketOrderModule {
 
     //force update
     await CoinsModule.fetchUserBalance();
+  }
+
+  static async getTokensStatus(query: MarketOrderQuery): Promise<ListLoadState<Nft, 'tokens'>> {
+    return RequestModule.get(`/api/v1/orders/tokens`, query);
   }
 
   static getMarketStatus(status: MarketStatus) {

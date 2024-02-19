@@ -11,7 +11,6 @@ import { CollectionModule } from "@/modules/collection/modules";
 import { CollectionPayload } from "@/modules/collection/types";
 import { getChainId, getContracts } from "@/modules/configs/context";
 import { RequestModule } from "@/modules/request/request";
-import { MyCombobox } from "@/screens/marketplace";
 import { chains } from "@/share/blockchain/chain";
 import { useBlockChain } from "@/share/blockchain/context";
 import { Grid, Group, Select, Stack, Text, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
@@ -22,6 +21,7 @@ import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../../types";
 import classes from '../../../styles/collections/CollectionCreate.module.scss';
 import { AppLoading } from "@/components/app/app-loading";
+import { MyCombobox } from "@/components/combobox/my-combobox";
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();
@@ -103,7 +103,7 @@ export const CollectionCreateScreen: FC = () => {
     <BoundaryConnectWallet>
       {isUploading && <AppLoading visible={isUploading} />}
 
-      <Stack px={40} mt={20}>
+      <Stack px={isMobile ? 15 : 40} mt={20}>
         <form onSubmit={onSubmit}>
           <Group justify="space-between">
             <Group>

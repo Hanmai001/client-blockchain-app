@@ -1,0 +1,23 @@
+.comboboxOption {
+  &:hover {
+    background-color: #efe3ff;
+  }
+}
+
+.comboboxOptionSelected {
+  background-color: #8c36fa;
+  color: var(--mantine-color-white);
+
+  &:hover {
+    background-color: #8c36fa;
+    color: var(--mantine-color-white);
+  }
+}
+
+.comboboxInput {
+  height: 45px;
+
+  &:focus {
+    border-color: #d3b0ff;
+  }
+}

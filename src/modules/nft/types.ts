@@ -1,9 +1,9 @@
-import { AppPayment, Query } from "../../../types"
+import { Query } from "../../../types"
 
 export enum FilterOptions {
   ALL = 'Tất cả',
-  PRICE_TO_LOW = 'Giá từ thấp đến cao',
-  PRICE_TO_HIGH = "Giá từ cao đến thấp",
+  PRICE_TO_LOW = 'Giá từ cao đến thấp',
+  PRICE_TO_HIGH = "Giá từ thấp đến cao",
   MOST_VIEWS = 'Xem nhiều nhất',
   MOST_LIKES = 'Được thích nhiều nhất',
   MOST_SHARES = 'Được chia sẻ nhiều nhất',

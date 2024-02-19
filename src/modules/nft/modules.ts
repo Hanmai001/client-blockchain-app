@@ -63,6 +63,10 @@ export class NftModule {
     return RequestModule.patch(`/api/v1/tokens/${id}/like`);
   }
 
+  static async updateShareNft(id: string) {
+    return RequestModule.patch(`/api/v1/tokens/${id}/share`);
+  }
+
   static async checkIsLikeNft(id: string) {
     const res = await RequestModule.get(`/api/v1/tokens/${id}/isLiked`);
     return res.data.isLiked;

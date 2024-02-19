@@ -1,27 +1,3 @@
-.comboboxOption {
-  &:hover {
-    background-color: #efe3ff;
-  }
-}
-
-.comboboxOptionSelected {
-  background-color: #8c36fa;
-  color: var(--mantine-color-white);
-
-  &:hover {
-    background-color: #8c36fa;
-    color: var(--mantine-color-white);
-  }
-}
-
-.comboboxInput {
-  height: 45px;
-  
-  &:focus {
-    border-color: #d3b0ff;
-  }
-}
-
 .banner {
   overflow: hidden;
   &:hover {
@@ -35,6 +11,21 @@
       border-radius: rem(10);
     }
   }
+}
+
+.comboboxInput {
+  height: 45px;
+  border-radius: 10px;
+  margin-top: 6px;
+
+
+  &:focus {
+    border-color: #d3b0ff;
+  }
+}
+
+.comboboxRootInput {
+  min-width: 100%;
 }
 
 .nextArrow {

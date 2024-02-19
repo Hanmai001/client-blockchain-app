@@ -32,13 +32,6 @@ export interface UserUpdatePayload {
   cover?: string
 }
 
-export enum UserTabsProfile {
-  ALL = 'Video của bạn',
-  CREATED_COLLECTIONS = 'Bộ sưu tập',
-  FAVOURITE = 'Đã yêu thích',
-  ACTIVITY = 'Hoạt động'
-}
-
 export interface UserQuery extends Query {
   
 }
