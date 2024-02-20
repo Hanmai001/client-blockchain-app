@@ -53,7 +53,6 @@ const SideBoxChats: FC = () => {
   const chatContext = useChatContext();
   const account = useAccount();
   const [chats, setChats] = useState<any[]>([]);
-  const [activePage, setPage] = useState(1);
   const { isMobile, isTablet } = useResponsive();
 
   const fetchChats = async () => {
@@ -66,6 +65,7 @@ const SideBoxChats: FC = () => {
         const user = await UserModule.getByWallet(wallet);
         res.push({ ...v, recipient: user });
       }
+      console.log("UI chats: ", res)
       setChats(res);
     } catch (error) {
       setChats([]);

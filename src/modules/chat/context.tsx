@@ -22,8 +22,6 @@ export const ChatProvider: FC<PropsWithChildren> = (props) => {
   const handleChangeChat = async (chatID: string, recipient: string) => {
     try {
       setPageMessages(1);
-      // console.log(chatID, status.recipient, recipient)
-      // if(status.selectedChat !== chatID)
       setStatus(s => ({ ...s, selectedChat: chatID, recipient, messages: [], messageCount: 0 }));
     } catch (error) {
       setStatus(s => ({ ...s }))
@@ -59,15 +57,13 @@ export const ChatProvider: FC<PropsWithChildren> = (props) => {
     try {
       //api get messages
       const res = await ChatModule.fetchMessages({ chatID: chatID ? chatID : status.selectedChat, limit: limitMessages, offset: isSent ? 0 : (activePageMessages - 1) * limitMessages, sort: '-createdAt' });
-
-      console.log("status: ", status)
       if (res.data?.messages.length === 0 && activePageMessages > 1) {
         return null;
       }
 
       let prevItems = status.messages;
       if (isSent) prevItems = [];
-      
+
       setStatus(s => ({ ...s, messages: [...prevItems, ...res.data.messages], messageCount: res.data.count }));
     } catch (error) {
       setStatus(s => ({ ...s, messages: [], messageCount: 0 }));
@@ -81,22 +77,30 @@ export const ChatProvider: FC<PropsWithChildren> = (props) => {
         if (blockchain.wallet === status.chats[0].firstUser) recipient = status.chats[0].secondUser;
         else recipient = status.chats[0].firstUser;
         setStatus(s => ({ ...s, recipient }));
-      } else setOccurChat(false);
+      } else {
+        setOccurChat(false);
+      }
     } catch (error) {
 
     }
   }
 
-  const fetchChatsOfUser = async () => {
+  const fetchChatsOfUser = async (chatID?: string) => {
     try {
       if (!blockchain.wallet) return;
       //api get messages
-      const res = await ChatModule.getListOfChats({ user: blockchain.wallet, limit: limitChats, offset: (activePageChats - 1) * limitChats });
+      const limit = chatID ? limitChats * activePageChats : limitChats;
+      const offset = chatID ? 0 : (activePageChats - 1) * limitChats;
+
+      const res = await ChatModule.getListOfChats({ user: blockchain.wallet, limit, offset });
       if (res.data?.chats.length === 0) {
         return null;
       }
-      const prevItems = status.chats;
-      setStatus(s => ({ ...s, chats: [...prevItems, ...res.data.chats] || [], selectedChat: res.data.chats[0].id || [], chatCount: res.data.count }));
+
+      // console.log("chats: ", res)
+
+      const prevItems = chatID ? [] : status.chats;
+      setStatus(s => ({ ...s, chats: [...prevItems, ...res.data.chats] || [], selectedChat: chatID ? chatID : res.data.chats[0].id, chatCount: res.data.count }));
     } catch (error) {
       setStatus(s => ({ ...s, chats: [], chatCount: 0 }));
     }
@@ -107,8 +111,13 @@ export const ChatProvider: FC<PropsWithChildren> = (props) => {
       const payload = { content: input, chatID: status.selectedChat, senderID: blockchain.wallet };
       const res = await ChatModule.sendMessage(payload);
       const count = status.messages.length;
-      setStatus(s => ({ ...s, messages: [res.data, ...status.messages], messageCount: count + 1 }));
-      setIsSent(true);
+
+      if (res.data) {
+        setOccurChat(true);
+        setStatus(s => ({ ...s, messages: [res.data, ...status.messages], messageCount: count + 1 }));
+        setIsSent(true);
+      }
+
     } catch (error) {
       setStatus(s => ({ ...s, messages: [] }));
     }
@@ -126,12 +135,12 @@ export const ChatProvider: FC<PropsWithChildren> = (props) => {
     if (!blockchain.wallet) return;
     socket = io(ENDPOINT, {
       query: {
-        wallet: status.recipient
+        wallet: blockchain.wallet
       }
     });
     // socket.on("typing", () => setIsTyping(true));
     // socket.on("stop typing", () => setIsTyping(false));
-  }, [status.recipient]);
+  }, [blockchain.wallet]);
 
   useEffect(() => {
     fetchChatsOfUser();
@@ -149,15 +158,23 @@ export const ChatProvider: FC<PropsWithChildren> = (props) => {
   }, [isSent])
 
   useEffect(() => {
-    if (socket) {
-      socket.on("newMessage", (newMessage: Message) => {
-        console.log("new message: ", newMessage)
-        if (newMessage.chatID === status.selectedChat) {
-          console.log(status.selectedChat, newMessage.chatID)
-          setStatus(s => ({ ...s, messages: [newMessage, ...status.messages] }));
-        }
-      });
+    if (occurCreateChat) {
+      fetchChatsOfUser(status.selectedChat);
     }
+  }, [occurCreateChat])
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("newMessage", (newMessage: Message) => {
+      if (newMessage.chatID === status.selectedChat) {
+        setOccurChat(true);
+        setStatus(s => ({ ...s, messages: [newMessage, ...status.messages] }));
+      }
+    });
+
+    return () => {
+      socket.off('newMessage');
+    };
   });
 
   useEffect(() => {
