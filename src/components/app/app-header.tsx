@@ -11,7 +11,7 @@ import { ChainId } from "@/share/blockchain/types";
 import { StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Box, Burger, Card, Center, Divider, Drawer, Group, Image, Loader, Menu, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
-import { IconBell, IconFriends, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import { IconFriends, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
@@ -22,6 +22,7 @@ import { AccountInfo } from "../account-info";
 import { ConnectWallet } from "../buttons/connect-wallet";
 import { onError } from "../modals/modal-error";
 import { AppButton } from "./app-button";
+import { AppNotification } from "./app-notification";
 
 interface ResultProps {
   isFetching: boolean,
@@ -66,14 +67,7 @@ export const AppHeader: FC = () => {
               <IconMessage2 size={26} />
             </ActionIcon>
 
-            <ActionIcon
-              variant="light"
-              color={theme.colors.primary[5]}
-              size={28}
-              h={40}
-              w={42}>
-              <IconBell size={26} />
-            </ActionIcon>
+            <AppNotification />
           </>}
 
           {isMobile && <HeaderSearchMobile />}
@@ -406,7 +400,7 @@ export const MenuAccountMobile: FC = () => {
   </>
 }
 
-const Account: FC = () => {
+export const Account: FC = () => {
   const account = useAccount();
   const config = useConfig();
   const blockchain = useBlockChain();

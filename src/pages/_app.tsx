@@ -1,6 +1,7 @@
 import { ConfigsProvider, PRIMARY_COLOR, PRIMARY_DARK_COLOR, useConfig } from '@/modules/configs/context'
 import '@/styles/globals.scss';
 import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { AppProps } from "next/app";
@@ -18,6 +19,7 @@ import { ModalBuyNft } from '@/components/modals/modal-buy-nft';
 import { ChatProvider } from '@/modules/chat/context';
 import { ModalCancel } from '@/components/modals/modal-cancel';
 import { ModalShareNft } from '@/components/modals/modal-share-nft';
+import { NotificationProvider } from '@/modules/notification/context';
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -66,11 +68,13 @@ export default function ({ Component, pageProps }: AppProps) {
     <BlockChainProvider>
       <ConfigsProvider>
         <ChatProvider>
-          <Provider store={store}>
-            <App>
-              <Component {...pageProps} />
-            </App>
-          </Provider>
+          <NotificationProvider>
+            <Provider store={store}>
+              <App>
+                <Component {...pageProps} />
+              </App>
+            </Provider>
+          </NotificationProvider>
         </ChatProvider>
       </ConfigsProvider>
     </BlockChainProvider>

@@ -6,26 +6,25 @@ import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
 import { MediaInput } from "@/components/input/media-input";
 import { SelectInputItem } from "@/components/input/select-input-item";
+import { onError } from "@/components/modals/modal-error";
 import { onSuccess } from "@/components/modals/modal-success";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
+import { NftModule } from "@/modules/nft/modules";
 import { NftPayload } from "@/modules/nft/types";
+import { RequestModule } from "@/modules/request/request";
 import { useBlockChain } from "@/share/blockchain/context";
 import { Box, Card, Flex, Grid, Group, Image, Skeleton, Stack, Text, TextInput, Textarea, Title, Transition, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
-import { FC, useEffect, useLayoutEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { AppRoutes } from "../../../../app-router";
 import { DataLoadState, ListLoadState } from "../../../../types";
 import classes from '../../../styles/nfts/NftCreate.module.scss';
-import { RequestModule } from "@/modules/request/request";
-import { getContracts } from "@/modules/configs/context";
-import { NftModule } from "@/modules/nft/modules";
-import { onError } from "@/components/modals/modal-error";
 
 export const CreateNftScreen: FC = () => {
   const theme = useMantineTheme();
@@ -186,7 +185,7 @@ export const CreateNftScreen: FC = () => {
                     }}
                   >
                     {function () {
-                      if (collections.isFetching) return <Skeleton />
+                      if (collections.isFetching) return <Skeleton h={60} radius={8}/>
 
                       if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
 
@@ -203,7 +202,10 @@ export const CreateNftScreen: FC = () => {
                             padding: '12px 12px',
                           }}
                           key={k}
-                          onClick={() => setCollection(s => ({ ...s, data: v }))}
+                          onClick={() => {
+                            setCollection(s => ({ ...s, data: v }));
+                            setOpened(false);
+                          }}
                         >
                           <Group>
                             <Image width="48" height="64" radius={12} src={v.bannerURL} />

@@ -14,7 +14,7 @@ import { renderPayment } from "@/modules/coins/utils";
 import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
-import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
+import { MarketOrder, MarketStatus, TransactionEvent } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
 import { Nft } from "@/modules/nft/types";
 import { UserModule } from "@/modules/user/modules";
@@ -39,6 +39,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [isFavourite, setIsFavourite] = useState<boolean>();
   const [comments, setComments] = useState();
   const [marketOrder, setMarketOrder] = useState<MarketOrder>();
+  const [nearestExpiryOrder, setNearestExpiryOrder] = useState<MarketOrder>();
   const [lastSoldOrder, setLastSoldOrder] = useState<MarketOrder>();
   const [marketOrders, setMarketOrders] = useState<MarketOrder[]>([]);
   const [user, setUser] = useState<DataLoadState<any>>({ isFetching: false, data: {} });
@@ -47,6 +48,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [debounced] = useDebouncedValue(search, 200);
   const [isListing, setIsListing] = useState<boolean>();
   const { isMobile, isTablet } = useResponsive();
+  const isTransferEvent = marketOrder?.event === TransactionEvent.TRANSFER;
 
   const fetchCollection = async () => {
     try {
@@ -99,17 +101,22 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
   const fetchMarketOrderOfToken = async () => {
     try {
-
       const checkListed = await MarketOrderModule.checkTokenIsListed(token.tokenID, { status: MarketStatus.ISLISTING });
-      // console.log("check is listed: ", checkListed);
       if (checkListed) {
         const res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, limit: 1, offset: 0, status: MarketStatus.ISLISTING });
         const { image, symbol } = renderPayment(res.data.order[0].paymentType);
+        //If NFT is listed for rent, we'll get the user who is renting, is about to expiry nearly
+        if (res.data.order[0].event === TransactionEvent.EXPIRY) {
+          // const nearestExpiry = await MarketOrderModule.getNearToExpireOrder(res.data.order[0].id);
+          // if (nearestExpiry.data) setNearestExpiryOrder(nearestExpiry.data);
+        }
+
         setPayment({ image, symbol });
         setIsListing(true);
         setMarketOrder(res.data.order[0]);
         setLastSoldOrder(undefined);
       } else {
+        //If NFT isn't listed, so get the nearest SOLD order
         const res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, status: MarketStatus.SOLD, sort: '-createdAt' });
         const { image, symbol } = renderPayment(res.data.order[0].paymentType);
         setPayment({ image, symbol });
@@ -233,6 +240,11 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   </Group>
                 </Group>
 
+                if (!isTransferEvent && isListing && nearestExpiryOrder) return <Group my={10} justify="space-between">
+                  <Text c={theme.colors.text[1]}>Sắp đến hạn</Text>
+                  <Text size="20px" c={theme.colors.text[1]} fw="bold">{DateTimeUtils.formatToShow(nearestExpiryOrder.endAt)}</Text>
+                </Group>
+
                 if (lastSoldOrder && !isListing) return <Group my={10} justify="space-between">
                   <Text c={theme.colors.text[1]}>Giá bán gần nhất</Text>
                   <Group gap={6}>
@@ -339,7 +351,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 </Stack>
 
                 <Stack gap={0}>
-                  <Box onClick={() => onShareToken({token})} style={{
+                  <Box onClick={() => onShareToken({ token })} style={{
                     backgroundColor: theme.colors.primary[0],
                     width: rem(72),
                     height: rem(72),
@@ -484,7 +496,12 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     </Group>
                   </Group>
 
-                  if (lastSoldOrder && !isListing) return <Group my={10} justify="space-between">
+                  if (!isTransferEvent && isListing && marketOrder) return <Group my={10} justify="space-between">
+                    <Text c={theme.colors.text[1]}>Sắp đến hạn</Text>
+                    <Text size="20px" c={theme.colors.text[1]} fw="bold">{DateTimeUtils.formatToShow(marketOrder.endAt)}</Text>
+                  </Group>
+
+                  else if (lastSoldOrder && !isListing) return <Group my={10} justify="space-between">
                     <Text c={theme.colors.text[1]}>Giá bán gần nhất</Text>
                     <Group gap={6}>
                       <Image radius={'50%'} width={28} height={28} src={payment.image} />
@@ -505,7 +522,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   color={theme.colors.primary[5]}
                   height={48}
                 >
-                  Mua ngay
+                  {isTransferEvent ? 'Mua ngay' : 'Thuê'}
                 </AppButton>}
 
                 {!isListing && account.information?.wallet === token.owner && <AppButton
@@ -516,7 +533,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   color={theme.colors.primary[5]}
                   height={48}
                 >
-                  Đăng bán
+                  Đăng bán / Cho Thuê
                 </AppButton>}
 
                 {isListing && account.information?.wallet === token.owner && <AppButton
@@ -593,7 +610,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   </Stack>
 
                   <Stack gap={0}>
-                    <Box onClick={() => onShareToken({token})} style={{
+                    <Box onClick={() => onShareToken({ token })} style={{
                       backgroundColor: theme.colors.primary[0],
                       width: isTablet ? rem(64) : rem(72),
                       height: isTablet ? rem(64) : rem(72),

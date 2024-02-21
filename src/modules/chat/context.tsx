@@ -4,7 +4,7 @@ import io, { Socket } from "socket.io-client";
 import { ChatModule } from "./modules";
 import { ChatPropsContext, ChatStatus, Message } from "./types";
 
-export const ChatContext = createContext<any>({} as any);
+export const ChatContext = createContext<ChatPropsContext>({} as any);
 
 //sever for chat
 const ENDPOINT = "http://localhost:5000";

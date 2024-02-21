@@ -1,17 +1,16 @@
+import { useAccount } from "@/modules/account/context";
+import { useChatContext } from "@/modules/chat/context";
 import { FriendRequestModule } from "@/modules/friend-request/modules";
 import { Nft } from "@/modules/nft/types";
 import { UserInformation } from "@/modules/user/types";
-import { AspectRatio, Avatar, Group, Loader, Modal, Skeleton, Stack, Text, TextInput, ThemeIcon, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Avatar, Group, Loader, Modal, Skeleton, Stack, Text, TextInput, ThemeIcon, Tooltip, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue, useDisclosure } from "@mantine/hooks";
-import { FC, useEffect, useState } from "react";
-import { ListLoadState } from "../../../types";
-import { useAccount } from "@/modules/account/context";
 import { IconCopy, IconCopyCheck, IconSearch } from "@tabler/icons-react";
+import { FC, useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { ListLoadState } from "../../../types";
 import { AppButton } from "../app/app-button";
-import { ChatContext, useChatContext } from "@/modules/chat/context";
 import { onError } from "./modal-error";
-import { EmptyMessage } from "../empty-message";
 
 interface State {
   token: Nft,
@@ -24,7 +23,6 @@ export const ModalShareNft: FC = () => {
   const [state, setState] = useState<State>();
   const [opened, { open, close }] = useDisclosure(false);
   const theme = useMantineTheme();
-  const chatContext = useChatContext();
   const [search, setSearch] = useState('');
   const [activePage, setPage] = useState(1);
   const [debounced] = useDebouncedValue(search, 200);
@@ -93,6 +91,7 @@ export const ModalShareNft: FC = () => {
     title: {
       fontWeight: 500,
       fontSize: '24px',
+      color: theme.colors.text[1]
     }
   }}>
     <Stack>
@@ -104,7 +103,7 @@ export const ModalShareNft: FC = () => {
           borderRadius: '8px',
           padding: '14px 16px'
         }}>
-          <Text fw={500} flex={8} style={{
+          <Text c={theme.colors.text[1]} fw={500} flex={8} style={{
             wordBreak: 'break-word'
           }}>{message}</Text>
           <AspectRatio ratio={64 / 48} w={64} style={{
@@ -116,20 +115,20 @@ export const ModalShareNft: FC = () => {
         </Group>
       }()}
 
-      <ThemeIcon variant="light" radius="xl" size={64} p={12} style={{
+      <Tooltip label="Sao chép liên kết"><ThemeIcon variant="light" radius="xl" size={64} p={12} style={{
         cursor: 'pointer'
       }}>
         {clipboard.copied ? <IconCopyCheck
-          color={theme.colors.gray[8]}
+          color={theme.colors.gray[7]}
           size={36}
           stroke={1.5}
         /> : <IconCopy
-          color={theme.colors.gray[8]}
+          color={theme.colors.gray[7]}
           onClick={() => clipboard.copy(message)}
           size={36}
           stroke={1.5}
         />}
-      </ThemeIcon>
+      </ThemeIcon></Tooltip>
 
       <TextInput
         onChange={(e) => setSearch(e.target.value)}

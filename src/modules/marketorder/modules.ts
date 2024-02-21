@@ -4,10 +4,10 @@ import { AppPayment, ListLoadState } from "../../../types";
 import { CoinsModule } from "../coins/modules";
 import { getPaymentContract } from "../coins/utils";
 import { getContracts } from "../configs/context";
+import { Nft } from "../nft/types";
 import { RequestModule } from "../request/request";
 import { TokenModule } from "../token/modules";
 import { MarketOrder, MarketOrderPayload, MarketOrderQuery, MarketStatus, TransactionEvent } from "./types";
-import { Nft } from "../nft/types";
 
 export class MarketOrderModule {
   static async create(payload: MarketOrderPayload) {
@@ -25,7 +25,12 @@ export class MarketOrderModule {
     return RequestModule.get(`/api/v1/orders`, query);
   }
 
-  static async checkTokenIsListed(id: string, query: MarketOrderQuery): Promise<ListLoadState<MarketOrder, 'order'>> {
+  static async getNearToExpireOrder(orderId: string) {
+    return RequestModule.get(`/api/v1/orders/near-to-expire/${orderId}`)
+  }
+
+  //Update: check coi seller có đúng là owner của tokenID không?
+  static async checkTokenIsListed(id: string, query: MarketOrderQuery): Promise<any> {
     const checkListed = (await RequestModule.get(`/api/v1/orders/${id}/isListed`, query)).data.isListed;
     return checkListed;
   }
@@ -34,16 +39,18 @@ export class MarketOrderModule {
     return RequestModule.put(`/api/v1/orders/${id}`, payload);
   }
 
-  static async purchaseItem(order: MarketOrder) {
+  static async purchaseItem(order: MarketOrder, payload?: {startAt: Date, endAt: Date, price: any}) {
     const balances = await CoinsModule.fetchUserBalance();
+    const price = order.event === TransactionEvent.TRANSFER ? order.price : payload?.price;
 
-    if (order.price > balances[order.paymentType]) throw new Error("Số dư ví không đủ");
+    if (price > balances[order.paymentType]) throw new Error("Số dư ví không đủ");
     
     const contractMarket = getContracts().ercs.MARKETPLACE;
     let txReceipt;
     
+    //Handle buy bt ETH
     if (order.paymentType !== AppPayment.BCT) {
-      console.log("buy by ETH")
+      console.log("buy by ETH", order.tokenID)
       txReceipt = await contractMarket.send({
         method: 'buyNftbyETH',
         args: [order.tokenID],
@@ -52,7 +59,7 @@ export class MarketOrderModule {
         }
       });
     } else {
-      console.log("buy by erc20 token")
+      //Approve for Operator to use Amount of tokens of user
       await getPaymentContract(order.paymentType)?.approve({
         operator: contractMarket.address,
         amount: order.price
@@ -67,10 +74,30 @@ export class MarketOrderModule {
       });
     }
 
-    const payloadUpdate = { status: MarketStatus.SOLD, buyer: getWallet() };
-    await this.update(order!.id, payloadUpdate);
+    //Update MarketOrder Status
+    if (order.event === TransactionEvent.TRANSFER) {
+      const payloadUpdate = { status: MarketStatus.SOLD, buyer: getWallet() };
+      await this.update(order!.id, payloadUpdate);
+    } else {
+      //Create a market order for renter
+      const res = await this.create({
+        event: TransactionEvent.EXPIRY,
+        chainID: order.chainID,
+        tokenID: order.tokenID,
+        tokenAddress: order.tokenAddress,
+        paymentType: order.paymentType,
+        price,
+        seller: order.seller,
+        buyer: getWallet()!,
+        status: MarketStatus.ISRENTING,
+        startAt: payload?.startAt,
+        endAt: payload?.endAt,
+        limitUsers: order.limitUsers,
+        usageRight: order.usageRight
+      })
+    } 
 
-    //force update
+    //force update balances
     await CoinsModule.fetchUserBalance();
   }
 
@@ -82,9 +109,11 @@ export class MarketOrderModule {
     if (status === MarketStatus.SOLD) return "Đã bán";
     if (status === MarketStatus.ISLISTING) return "Đang bán";
     if (status === MarketStatus.CANCELLED) return "Đã hủy";
+    if (status === MarketStatus.ISRENTING) return "Đang thuê";
   }
 
   static getMarketEvent(status: TransactionEvent) {
     if (status === TransactionEvent.TRANSFER) return "Mua bán";
+    if (status === TransactionEvent.EXPIRY) return "Thuê";
   }
 }

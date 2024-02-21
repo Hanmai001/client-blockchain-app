@@ -86,4 +86,41 @@ export class DateTimeUtils {
     console.warn('Cannot find any range of hours')
     return 1
   }
+
+  static parseDate = (dateString: string): Date | null => {
+    const [time, date] = dateString.split(' ');
+
+    if (!time || !date) {
+      return null;
+    }
+
+    const [hours, minutes] = time.split(':').map(Number);
+    const [month, day, year] = date.split('/').map(Number);
+
+    if (isNaN(hours) || isNaN(minutes) || isNaN(month) || isNaN(day) || isNaN(year)) {
+      return null;
+    }
+
+    return new Date(year, month - 1, day, hours, minutes);
+  };
+
+  static parseStringToDates = (value: string): [Date | null, Date | null] => {
+    const parts = value.split(' - ');
+    if (parts.length !== 2) {
+      return [null, null];
+    }
+
+    const startDate = this.parseDate(parts[0]);
+    const endDate = this.parseDate(parts[1]);
+
+    return [startDate, endDate];
+  };
+
+  static countDays = (dateOne: any, dateTwo: any) => {
+    const date1 = new Date(dateOne);
+    const date2 = new Date(dateTwo);
+    const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    return daysDiff;
+  }
 }
