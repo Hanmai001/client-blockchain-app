@@ -29,7 +29,7 @@ import { getChainId } from "@/share/blockchain/context";
 import { StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Box, Card, Grid, Group, Pagination, Skeleton, Stack, Tabs, Text, TextInput, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue, useHover } from "@mantine/hooks";
-import { IconCheck, IconCopy, IconEdit, IconFriendsOff, IconLockAccess, IconMessage, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
+import { IconCheck, IconCopy, IconCopyCheck, IconEdit, IconFriendsOff, IconLockAccess, IconMessage, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -361,7 +361,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   const handleStartChat = async () => {
     try {
-      const data = await chatContext.checkIfAvailableChat(props.user.wallet);
+      const data = await chatContext.checkIfAvailableChat(props.user.wallet!);
       if (!data) {
         await chatContext.createChat({ firstUser: account.information?.wallet, secondUser: props.user.wallet });
       } else await chatContext.handleChangeChat(data.id, data.secondUser);
@@ -430,14 +430,18 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         top: rem(60)
       }}>
         <Text c={theme.colors.gray[7]}>{StringUtils.compact(props.user.wallet, 6, 5)}</Text>
-        <ActionIcon
+        {clipboard.copied ? <ActionIcon
+          c={theme.colors.gray[7]}
+          variant="transparent"
+        >
+          <IconCopyCheck size={20} stroke={1.5} />
+        </ActionIcon> : <ActionIcon
           c={theme.colors.gray[7]}
           variant="transparent"
           onClick={() => clipboard.copy(props.user.wallet)}
         >
           <IconCopy size={20} stroke={1.5} />
-        </ActionIcon>
-        {clipboard.copied && <Text c={theme.colors.gray[7]}>Đã sao chép</Text>}
+        </ActionIcon>}
 
         {!isSignedUser && !isFriend && !isPending && <AppButton
           onClick={handleAddfriend}
@@ -585,24 +589,24 @@ const TabNfts: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, i
         console.log("list tokens: ", listItems)
       }
       if (filter === NftStatus.SOLD) {
-        listItems = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, active: isSignedUser ? null : true });
+        listItems = await MarketOrderModule.getTokensStatus({ status: MarketStatus.SOLD, active: isSignedUser ? null : true });
         console.log("list tokens: ", listItems)
       } else {
         listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, active: isSignedUser ? null : true });
       }
 
-      if (filter === NftStatus.ISLISTING || filter === NftStatus.SOLD) {
-        const nfts = [];
-        for (const v of listItems.data.tokens) {
-          const checkIsListing = await MarketOrderModule.checkTokenIsListed(v.tokenID, { status: MarketStatus.ISLISTING });
+      // if (filter === NftStatus.ISLISTING || filter === NftStatus.SOLD) {
+      //   const nfts = [];
+      //   for (const v of listItems.data.tokens) {
+      //     const checkIsSatisfied = await MarketOrderModule.checkTokenIsListed(v.tokenID, { status: filter });
 
-          if (checkIsListing) {
-            nfts.push(v);
-          }
-        }
-        listItems.data.tokens = nfts;
-        listItems.data.count = nfts.length;
-      }
+      //     if (checkIsSatisfied) {
+      //       nfts.push(v);
+      //     }
+      //   }
+      //   listItems.data.tokens = nfts;
+      //   listItems.data.count = nfts.length;
+      // }
 
       if (search.length > 0 && !!listItems.data.tokens) {
         const nfts = listItems.data.tokens.filter((v: any, k: any) => {
@@ -616,7 +620,6 @@ const TabNfts: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, i
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {
       setTokens(s => ({ ...s, isFetching: false }));
-      // onError(error);
     }
   }
 

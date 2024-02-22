@@ -1,15 +1,14 @@
-import React, { FC, useState } from "react";
-import { AppRoutes } from "../../../app-router";
-import { IconChevronRight, IconDashboard, IconGauge, IconNotes, IconUsersGroup } from "@tabler/icons-react";
-import { useAccount } from "@/modules/account/context";
-import { useBlockChain } from "@/share/blockchain/context";
-import { useResponsive } from "@/modules/app/hooks";
-import { useRouter } from "next/router";
+import { Box, Button, Collapse, Divider, Group, Image, Stack, ThemeIcon, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
+import { IconBuilding, IconChevronRight, IconGauge, IconMenu2, IconNotes, IconUsersGroup } from "@tabler/icons-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Box, Button, Collapse, Group, Text, ThemeIcon, Tooltip, UnstyledButton, rem } from "@mantine/core";
+import { useRouter } from "next/router";
+import { FC, useState } from "react";
 import classes from '../../styles/admin/AdminNavBar.module.scss';
 
 export const AdminNavbar: FC = () => {
+  const theme = useMantineTheme();
+
   const navLinks = [
     { label: 'Dashboard', icon: IconGauge, link: '/admin' },
     {
@@ -18,31 +17,27 @@ export const AdminNavbar: FC = () => {
       initiallyOpened: true,
       links: [
         { label: 'Người dùng', icon: IconUsersGroup, link: '#' },
+        { label: 'Người dùng', icon: IconUsersGroup, link: '#' },
+        { label: 'Người dùng', icon: IconUsersGroup, link: '#' },
       ],
     },
+    { label: 'Hệ thống', icon: IconBuilding, link: '/#' },
   ]
 
-  // const links = navLinks.map((item) => (
-  //   <a
-  //     // className={classes.link}
-  //     data-active={pathname === item.link || undefined}
-  //     // href={item.link}
-  //     key={item.label}
-  //     onClick={(event) => {
-  //       router.push(item.link);
-  //     }}
-  //   >
-  //     <Tooltip label={item.label} disabled={isDesktop ? true : false} position="right">
-  //       <item.icon
-  //       // className={classes.linkIcon} 
-  //       />
-  //     </Tooltip>
-  //     {isDesktop && <span>{item.label}</span>}
-  //   </a>
-  // ));
-
   return <nav>
-    {navLinks.map((v, k) => <LinksGroup key={k} {...v} />)}
+    <Stack p={10} gap="xs">
+      <Group justify="space-between">
+        <Link href={'/'}>
+          <Image className={classes.logo} src='/images/logo.png' />
+        </Link>
+
+        <IconMenu2 color={theme.colors.text[1]} stroke={1.5}/>
+      </Group>
+
+      <Divider color="none" my={5}/>
+
+      {navLinks.map((v, k) => <LinksGroup key={k} {...v} />)}
+    </Stack>
   </nav>
 }
 
@@ -59,11 +54,13 @@ export const LinksGroup: FC<LinksGroupProps> = (props) => {
   const [opened, setOpened] = useState(props.initiallyOpened || false);
   const router = useRouter();
   const pathname = usePathname();
+  const theme = useMantineTheme();
 
   const items = (Array.isArray(props.links) ? props.links : []).map((link) => (
     <Button<'a'>
       component="a"
       className={classes.linkGroup}
+      color={theme.colors.text[1]}
       href={link.link}
       leftSection={<link.icon />}
       key={link.label}
@@ -74,10 +71,11 @@ export const LinksGroup: FC<LinksGroupProps> = (props) => {
     </Button>
   ));
 
-  return <>
+  return <Box>
     <UnstyledButton onClick={() => setOpened((o) => !o)} h={70} className={classes.control}>
       <Group w={'100%'} h={'100%'} justify="space-between" gap={0}>
         <Button<'a'>
+          color={theme.colors.text[1]}
           data-active={pathname === props.link || undefined}
           component="a"
           className={classes.link}
@@ -102,7 +100,7 @@ export const LinksGroup: FC<LinksGroupProps> = (props) => {
             }
           }}
         >
-          <ThemeIcon mr='md' variant="light" size={30}>
+          <ThemeIcon mr='md' variant="transparent" size={30}>
             <props.icon style={{ width: rem(18), height: rem(18) }} />
           </ThemeIcon>
           {props.label}
@@ -111,5 +109,5 @@ export const LinksGroup: FC<LinksGroupProps> = (props) => {
     </UnstyledButton>
 
     {hasLinks ? <Collapse in={opened}>{items}</Collapse> : null}
-  </>
+  </Box>
 }

@@ -1,5 +1,5 @@
 import { AppButton } from "@/components/app/app-button";
-import { Account } from "@/components/app/app-header";
+import { Account, AppHeader } from "@/components/app/app-header";
 import { AppLoading } from "@/components/app/app-loading";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { EmptyMessage } from "@/components/empty-message";
@@ -100,22 +100,22 @@ export const CreateNftScreen: FC = () => {
 
   return (
     <BoundaryConnectWallet>
+      <AppHeader />
+
       {isUploading && <AppLoading visible={isUploading} />}
-      <Stack px={isMobile ? 15 : 40} mt={20}>
+      <Stack px={isMobile ? 15 : 40} mt={70}>
         <form onSubmit={onSubmit}>
-          <Group justify="space-between">
+          {/* <Group justify="space-between">
             <Group>
               <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
                 <IconArrowLeft color={theme.colors.dark[5]} size={18} />
               </AppButton>
 
               <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
-
-              {/* <Image src='/images/logo.png' w={128} /> */}
             </Group>
 
             <Account />
-          </Group>
+          </Group> */}
 
           <Grid mt={20} gutter={isDesktop ? 40 : 0}>
             <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>

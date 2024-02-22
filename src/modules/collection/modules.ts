@@ -1,4 +1,5 @@
 import { ListLoadState } from "../../../types";
+import { CoinsModule } from "../coins/modules";
 import { getContracts } from "../configs/context";
 import { RequestModule } from "../request/request";
 import { TokenModule } from "../token/modules";
@@ -40,6 +41,7 @@ export class CollectionModule {
 
     const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString() };
     await this.updateAfterMint(res.data.collection.id, payloadUpdate);
+    await CoinsModule.fetchUserBalance();
   }
 
   static async updateCollection(payload: CollectionUpdatePayload, checkMetadataChanged: boolean): Promise<Collection> {

@@ -7,6 +7,7 @@ import { onBuyNft } from "@/components/modals/modal-buy-nft";
 import { onCancel } from "@/components/modals/modal-cancel";
 import { onError } from "@/components/modals/modal-error";
 import { onListNft } from "@/components/modals/modal-list-nft";
+import { onShareToken } from "@/components/modals/modal-share-nft";
 import { onSuccess } from "@/components/modals/modal-success";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
@@ -20,14 +21,13 @@ import { Nft } from "@/modules/nft/types";
 import { UserModule } from "@/modules/user/modules";
 import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Avatar, Box, Card, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Avatar, Box, Card, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, ThemeIcon, Title, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
-import { IconCopy, IconCopyCheck, IconEye, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
+import { IconCopy, IconCopyCheck, IconDownload, IconEye, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { DataLoadState } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
-import { onShareToken } from "@/components/modals/modal-share-nft";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
@@ -184,6 +184,10 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     }
   }
 
+  const handleDownload = async () => {
+
+  }
+
   useEffect(() => {
     fetchUser();
     checkLikeFavourite();
@@ -224,7 +228,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 borderRadius: theme.radius.md
               }}>
                 <video
-                  controls
+                  controls={false}
                   controlsList="nodownload"
                   src={token.source}
                   onContextMenu={handleContextMenu}
@@ -235,7 +239,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 if (marketOrder && isListing) return <Group my={10} justify="space-between">
                   <Text c={theme.colors.text[1]}>Giá hiện tại</Text>
                   <Group gap={6}>
-                    <Image width={28} height={28} src={payment.image} />
+                    <Image width={28} height={28} src={payment.image} radius={'50%'} />
                     <Text size="20px" c={theme.colors.text[1]} fw="bold">{marketOrder.price} {payment.symbol}</Text>
                   </Group>
                 </Group>
@@ -474,10 +478,13 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
             </Stack> : <Group align="flex-start" gap={30}>
               <Card flex={isTablet ? 6 : 4} w={500} p={0}>
                 <Card.Section>
-                  <AspectRatio ratio={100 / 120} style={{
-                    overflow: 'hidden',
-                    borderRadius: theme.radius.md
-                  }}>
+                  <AspectRatio
+                    ratio={100 / 120}
+                    style={{
+                      overflow: 'hidden',
+                      borderRadius: theme.radius.md,
+                      position: 'relative'
+                    }}>
                     <video
                       controls
                       controlsList="nodownload"
@@ -491,7 +498,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   if (marketOrder && isListing) return <Group my={10} justify="space-between">
                     <Text c={theme.colors.text[1]}>Giá hiện tại</Text>
                     <Group gap={6}>
-                      <Image width={28} height={28} src={payment.image} />
+                      <Image width={28} height={28} src={payment.image} radius={'50%'} />
                       <Text size="20px" c={theme.colors.text[1]} fw="bold">{marketOrder.price} {payment.symbol}</Text>
                     </Group>
                   </Group>
@@ -565,84 +572,89 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   </Group>
                 </Group>
 
-                <Group mt={20}>
-                  <Stack gap={0}>
-                    <Box onClick={handleLike} style={{
-                      backgroundColor: theme.colors.primary[0],
-                      width: isTablet ? rem(64) : rem(72),
-                      height: isTablet ? rem(64) : rem(72),
-                      display: "flex",
-                      justifyContent: "center",
-                      alignContent: "center",
-                      flexWrap: "wrap",
-                      borderRadius: '50%'
-                    }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" color={isLiked ? "#d65076" : theme.colors.primary[5]} width={isTablet ? "36" : "48"} height={isTablet ? "36" : "48"} viewBox="0 0 24 24" fill="none" stroke="#8c36fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        className={isLiked ? classes.iconButtonLiked : ''}
+                <Group mt={20} justify="space-between">
+                  <Group>
+                    <Stack gap={0}>
+                      <ActionIcon
+                        onClick={handleLike}
+                        size={isTablet ? rem(64) : rem(72)}
+                        radius='50%'
+                        variant="light"
+                        bg={theme.colors.primary[0]}
+                        c={theme.colors.gray[7]}
                       >
-                        <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" fill="currentColor" strokeWidth="0">
-                        </path>
-                      </svg>
-                    </Box>
+                        <svg xmlns="http://www.w3.org/2000/svg" color={isLiked ? "#d65076" : theme.colors.primary[5]} width={isTablet ? "36" : "48"} height={isTablet ? "36" : "48"} viewBox="0 0 24 24" fill="none" stroke="#8c36fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          className={isLiked ? classes.iconButtonLiked : ''}
+                        >
+                          <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" fill="currentColor" strokeWidth="0">
+                          </path>
+                        </svg>
+                      </ActionIcon>
 
-                    <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.listOfLikedUsers.length || 0}</Text>
-                  </Stack>
+                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.listOfLikedUsers.length || 0}</Text>
+                    </Stack>
 
-                  <Stack gap={0}>
-                    <Box onClick={handleFavourite} style={{
-                      backgroundColor: theme.colors.primary[0],
-                      width: isTablet ? rem(64) : rem(72),
-                      height: isTablet ? rem(64) : rem(72),
-                      display: "flex",
-                      justifyContent: "center",
-                      alignContent: "center",
-                      flexWrap: "wrap",
-                      borderRadius: '50%'
-                    }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" color={isFavourite ? theme.colors.yellow[6] : theme.colors.primary[5]} width={isTablet ? "36" : "48"} height={isTablet ? "36" : "48"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        className={isFavourite ? classes.iconButtonLiked : ''}
+                    <Stack gap={0}>
+                      <ActionIcon
+                        onClick={handleFavourite}
+                        size={isTablet ? rem(64) : rem(72)}
+                        radius='50%'
+                        variant="light"
+                        bg={theme.colors.primary[0]}
+                        c={theme.colors.gray[7]}
                       >
-                        <path d="M14 2a5 5 0 0 1 5 5v14a1 1 0 0 1 -1.555 .832l-5.445 -3.63l-5.444 3.63a1 1 0 0 1 -1.55 -.72l-.006 -.112v-14a5 5 0 0 1 5 -5h4z" fill="currentColor" strokeWidth="0"></path>
-                      </svg>
-                    </Box>
+                        <svg xmlns="http://www.w3.org/2000/svg" color={isFavourite ? theme.colors.yellow[6] : theme.colors.primary[5]} width={isTablet ? "36" : "48"} height={isTablet ? "36" : "48"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          className={isFavourite ? classes.iconButtonLiked : ''}
+                        >
+                          <path d="M14 2a5 5 0 0 1 5 5v14a1 1 0 0 1 -1.555 .832l-5.445 -3.63l-5.444 3.63a1 1 0 0 1 -1.55 -.72l-.006 -.112v-14a5 5 0 0 1 5 -5h4z" fill="currentColor" strokeWidth="0"></path>
+                        </svg>
+                      </ActionIcon>
 
-                    <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.listOfFavoriteUsers.length || 0}</Text>
-                  </Stack>
+                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.listOfFavoriteUsers.length || 0}</Text>
+                    </Stack>
+
+                    <Stack gap={0}>
+                      <ActionIcon
+                        onClick={() => onShareToken({ token })}
+                        size={isTablet ? rem(64) : rem(72)}
+                        radius='50%'
+                        variant="light"
+                        bg={theme.colors.primary[0]}
+                        c={theme.colors.gray[7]}
+                      >
+                        <IconShare width={42} height={42} color={theme.colors.primary[5]} />
+                      </ActionIcon>
+
+                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.totalShare || 0}</Text>
+                    </Stack>
+
+                    <Stack gap={0}>
+                      <ActionIcon
+                        size={isTablet ? rem(64) : rem(72)}
+                        radius='50%'
+                        variant="light"
+                        bg={theme.colors.primary[0]}
+                        c={theme.colors.gray[7]}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" color={theme.colors.primary[5]} width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5.821 4.91c3.898 -2.765 9.469 -2.539 13.073 .536c3.667 3.127 4.168 8.238 1.152 11.897c-2.842 3.447 -7.965 4.583 -12.231 2.805l-.232 -.101l-4.375 .931l-.075 .013l-.11 .009l-.113 -.004l-.044 -.005l-.11 -.02l-.105 -.034l-.1 -.044l-.076 -.042l-.108 -.077l-.081 -.074l-.073 -.083l-.053 -.075l-.065 -.115l-.042 -.106l-.031 -.113l-.013 -.075l-.009 -.11l.004 -.113l.005 -.044l.02 -.11l.022 -.072l1.15 -3.451l-.022 -.036c-2.21 -3.747 -1.209 -8.392 2.411 -11.118l.23 -.168z" fill="currentColor" strokeWidth="0"></path>
+                        </svg>
+                      </ActionIcon>
+
+                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>0</Text>
+                    </Stack>
+                  </Group>
 
                   <Stack gap={0}>
-                    <Box onClick={() => onShareToken({ token })} style={{
-                      backgroundColor: theme.colors.primary[0],
-                      width: isTablet ? rem(64) : rem(72),
-                      height: isTablet ? rem(64) : rem(72),
-                      display: "flex",
-                      justifyContent: "center",
-                      alignContent: "center",
-                      flexWrap: "wrap",
-                      borderRadius: '50%'
-                    }}>
-                      <IconShare width={42} height={42} color={theme.colors.primary[5]} />
-                    </Box>
-
-                    <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.totalShare || 0}</Text>
-                  </Stack>
-
-                  <Stack gap={0}>
-                    <Box style={{
-                      backgroundColor: theme.colors.primary[0],
-                      width: isTablet ? rem(64) : rem(72),
-                      height: isTablet ? rem(64) : rem(72),
-                      display: "flex",
-                      justifyContent: "center",
-                      alignContent: "center",
-                      flexWrap: "wrap",
-                      borderRadius: '50%'
-                    }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" color={theme.colors.primary[5]} width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M5.821 4.91c3.898 -2.765 9.469 -2.539 13.073 .536c3.667 3.127 4.168 8.238 1.152 11.897c-2.842 3.447 -7.965 4.583 -12.231 2.805l-.232 -.101l-4.375 .931l-.075 .013l-.11 .009l-.113 -.004l-.044 -.005l-.11 -.02l-.105 -.034l-.1 -.044l-.076 -.042l-.108 -.077l-.081 -.074l-.073 -.083l-.053 -.075l-.065 -.115l-.042 -.106l-.031 -.113l-.013 -.075l-.009 -.11l.004 -.113l.005 -.044l.02 -.11l.022 -.072l1.15 -3.451l-.022 -.036c-2.21 -3.747 -1.209 -8.392 2.411 -11.118l.23 -.168z" fill="currentColor" strokeWidth="0"></path>
-                      </svg>
-                    </Box>
-
-                    <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>0</Text>
+                    <ActionIcon
+                      onClick={handleDownload}
+                      size={isTablet ? rem(24) : rem(36)}
+                      radius='50%'
+                      variant="transparent"
+                      c={theme.colors.gray[7]}
+                    >
+                      <IconDownload stroke={1.5} width={isTablet ? 24 : 36} height={isTablet ? 24 : 36} />
+                    </ActionIcon>
                   </Stack>
                 </Group>
 

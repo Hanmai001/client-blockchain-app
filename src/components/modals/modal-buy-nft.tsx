@@ -67,7 +67,9 @@ export const ModalBuyNft: FC = () => {
   }
 
   useEffect(() => {
-    setPrice(state?.order?.price! * (DateTimeUtils.countDays(currentDate, maxDate)));
+    if (isTransferEvent) setPrice(state?.order?.price);
+    else setPrice(state?.order?.price! * (DateTimeUtils.countDays(currentDate, maxDate)));
+
     setSelectedToken(state?.order?.paymentType);
   }, [state])
 

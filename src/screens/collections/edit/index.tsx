@@ -1,21 +1,21 @@
 import { AppButton } from "@/components/app/app-button";
-import { Account } from "@/components/app/app-header";
+import { AppHeader } from "@/components/app/app-header";
 import { AppLoading } from "@/components/app/app-loading";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
+import { MyCombobox } from "@/components/combobox/my-combobox";
 import { MediaInput } from "@/components/input/media-input";
 import { onError } from "@/components/modals/modal-error";
 import { onSuccess } from "@/components/modals/modal-success";
 import { useResponsive } from "@/modules/app/hooks";
+import { CollectionModule } from "@/modules/collection/modules";
 import { Collection, CollectionUpdatePayload } from "@/modules/collection/types";
 import { RequestModule } from "@/modules/request/request";
 import { chains } from "@/share/blockchain/chain";
-import { Group, Select, Stack, Switch, TextInput, Textarea, Title, useMantineTheme } from "@mantine/core";
+import { Group, Select, Stack, Switch, TextInput, Textarea, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconArrowLeft, IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
+import { IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
-import { CollectionModule } from "@/modules/collection/modules";
-import classes from '../../../styles/components/combobox.module.scss';
-import { MyCombobox } from "@/components/combobox/my-combobox";
+import classes from '../../../styles/collections/CollectionCreate.module.scss';
 
 export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const theme = useMantineTheme();
@@ -100,24 +100,12 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
 
   return (
     <BoundaryConnectWallet>
+      <AppHeader />
+
       {isUploading && <AppLoading visible={isUploading} />}
 
-      <Stack px={40} mt={20}>
+      <Stack px={40} mt={70}>
         <form onSubmit={onSubmit}>
-          <Group justify="space-between">
-            <Group>
-              <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
-                <IconArrowLeft color={theme.colors.dark[5]} size={18} />
-              </AppButton>
-
-              <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
-
-              {/* <Image src='/images/logo.png' w={128} /> */}
-            </Group>
-
-            <Account />
-          </Group>
-
           <Group mt={20} maw={800} style={{
             margin: 'auto'
           }}>

@@ -13,11 +13,14 @@ export class MarketOrderModule {
   static async create(payload: MarketOrderPayload) {
     const contractMarket = getContracts().ercs.MARKETPLACE;
 
-    const contract = TokenModule.getContractERC721(payload.tokenAddress);
-    await contract.approve({
-      operator: contractMarket.address,
-      tokenId: payload.tokenID
-    });
+    if (payload.event === TransactionEvent.TRANSFER) {
+      const contract = TokenModule.getContractERC721(payload.tokenAddress);
+      await contract.approve({
+        operator: contractMarket.address,
+        tokenId: payload.tokenID
+      });
+    }
+    
     return RequestModule.post(`/api/v1/orders`, payload);
   }
 
@@ -47,38 +50,63 @@ export class MarketOrderModule {
     
     const contractMarket = getContracts().ercs.MARKETPLACE;
     let txReceipt;
-    
-    //Handle buy bt ETH
-    if (order.paymentType !== AppPayment.BCT) {
-      console.log("buy by ETH", order.tokenID)
-      txReceipt = await contractMarket.send({
-        method: 'buyNftbyETH',
-        args: [order.tokenID],
-        params: {
-          value: ethers.parseEther(order.price.toString()).toString()
-        }
-      });
-    } else {
-      //Approve for Operator to use Amount of tokens of user
-      await getPaymentContract(order.paymentType)?.approve({
-        operator: contractMarket.address,
-        amount: order.price
-      });
 
-      txReceipt = await contractMarket.send({
-        method: 'buyNftbyErc20',
-        args: [order.tokenID, getContracts().erc20s.BCT.address],
-        params: {
-          value: ethers.parseEther(order.price.toString()).toString()
-        }
-      });
-    }
-
-    //Update MarketOrder Status
+    //Buy NFT
     if (order.event === TransactionEvent.TRANSFER) {
+      //Handle buy bt ETH
+      if (order.paymentType !== AppPayment.BCT) {
+        console.log("buy by ETH", order.tokenID)
+        txReceipt = await contractMarket.send({
+          method: 'buyNftbyETH',
+          args: [order.tokenID],
+          params: {
+            value: ethers.parseEther(order.price.toString()).toString()
+          }
+        });
+      } else {
+        //Approve for Operator to use Amount of tokens of user
+        await getPaymentContract(order.paymentType)?.approve({
+          operator: contractMarket.address,
+          amount: order.price
+        });
+
+        txReceipt = await contractMarket.send({
+          method: 'buyNftbyErc20',
+          args: [order.tokenID, getContracts().erc20s.BCT.address],
+          params: {
+            value: ethers.parseEther(order.price.toString()).toString()
+          }
+        });
+      }
+
       const payloadUpdate = { status: MarketStatus.SOLD, buyer: getWallet() };
       await this.update(order!.id, payloadUpdate);
     } else {
+      if (order.paymentType !== AppPayment.BCT) {
+        console.log("Rent by ETH", order.tokenID)
+        txReceipt = await contractMarket.send({
+          method: 'rentNftbyETH',
+          args: [order.tokenID],
+          params: {
+            value: ethers.parseEther(order.price.toString()).toString()
+          }
+        });
+      } else {
+        //Approve for Operator to use Amount of tokens of user
+        await getPaymentContract(order.paymentType)?.approve({
+          operator: contractMarket.address,
+          amount: order.price
+        });
+
+        txReceipt = await contractMarket.send({
+          method: 'rentNftbyErc20',
+          args: [order.tokenID, getContracts().erc20s.BCT.address],
+          params: {
+            value: ethers.parseEther(order.price.toString()).toString()
+          }
+        });
+      }
+
       //Create a market order for renter
       const res = await this.create({
         event: TransactionEvent.EXPIRY,

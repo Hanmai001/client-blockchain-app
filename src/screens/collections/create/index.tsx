@@ -1,5 +1,5 @@
 import { AppButton } from "@/components/app/app-button";
-import { Account } from "@/components/app/app-header";
+import { Account, AppHeader } from "@/components/app/app-header";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { MediaInput } from "@/components/input/media-input";
 import { onError } from "@/components/modals/modal-error";
@@ -101,23 +101,22 @@ export const CollectionCreateScreen: FC = () => {
 
   return (
     <BoundaryConnectWallet>
-      {isUploading && <AppLoading visible={isUploading} />}
+      <AppHeader />
 
-      <Stack px={isMobile ? 15 : 40} mt={20}>
+      {isUploading && <AppLoading visible={isUploading} />}
+      <Stack px={isMobile ? 15 : 40} mt={70}>
         <form onSubmit={onSubmit}>
-          <Group justify="space-between">
+          {/* <Group justify="space-between">
             <Group>
               <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
                 <IconArrowLeft color={theme.colors.dark[5]} size={18} />
               </AppButton>
 
               <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
-
-              {/* <Image src='/images/logo.png' w={128} /> */}
             </Group>
 
             <Account />
-          </Group>
+          </Group> */}
 
           <Grid mt={20} gutter={80}>
             <Grid.Col span={{ base: 12, md: 7, lg: 7 }}>

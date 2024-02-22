@@ -7,10 +7,10 @@ import { AdminNavbar } from "./admin-navbar";
 
 export const AdminWrapper: FC<PropsWithChildren> = (props) => {
   const [opened, { toggle }] = useDisclosure();
-  
+
   return (
     <AppShell
-      header={{ height: 70 }}
+      // header={{ height: 70 }}
       navbar={{ width: { sm: 70, md: 240, lg: 240 }, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       styles={{
         navbar: {
@@ -21,9 +21,6 @@ export const AdminWrapper: FC<PropsWithChildren> = (props) => {
           //   width: '70px',
           // },
         },
-        header: {
-          // border: 'none'
-        },
         footer: {
           display: "block",
           position: "relative",
@@ -32,20 +29,17 @@ export const AdminWrapper: FC<PropsWithChildren> = (props) => {
       }}
     >
       <AppTitle />
-      <AppShell.Header style={{ zIndex: 99 }}>
+      <AppShell.Header zIndex={99}>
         <AdminHeader />
       </AppShell.Header>
 
-      <AppShell.Navbar style={{ zIndex: 99 }}>
+      <AppShell.Navbar zIndex={100}>
         <AdminNavbar />
       </AppShell.Navbar>
 
-      <AppShell.Main style={{ zIndex: 99 }}>
+      <AppShell.Main mt={70}>
         {props.children}
       </AppShell.Main>
-
-      <AppShell.Footer>
-      </AppShell.Footer>
     </AppShell>
   )
 }

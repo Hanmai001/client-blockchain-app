@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { AppRoutes } from "../../../app-router";
-import classes from '../../styles/app/AppHeader.module.scss';
+import classes from '../../styles/admin/AdminHeader.module.scss';
 import { Balances } from "../account-balances";
 import { AccountInfo } from "../account-info";
 import { AppButton } from "../app/app-button";
@@ -20,11 +20,7 @@ export const AdminHeader: FC = () => {
   const [search, setSearch] = useState<string>();
   const theme = useMantineTheme();
   return <header className={classes.headerNormal}>
-    <Group grow justify="space-between" align="center" h={'100%'}>
-      <Link href={'/'}>
-        <Image className={classes.logo} src='/images/logo.png' />
-      </Link>
-
+    <Group ml={240} grow justify="space-between" align="center" h={'100%'}>
       <Group>
         <TextInput
           onChange={(e) => setSearch(e.target.value)}
@@ -116,7 +112,9 @@ const Account: FC = () => {
     <Menu shadow="md" width={210} trigger="click-hover" openDelay={100} closeDelay={200} offset={10} closeOnItemClick={false}>
       <Menu.Target>
         <UnstyledButton>
-          <AccountInfo account={account.information as any} />
+          <AccountInfo account={account.information as any} style={{
+            color: theme.colors.text[0]
+          }} />
         </UnstyledButton>
       </Menu.Target>
 

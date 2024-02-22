@@ -2,7 +2,8 @@
   font-weight: 500;
   display: block;
   width: 100%;
-  padding: 12px 15px;
+  height: 50px !important;
+  // padding: 12px 15px;
   color: var(--mantine-color-text);
   font-size: var(--mantine-font-size-sm);
 
@@ -10,6 +11,10 @@
     background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
     color: light-dark(var(--mantine-color-black), var(--mantine-color-dark-0));
   }
+}
+
+.logo {
+  width: 164px;
 }
 
 .link {
@@ -42,15 +47,12 @@
 }
 
 .linkGroup {
-  font-weight: 500;
   display: block;
+  font-weight: normal;
   text-decoration: none;
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
-  padding-left: var(--mantine-spacing-md);
-  margin-left: var(--mantine-spacing-xl);
-  font-size: var(--mantine-font-size-sm);
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
-  border-left: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  height: 40px !important;
+  margin-left: 20px;
+  font-size: 14px;
 
   &:hover {
     background-color: #efe3ff;

@@ -6,6 +6,7 @@ import { TokenModule } from "../token/modules";
 import { Nft, NftPayload, NftQuery, NftUpdatePayload } from "./types";
 import { MarketOrderModule } from "../marketorder/modules";
 import { getContracts } from "../configs/context";
+import { CoinsModule } from "../coins/modules";
 
 export class NftModule {
   static async getList(query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {
@@ -37,6 +38,7 @@ export class NftModule {
 
     const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
     await NftModule.updateAfterMint(res.data.token.id, payloadUpdate);
+    await CoinsModule.fetchUserBalance();
   }
 
   static async updateAfterMint(id: string, payload: any): Promise<any> {

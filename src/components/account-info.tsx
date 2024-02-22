@@ -1,14 +1,14 @@
 import { AccountInformation } from "@/modules/account/types"
 import { UserInformation } from "@/modules/user/types"
 import { StringUtils } from "@/share/utils"
-import { Group, Stack, Text } from "@mantine/core"
+import { CardProps, Group, Stack, Text } from "@mantine/core"
 import { useClipboard } from "@mantine/hooks"
 import { FC, useEffect, useState } from "react"
 import { AccountAvatar } from "./account-avatar"
 
 
-interface AccountInfoProps {
-  account: AccountInformation
+interface AccountInfoProps extends CardProps{
+  account: AccountInformation;
 }
 
 export const AccountInfo: FC<AccountInfoProps> = (props) => {
@@ -23,10 +23,12 @@ export const AccountInfo: FC<AccountInfoProps> = (props) => {
 
   if (information) {
     return (
-      <Group gap={6} onClick={copyWallet}>
+      <Group gap={6} onClick={copyWallet} style={{
+        ...props.style
+      }}>
         <AccountAvatar src={information.avatar} size={48} />
         <Stack gap={0}>
-          <Text style={{ fontSize: '12px' }} fw='bold'>{StringUtils.compact(information.wallet, 2, 5)}</Text>
+          <Text  style={{ fontSize: '12px' }} fw='bold'>{StringUtils.compact(information.wallet, 2, 5)}</Text>
           <Text style={{ fontSize: '12px' }}>{information.username ? StringUtils.compact(information.username, 2, 5) : 'unknown'}</Text>
         </Stack>
       </Group>

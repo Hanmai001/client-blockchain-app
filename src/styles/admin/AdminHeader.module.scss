@@ -1,0 +1,16 @@
+.headerNormal {
+  position: fixed;
+  z-index: 99;
+  width: 100%;
+  transition: 0.2s ease;
+  max-width: 100%;
+  top: 0;
+  background-color: var(--mantine-color-dark-6) ;
+  border-bottom: 1px solid var(--mantine-color-gray-8);
+  height: 70px;
+  padding: 0 var(--mantine-spacing-md);
+
+  input:focus {
+    border-color: #d3b0ff;
+  }
+}

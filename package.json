@@ -38,6 +38,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-redux": "^9.0.4",
     "react-slick": "^0.29.0",
+    "recharts": "^2.12.1",
     "sass": "^1.69.7",
     "slick-carousel": "^1.8.1",
     "socket.io": "^4.7.4",
