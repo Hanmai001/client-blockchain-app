@@ -1,25 +1,27 @@
-import { ConfigsProvider, PRIMARY_COLOR, PRIMARY_DARK_COLOR, useConfig } from '@/modules/configs/context'
+import { ModalBuyNft } from '@/components/modals/modal-buy-nft';
+import { ModalCancel } from '@/components/modals/modal-cancel';
+import { ErrorModal } from '@/components/modals/modal-error';
+import { ModalListNft } from '@/components/modals/modal-list-nft';
+import { ModalNftDetail } from '@/components/modals/modal-nft-detail';
+import { ModalShareNft } from '@/components/modals/modal-share-nft';
+import { ModalSuccess } from '@/components/modals/modal-success';
+import { AccountProvider } from '@/modules/account/context';
+import { AppModule } from '@/modules/app/modules';
+import { ChatProvider } from '@/modules/chat/context';
+import { ConfigsProvider, PRIMARY_COLOR, PRIMARY_DARK_COLOR, useConfig } from '@/modules/configs/context';
+import { NotificationProvider } from '@/modules/notification/context';
+import { store } from '@/redux/store';
+import { BlockChainProvider } from '@/share/blockchain/context';
 import '@/styles/globals.scss';
+import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import '@mantine/notifications/styles.css';
 import { AppProps } from "next/app";
 import { FC, PropsWithChildren } from 'react';
-import { MantineProvider } from '@mantine/core';
 import { Provider } from 'react-redux';
-import { store } from '@/redux/store';
-import { AppModule } from '@/modules/app/modules';
-import { BlockChainProvider } from '@/share/blockchain/context';
-import { AccountProvider } from '@/modules/account/context';
-import { ErrorModal } from '@/components/modals/modal-error';
-import { ModalSuccess } from '@/components/modals/modal-success';
-import { ModalListNft } from '@/components/modals/modal-list-nft';
-import { ModalBuyNft } from '@/components/modals/modal-buy-nft';
-import { ChatProvider } from '@/modules/chat/context';
-import { ModalCancel } from '@/components/modals/modal-cancel';
-import { ModalShareNft } from '@/components/modals/modal-share-nft';
-import { NotificationProvider } from '@/modules/notification/context';
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -35,6 +37,7 @@ const App: FC<PropsWithChildren> = (props) => {
         <ModalBuyNft />
         <ModalCancel />
         <ModalShareNft />
+        <ModalNftDetail />
       </main>
     </AccountProvider>
   )

@@ -19,6 +19,10 @@ export class UserModule {
     return RequestModule.put(`/api/v1/users`, payload)
   }
 
+  static async blockOrUnBlock(id: string) {
+    return RequestModule.put(`/api/v1/users/${id}`)
+  }
+
   static async authenticate(): Promise<{message?: string, data: UserInformation}> {
     return RequestModule.get(`/api/v1/users/details`);
   }

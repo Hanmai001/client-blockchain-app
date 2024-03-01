@@ -10,12 +10,8 @@ interface AppImageProps extends ImageProps {
   className?: any
 }
 export const AppImage: FC<AppImageProps> = (props) => {
-  const [loadImageState, setLoadImageState] = useState<DataLoadState>({ isFetching: true, error: '' });
-
   return <>
     {function() {
-      //if (loadImageState.isFetching) return <Skeleton width="100%" height="100%" />
-
       return <img
         alt={props.alt}
         src={props.src}

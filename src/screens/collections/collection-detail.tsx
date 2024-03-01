@@ -75,8 +75,6 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
       setItems(s => ({ ...s, isFetching: false, data: { tokens: listtokens.data.tokens || [], count: listtokens.data.count || 0 } }));
     } catch (error) {
       setItems(s => ({ ...s, isFetching: false, data: { tokens: [], count: 0 } }))
-      // onError(error);
-      throw error
     }
   }
 

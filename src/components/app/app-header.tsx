@@ -230,6 +230,7 @@ export const HeaderSearch: FC = () => {
     </Group>
   )
 }
+
 export const HeaderSearchMobile: FC = () => {
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);

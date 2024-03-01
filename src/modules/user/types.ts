@@ -12,6 +12,7 @@ export interface UserInformation {
   avatar?: string,
   cover?: string,
   createdAt: number,
+  active: boolean,
   roles: Roles[]
 }
 

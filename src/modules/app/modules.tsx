@@ -1,4 +1,4 @@
-import { showNotification } from '@mantine/notifications';
+import { notifications, showNotification } from '@mantine/notifications';
 import themeColors from './theme-colors.json';
 import { IconBellRinging2, IconCheck } from '@tabler/icons-react';
 // import { OnModalError } from '@/modals/modal-error';

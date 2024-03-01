@@ -87,7 +87,7 @@ export class NftModule {
     return RequestModule.patch(`/api/v1/tokens/${id}/view`);
   }
 
-  static async updateToken(payload: NftUpdatePayload, checkMetadataChanged: boolean): Promise<Nft> {
+  static async updateToken(payload: NftUpdatePayload | any, checkMetadataChanged: boolean): Promise<Nft> {
      const res = await RequestModule.put(`/api/v1/tokens/tokenID/${payload.tokenID}`, payload);
 
      if (checkMetadataChanged && res.data) {

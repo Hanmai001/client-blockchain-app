@@ -1,9 +1,10 @@
 import { Box, Button, Collapse, Divider, Group, Image, Stack, ThemeIcon, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
-import { IconBuilding, IconChevronRight, IconGauge, IconMenu2, IconNotes, IconUsersGroup } from "@tabler/icons-react";
+import { IconBrandStorytel, IconBuilding, IconChevronRight, IconGauge, IconMenu2, IconNotes, IconUsersGroup, IconVideo } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
+import { AppRoutes } from "../../../app-router";
 import classes from '../../styles/admin/AdminNavBar.module.scss';
 
 export const AdminNavbar: FC = () => {
@@ -16,12 +17,12 @@ export const AdminNavbar: FC = () => {
       icon: IconNotes,
       initiallyOpened: true,
       links: [
-        { label: 'Người dùng', icon: IconUsersGroup, link: '#' },
-        { label: 'Người dùng', icon: IconUsersGroup, link: '#' },
-        { label: 'Người dùng', icon: IconUsersGroup, link: '#' },
+        { label: 'Người dùng', icon: IconUsersGroup, link: AppRoutes.admin.users },
+        { label: 'NFT', icon: IconVideo, link: AppRoutes.admin.nfts },
+        { label: 'Bộ sưu tập', icon: IconBrandStorytel, link: AppRoutes.admin.collections },
       ],
     },
-    { label: 'Hệ thống', icon: IconBuilding, link: '/#' },
+    { label: 'Hệ thống', icon: IconBuilding, link: AppRoutes.admin.system },
   ]
 
   return <nav>
@@ -31,10 +32,10 @@ export const AdminNavbar: FC = () => {
           <Image className={classes.logo} src='/images/logo.png' />
         </Link>
 
-        <IconMenu2 color={theme.colors.text[1]} stroke={1.5}/>
+        <IconMenu2 color={theme.colors.text[1]} stroke={1.5} />
       </Group>
 
-      <Divider color="none" my={5}/>
+      <Divider color="none" my={5} />
 
       {navLinks.map((v, k) => <LinksGroup key={k} {...v} />)}
     </Stack>
@@ -55,17 +56,22 @@ export const LinksGroup: FC<LinksGroupProps> = (props) => {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useMantineTheme();
+  const isActive = hasLinks && props.links?.some(link => pathname === link.link);
 
   const items = (Array.isArray(props.links) ? props.links : []).map((link) => (
     <Button<'a'>
       component="a"
       className={classes.linkGroup}
       color={theme.colors.text[1]}
-      href={link.link}
-      leftSection={<link.icon />}
+      leftSection={<link.icon style={{ width: rem(18), height: rem(18) }} />}
       key={link.label}
+      onClick={() => router.push(link.link)}
       variant="transparent"
-      onClick={(e) => router.push(link.link)}
+      styles={{
+        inner: {
+          justifyContent: 'flex-start'
+        }
+      }}
     >
       {link.label}
     </Button>
@@ -76,7 +82,7 @@ export const LinksGroup: FC<LinksGroupProps> = (props) => {
       <Group w={'100%'} h={'100%'} justify="space-between" gap={0}>
         <Button<'a'>
           color={theme.colors.text[1]}
-          data-active={pathname === props.link || undefined}
+          data-active={pathname === props.link || isActive || undefined}
           component="a"
           className={classes.link}
           rightSection={hasLinks && (

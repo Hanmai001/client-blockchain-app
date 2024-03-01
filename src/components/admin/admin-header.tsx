@@ -2,19 +2,17 @@ import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { useConfig } from "@/modules/configs/context";
 import { useBlockChain } from "@/share/blockchain/context";
-import { Group, Image, Menu, Skeleton, Switch, Text, TextInput, UnstyledButton, useMantineColorScheme, useMantineTheme } from "@mantine/core";
-import { IconLogout, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
-import Link from "next/link";
+import { ChainId } from "@/share/blockchain/types";
+import { Group, Menu, Skeleton, Switch, Text, TextInput, UnstyledButton, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { IconLogout, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconWallet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
-import { AppRoutes } from "../../../app-router";
 import classes from '../../styles/admin/AdminHeader.module.scss';
 import { Balances } from "../account-balances";
 import { AccountInfo } from "../account-info";
 import { AppButton } from "../app/app-button";
 import { ConnectWallet } from "../buttons/connect-wallet";
 import { onError } from "../modals/modal-error";
-import { ChainId } from "@/share/blockchain/types";
 
 export const AdminHeader: FC = () => {
   const [search, setSearch] = useState<string>();
@@ -60,7 +58,6 @@ const Account: FC = () => {
   const [checked, setChecked] = useState(false);
 
   const profileMenu = [
-    { label: 'Trang cá nhân', route: `${AppRoutes.admin.profile}/${account.information?.wallet}`, icon: <IconUserBolt />, },
     { label: 'Cài đặt', route: 'd', icon: <IconSettings /> },
     { label: 'Chế độ tối', icon: <IconMoonFilled /> }
   ];

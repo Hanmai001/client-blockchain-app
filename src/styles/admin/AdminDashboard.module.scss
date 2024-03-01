@@ -1,0 +1,8 @@
+.adminCard {
+  transition: 0.1s;
+
+  &:hover {
+    cursor: pointer;
+    transform: translateY(-5px);
+  }
+}

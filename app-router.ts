@@ -16,7 +16,10 @@ export const AppRoutes = {
   admin: {
     dashboard: '/admin',
     profile: '/admin/profile',
-    users: '/admin/users'
+    users: '/admin/users',
+    nfts: '/admin/nfts',
+    collections: '/admin/collections',
+    system: '/admin/system'
   },
   friends: '/friends'
 }
