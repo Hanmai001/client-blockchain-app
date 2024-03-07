@@ -29,11 +29,11 @@ export const AdminWrapper: FC<PropsWithChildren> = (props) => {
       }}
     >
       <AppTitle />
-      <AppShell.Header zIndex={99}>
+      <AppShell.Header zIndex={98}>
         <AdminHeader />
       </AppShell.Header>
 
-      <AppShell.Navbar zIndex={100}>
+      <AppShell.Navbar zIndex={99}>
         <AdminNavbar />
       </AppShell.Navbar>
 

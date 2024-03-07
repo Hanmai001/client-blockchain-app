@@ -15,7 +15,7 @@ export const productionConfigs: Configs = {
         BLOCKCLIP_NFT: '0x5089fbbA3a13103bf0683ebC7b11887Cf39810E3',
       },
       ercs: {
-        MARKETPLACE: '0x689e86CAA4A62825570994cA8F4632177Ab14828'
+        MARKETPLACE: '0x13fAE2bA327723f69D210e746Dba992F274b30A3'
       }
     },
   },

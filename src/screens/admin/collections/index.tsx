@@ -4,7 +4,7 @@ import { EmptyMessage } from "@/components/empty-message";
 import { onError } from "@/components/modals/modal-error";
 import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
-import { getChain, getChainId, renderLinkContract } from "@/share/blockchain/context";
+import { getChainId, renderLinkContract } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
 import { Box, Card, Divider, Group, Pagination, Skeleton, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -12,7 +12,6 @@ import { IconEye, IconLock, IconLockOff, IconSearch } from "@tabler/icons-react"
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../../types";
-import { AppModule } from "@/modules/app/modules";
 
 export const AdminCollectionsScreen: FC = () => {
   const theme = useMantineTheme();
