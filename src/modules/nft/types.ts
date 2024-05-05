@@ -1,4 +1,4 @@
-import { Query } from "../../../types"
+import { ItemMode, Query } from "../../../types"
 
 export enum FilterOptions {
   ALL = 'Tất cả',
@@ -16,6 +16,7 @@ export interface Nft {
   id: string,
   creator: string,
   collectionID: string,
+  mode: ItemMode,
   contractAddress: string,
   owner: string,
   chainID: string,
@@ -36,6 +37,7 @@ export interface NftPayload {
   creator: string,
   owner: string,
   chainID: string,
+  mode: ItemMode,
   collectionID: string,
   title: string,
   description: string

@@ -1,12 +1,14 @@
 import { EmptyMessage } from "@/components/empty-message";
 import { onError } from "@/components/modals/modal-error";
 import { CollectionModule } from "@/modules/collection/modules";
-import { Collection, CollectionType } from "@/modules/collection/types";
+import { Collection, CollectionStatus, CollectionType } from "@/modules/collection/types";
 import { useBlockChain } from "@/share/blockchain/context";
-import { Box, Grid, Pagination, Skeleton, Stack, Title, rem, useMantineTheme } from "@mantine/core";
+import { Box, Grid, Group, Pagination, Skeleton, Stack, Title, rem, useMantineTheme } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { CollectionCard } from "../../components/collection-card";
+import { MyCombobox } from "@/components/combobox/my-combobox";
+import classes from '../../styles/Marketplace.module.scss';
 
 interface FeaturedProps {
   isFetching: boolean,
@@ -22,6 +24,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
   const blockchain = useBlockChain();
   const theme = useMantineTheme();
   const [activePage, setPage] = useState(1);
+  const [filter, setFilter] = useState(CollectionStatus.ALL);
   const gridColumns = {
     lg: 4,
     sm: 6,
@@ -42,7 +45,21 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
   const fetchCollections = async () => {
     try {
       if (props.type !== CollectionType.ALL) {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, limit: 20, offset: (activePage - 1) * 20, active: true })
+        let sort = '';
+        //get list by filter
+        if (filter !== CollectionStatus.ALL) {
+          if (filter === CollectionStatus.MOST_VIEWS) sort = '-totalViews';
+          if (filter === CollectionStatus.MOST_AVGPRICE) sort = '-averagePrice';
+          if (filter === CollectionStatus.OLDEST) sort = '+createdAt';
+          if (filter === CollectionStatus.NEWEST) sort = '-createdAt';
+        }
+        const res = await CollectionModule.getList({ 
+          chainID: blockchain.chainId, 
+          limit: 20, 
+          offset: (activePage - 1) * 20, 
+          active: true,
+          sort
+        })
         const filteredRes = res.data!.collections?.filter((v, k) => {
           if (v.category === props.type) return true;
           return false;
@@ -66,10 +83,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
 
   useEffect(() => {
     fetchCollections();
-  }, [props.type]);
-
-  useEffect(() => {
-  }, [featuredRes]);
+  }, [props.type, filter]);
 
   return (
     <Stack>
@@ -102,9 +116,30 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
           )}
         </Box>
       )) : <>
-        <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
-          Tất cả Bộ sưu tập {props.type}
-        </Title>
+        <Group>
+          <Title flex={8} c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
+            Tất cả Bộ sưu tập {props.type}
+          </Title>
+          <Box flex={4}>
+            <MyCombobox
+              initialvalue={CollectionStatus.ALL}
+              options={CollectionStatus}
+              styles={{
+                dropdown: {
+                  maxHeight: '200px',
+                  overflow: 'hidden',
+                  overflowY: 'auto',
+                },
+              }}
+              classNames={{
+                dropdown: 'hidden-scroll-bar'
+              }}
+              classnamesinput={classes.comboboxInput}
+              classnamesroot={classes.comboboxRootInput}
+              onChange={(value) => { setFilter(value) }}
+            />
+          </Box>
+        </Group>
 
         {function () {
           if (!collections || collections.isFetching) return <Grid>

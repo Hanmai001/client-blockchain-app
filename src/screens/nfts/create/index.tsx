@@ -1,5 +1,5 @@
 import { AppButton } from "@/components/app/app-button";
-import { Account, AppHeader } from "@/components/app/app-header";
+import { AppHeader } from "@/components/app/app-header";
 import { AppLoading } from "@/components/app/app-loading";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { EmptyMessage } from "@/components/empty-message";
@@ -16,14 +16,14 @@ import { NftModule } from "@/modules/nft/modules";
 import { NftPayload } from "@/modules/nft/types";
 import { RequestModule } from "@/modules/request/request";
 import { useBlockChain } from "@/share/blockchain/context";
-import { Box, Card, Flex, Grid, Group, Image, Skeleton, Stack, Text, TextInput, Textarea, Title, Transition, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Box, Card, Checkbox, CheckboxGroup, Flex, Grid, Group, Image, Skeleton, Stack, Text, TextInput, Textarea, Transition, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { AppRoutes } from "../../../../app-router";
-import { DataLoadState, ListLoadState } from "../../../../types";
+import { DataLoadState, ItemMode, ListLoadState } from "../../../../types";
 import classes from '../../../styles/nfts/NftCreate.module.scss';
 
 export const CreateNftScreen: FC = () => {
@@ -36,7 +36,8 @@ export const CreateNftScreen: FC = () => {
   const [opened, setOpened] = useState(false);
   const router = useRouter();
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | string | null>(null);
+  const [mode, setMode] = useState<string[]>([]);
 
   const form = useForm<NftPayload>({
     initialValues: {
@@ -46,6 +47,7 @@ export const CreateNftScreen: FC = () => {
       description: '',
       collectionID: '',
       chainID: '',
+      mode: ItemMode.PUBLIC
     },
     validate: {
       title: (value) => (value.length < 1 && 'Tên bộ sưu tập không hợp lệ'),
@@ -65,6 +67,14 @@ export const CreateNftScreen: FC = () => {
       form.setFieldValue('owner', ethers.getAddress(account.information.wallet));
     }
   }
+
+  const handleSelectMode = async (value: string[]) => {
+    if (value.length > 1)
+      value.shift();
+    // console.log(value)
+    setMode(value);
+  }
+
 
   const onSubmit = form.onSubmit(async (values) => {
     try {
@@ -105,18 +115,6 @@ export const CreateNftScreen: FC = () => {
       {isUploading && <AppLoading visible={isUploading} />}
       <Stack px={isMobile ? 15 : 40} mt={70}>
         <form onSubmit={onSubmit}>
-          {/* <Group justify="space-between">
-            <Group>
-              <AppButton async radius="50%" color={theme.colors.gray[3]} height={48}>
-                <IconArrowLeft color={theme.colors.dark[5]} size={18} />
-              </AppButton>
-
-              <Title c={theme.colors.text[1]} order={4}>Trang chủ</Title>
-            </Group>
-
-            <Account />
-          </Group> */}
-
           <Grid mt={20} gutter={isDesktop ? 40 : 0}>
             <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
               <MediaInput
@@ -124,8 +122,10 @@ export const CreateNftScreen: FC = () => {
                 withAsterisk
                 width={"100%"}
                 height={500}
+                ratio={260 / 150}
                 radius={10}
                 acceptance="video"
+                value={file || undefined}
                 onChange={(file) => setFile(file)}
                 onRemove={() => setFile(null)}
               />
@@ -185,7 +185,7 @@ export const CreateNftScreen: FC = () => {
                     }}
                   >
                     {function () {
-                      if (collections.isFetching) return <Skeleton h={60} radius={8}/>
+                      if (collections.isFetching) return <Skeleton h={60} radius={8} />
 
                       if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
 
@@ -208,8 +208,10 @@ export const CreateNftScreen: FC = () => {
                           }}
                         >
                           <Group>
-                            <Image width="48" height="64" radius={12} src={v.bannerURL} />
-                            <Text c={v.collectionID === collection.data!.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
+                            <AspectRatio flex={2}>
+                              <Image radius={12} src={v.bannerURL} alt={v.name} />
+                            </AspectRatio>
+                            <Text flex={10} c={v.collectionID === collection.data!.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
                           </Group>
                         </Box>)}
                       </>
@@ -252,6 +254,24 @@ export const CreateNftScreen: FC = () => {
                   }}
                   {...form.getInputProps('description')}
                 />
+
+                <CheckboxGroup
+                  label="Chế độ"
+                  required
+                  withAsterisk
+                  value={mode}
+                  onChange={handleSelectMode}
+                  color={theme.colors.primary[5]}
+                  styles={{
+                    label: {
+                      marginBottom: '6px'
+                    }
+                  }}
+                >
+                  <Group>
+                    {Object.values(ItemMode).map((v, k) => <Checkbox key={k} value={v} label={CollectionModule.getModeName(v)} />)}
+                  </Group>
+                </CheckboxGroup>
               </Stack>
             </Grid.Col>
           </Grid>

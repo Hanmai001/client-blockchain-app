@@ -27,6 +27,11 @@ export interface ListApiResponse<T> {
   data: T[]
 }
 
+export enum ItemMode {
+  PUBLIC ='1',
+  COMMERCIAL = '2'
+}
+
 export enum Locale {
   ENGLISH = 'en_US',
   VIETNAMESE = 'vi_VN',

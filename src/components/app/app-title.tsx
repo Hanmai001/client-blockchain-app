@@ -17,7 +17,7 @@ export const AppTitle: FC<AppTitleProps> = (props) => {
   const configs = {
     title: props.title ? `${props.title}` : 'BlockClip',
     webURL: `${PUBLIC_URL}${router.asPath}`,
-    thumbnailURL: props.thumbnailURL || `${PUBLIC_URL}/images/thumbnail.jpg`,
+    thumbnailURL: props.thumbnailURL || `${PUBLIC_URL}/images/thumbnail.png`,
     siteName: props.siteName || 'BlockClip',
     type: props.type || 'website',
   }
@@ -25,14 +25,12 @@ export const AppTitle: FC<AppTitleProps> = (props) => {
   return (
     <Head>
       <title>{configs.title}</title>
-
+      <link rel="icon" type="image/x-icon" href={configs.thumbnailURL} />
       <link rel='canonical' href={configs.webURL} />
       {/* <meta name='description' content={configs.description} /> */}
-
-      {/* Facebook */}
       <meta property='og:title' content={configs.title} />
-      <meta property='og:image' content={configs.thumbnailURL} />
-      <meta property='og:image:url' content={configs.thumbnailURL} />
+      <meta property="og:image" content={configs.thumbnailURL} />
+      <meta property="og:image:url" content={configs.thumbnailURL} />
       <meta property='og:url' content={configs.webURL} />
       <meta property='og:site_name' content={configs.siteName} />
       <meta property='og:type' content={configs.type} />

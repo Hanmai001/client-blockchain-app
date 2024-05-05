@@ -1,7 +1,6 @@
 .footer {
   // margin-top: rem(150px);
   padding-top: calc(var(--mantine-spacing-xl) * 2);
-  padding-bottom: calc(var(--mantine-spacing-xl) * 2);
   background-color: #c21379;
   background-image: linear-gradient(225deg, #c21379 0%, #784BA0 50%, #510aac 100%);
   border-top: rem(1px) solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
@@ -30,10 +29,11 @@
 .inner {
   display: flex;
   justify-content: space-between;
+  min-width: 100%;
 
   @media (max-width: $mantine-breakpoint-sm) {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
 }
 
@@ -44,10 +44,6 @@
   @media (max-width: $mantine-breakpoint-sm) {
     display: none;
   }
-}
-
-.wrapper {
-  width: rem(180);
 }
 
 .link {
@@ -73,13 +69,15 @@
 }
 
 .afterFooter {
+  min-width: 100%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   margin-top: var(--mantine-spacing-xl);
   padding-top: var(--mantine-spacing-xl);
   padding-bottom: var(--mantine-spacing-xl);
-  border-top: rem(1px) solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
+  //border-top: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
 
   @media (max-width: $mantine-breakpoint-sm) {
     flex-direction: column;

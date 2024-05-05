@@ -52,9 +52,79 @@ export class MarketOrderModule {
     let txReceipt;
 
     //Buy NFT
-    if (order.event === TransactionEvent.TRANSFER) {
-      //Handle buy bt ETH
-      if (order.paymentType !== AppPayment.BCT) {
+    // if (order.event === TransactionEvent.TRANSFER) {
+    //   //Handle buy bt ETH
+    //   if (order.paymentType !== AppPayment.BCT) {
+    //     console.log("buy by ETH", order.tokenID)
+    //     txReceipt = await contractMarket.send({
+    //       method: 'buyNftbyETH',
+    //       args: [order.tokenID],
+    //       params: {
+    //         value: ethers.parseEther(order.price.toString()).toString()
+    //       }
+    //     });
+    //   } else {
+    //     //Approve for Operator to use Amount of tokens of user
+    //     await getPaymentContract(order.paymentType)?.approve({
+    //       operator: contractMarket.address,
+    //       amount: order.price
+    //     });
+
+    //     txReceipt = await contractMarket.send({
+    //       method: 'buyNftbyErc20',
+    //       args: [order.tokenID, getContracts().erc20s.BCT.address],
+    //       params: {
+    //         value: ethers.parseEther(order.price.toString()).toString()
+    //       }
+    //     });
+    //   }
+
+    //   const payloadUpdate = { status: MarketStatus.SOLD, buyer: getWallet() };
+    //   await this.update(order!.id, payloadUpdate);
+    // } else {
+    //   if (order.paymentType !== AppPayment.BCT) {
+    //     console.log("Rent by ETH", order.tokenID)
+    //     txReceipt = await contractMarket.send({
+    //       method: 'rentNftbyETH',
+    //       args: [order.tokenID],
+    //       params: {
+    //         value: ethers.parseEther(order.price.toString()).toString()
+    //       }
+    //     });
+    //   } else {
+    //     //Approve for Operator to use Amount of tokens of user
+    //     await getPaymentContract(order.paymentType)?.approve({
+    //       operator: contractMarket.address,
+    //       amount: order.price
+    //     });
+
+    //     txReceipt = await contractMarket.send({
+    //       method: 'rentNftbyErc20',
+    //       args: [order.tokenID, getContracts().erc20s.BCT.address],
+    //       params: {
+    //         value: ethers.parseEther(order.price.toString()).toString()
+    //       }
+    //     });
+    //   }
+
+    //   //Create a market order for renter
+    //   const res = await this.create({
+    //     event: TransactionEvent.EXPIRY,
+    //     chainID: order.chainID,
+    //     tokenID: order.tokenID,
+    //     tokenAddress: order.tokenAddress,
+    //     paymentType: order.paymentType,
+    //     price,
+    //     seller: order.seller,
+    //     buyer: getWallet()!,
+    //     status: MarketStatus.ISRENTING,
+    //     startAt: payload?.startAt,
+    //     endAt: payload?.endAt,
+    //     limitUsers: order.limitUsers,
+    //     usageRight: order.usageRight
+    //   })
+    // } 
+     if (order.paymentType !== AppPayment.BCT) {
         console.log("buy by ETH", order.tokenID)
         txReceipt = await contractMarket.send({
           method: 'buyNftbyETH',
@@ -81,49 +151,6 @@ export class MarketOrderModule {
 
       const payloadUpdate = { status: MarketStatus.SOLD, buyer: getWallet() };
       await this.update(order!.id, payloadUpdate);
-    } else {
-      if (order.paymentType !== AppPayment.BCT) {
-        console.log("Rent by ETH", order.tokenID)
-        txReceipt = await contractMarket.send({
-          method: 'rentNftbyETH',
-          args: [order.tokenID],
-          params: {
-            value: ethers.parseEther(order.price.toString()).toString()
-          }
-        });
-      } else {
-        //Approve for Operator to use Amount of tokens of user
-        await getPaymentContract(order.paymentType)?.approve({
-          operator: contractMarket.address,
-          amount: order.price
-        });
-
-        txReceipt = await contractMarket.send({
-          method: 'rentNftbyErc20',
-          args: [order.tokenID, getContracts().erc20s.BCT.address],
-          params: {
-            value: ethers.parseEther(order.price.toString()).toString()
-          }
-        });
-      }
-
-      //Create a market order for renter
-      const res = await this.create({
-        event: TransactionEvent.EXPIRY,
-        chainID: order.chainID,
-        tokenID: order.tokenID,
-        tokenAddress: order.tokenAddress,
-        paymentType: order.paymentType,
-        price,
-        seller: order.seller,
-        buyer: getWallet()!,
-        status: MarketStatus.ISRENTING,
-        startAt: payload?.startAt,
-        endAt: payload?.endAt,
-        limitUsers: order.limitUsers,
-        usageRight: order.usageRight
-      })
-    } 
 
     //force update balances
     await CoinsModule.fetchUserBalance();
@@ -137,7 +164,6 @@ export class MarketOrderModule {
     if (status === MarketStatus.SOLD) return "Đã bán";
     if (status === MarketStatus.ISLISTING) return "Đang bán";
     if (status === MarketStatus.CANCELLED) return "Đã hủy";
-    if (status === MarketStatus.ISRENTING) return "Đang thuê";
   }
 
   static getMarketEvent(status: TransactionEvent) {

@@ -21,6 +21,7 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }: { params: { id: string } }) {
   const { id } = params;
   const res = await CollectionModule.getCollectionByID(id);
+  console.log(res)
 
   return {
     props: {

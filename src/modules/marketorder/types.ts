@@ -4,7 +4,6 @@ export enum MarketStatus {
   SOLD = 0,
   ISLISTING = 1,
   CANCELLED = 2,
-  ISRENTING = 3
 }
 
 export enum TransactionEvent {
@@ -12,16 +11,12 @@ export enum TransactionEvent {
   EXPIRY = 2
 }
 
-export enum UsageRight {
-  WATCH = 1,
-  DOWNLOAD = 2
-}
-
 export interface MarketOrder {
   id: string,
   event: TransactionEvent,
   chainID: string,
-  tokenID: string,
+  tokenID?: string,
+  collectionID?: string,
   tokenAddress: string,
   paymentType: AppPayment,
   price: number,
@@ -31,7 +26,6 @@ export interface MarketOrder {
   startAt?: Date,
   endAt?: Date, 
   limitUsers?: number,
-  usageRight?: UsageRight,
   createdAt: Date,
   updatedAt: Date,
 }
@@ -39,7 +33,8 @@ export interface MarketOrder {
 export interface MarketOrderPayload {
   event: TransactionEvent,
   chainID: string,
-  tokenID: string,
+  tokenID?: string,
+  collectionID?: string,
   tokenAddress: string,
   paymentType: AppPayment,
   price: number | string,
@@ -49,7 +44,6 @@ export interface MarketOrderPayload {
   startAt?: Date, //For Expiry
   endAt?: Date, //For Expiry
   limitUsers?: number | string, //For Expiry,
-  usageRight?: UsageRight, //For Expiry,
 }
 
 export interface MarketOrderQuery extends Query {

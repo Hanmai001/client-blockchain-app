@@ -1,52 +1,25 @@
 import { AppImage } from "@/components/app/app-image";
+import { onError } from "@/components/modals/modal-error";
 import { useResponsive } from "@/modules/app/hooks";
 import { renderPayment } from '@/modules/coins/utils';
+import { CollectionModule } from "@/modules/collection/modules";
 import { Collection, CollectionType } from '@/modules/collection/types';
+import { useBlockChain } from "@/share/blockchain/context";
 import { StringUtils } from "@/share/utils";
+import { Carousel } from '@mantine/carousel';
 import { AspectRatio, Box, Grid, Group, Skeleton, Stack, Text, Title, rem, useMantineTheme } from "@mantine/core";
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import Autoplay from "embla-carousel-autoplay";
 import Link from 'next/link';
-import { FC, useEffect, useState } from 'react';
-import Slider from "react-slick";
+import { FC, useEffect, useRef, useState } from 'react';
 import { ListLoadState } from "../../../types";
 import classes from '../../styles/Marketplace.module.scss';
-import { onError } from "@/components/modals/modal-error";
-import { useBlockChain } from "@/share/blockchain/context";
-import { CollectionModule } from "@/modules/collection/modules";
-
-const CustomedNextArrow: FC<any> = ({ onClick }) => {
-  return (
-    <div className={classes.nextArrow} onClick={onClick}>
-      <IconChevronRight size={32} />
-    </div>
-  )
-}
-
-const CustomedPrevArrow: FC<any> = ({ onClick }) => {
-  return (
-    <div className={classes.prevArrow} onClick={onClick}>
-      <IconChevronLeft size={32} />
-    </div>
-  )
-}
 
 export const BannerSection: FC<{ type: string | null }> = (props) => {
   const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
   const theme = useMantineTheme();
   const blockchain = useBlockChain();
   const { isMobile, isTablet } = useResponsive();
-
-  const settings = {
-    // dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: isMobile ? 1 : isTablet ? 2 : 3,
-    slidesToScroll: isMobile ? 1 : isTablet ? 2 : 3,
-    autoplay: true,
-    autoplaySpeed: 2000,
-    nextArrow: <CustomedNextArrow />,
-    prevArrow: <CustomedPrevArrow />,
-  };
+  const autoplay = useRef(Autoplay({ delay: 2000 }));
 
   const gridColumns = {
     xl: 4,
@@ -70,7 +43,7 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
         const res = await CollectionModule.getList({ chainID: blockchain.chainId, active: true })
         filteredRes = res.data!.collections.filter(v => true);
       }
-      filteredRes = getRandomItems(filteredRes, 9);
+      filteredRes = getRandomItems(filteredRes, 12);
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
     } catch (error) {
       setCollections(s => ({ ...s, isFetching: false }))
@@ -93,11 +66,28 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
           ))}
         </Grid>
 
-        return <Slider {...settings}>
-          {collections.data?.collections.map((v, k) => (
-            <BannerSlide collection={v} key={k} />
-          ))}
-        </Slider>
+        return <Carousel
+          w={'100%'}
+          withIndicators
+          loop
+          slideSize={{ base: '100%', sm: '50%', md: '33.33333%' }}
+          slideGap={{ base: 'xs' }}
+          slidesToScroll={isMobile ? 1 : isTablet ? 2 : 3}
+          plugins={[autoplay.current]}
+          onMouseEnter={autoplay.current.stop}
+          onMouseLeave={autoplay.current.reset}
+          styles={{
+            control: {
+              width: '48px',
+              height: '48px',
+            },
+          }}
+          classNames={classes}
+        >
+          {collections.data?.collections.map((v, k) => <Carousel.Slide key={k}>
+            <BannerSlide collection={v} />
+          </Carousel.Slide>)}
+        </Carousel>
       }()}
     </>
   )
@@ -119,7 +109,7 @@ const BannerSlide: FC<{ collection: Collection }> = (props) => {
 
   return (
     <Link href={`/collections/${props.collection.collectionID}`}>
-      <Box px={theme.spacing.xs} className={classes.banner}>
+      <Box className={classes.banner}>
         <AspectRatio ratio={820 / 600} style={{ overflow: 'hidden', borderRadius: rem(10) }}>
           <AppImage src={props.collection.bannerURL} alt="" className={classes.bannerImage} />
 

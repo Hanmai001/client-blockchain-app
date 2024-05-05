@@ -4,7 +4,6 @@ import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { ChatBox } from "@/components/chat/chat-box";
 import { UserMessage } from "@/components/chat/user-message";
 import { EmptyMessage } from "@/components/empty-message";
-import { onError } from "@/components/modals/modal-error";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { useChatContext } from "@/modules/chat/context";
@@ -16,8 +15,6 @@ import { FC, useEffect, useState } from "react";
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 export const MessagesScreen: FC = () => {
-  const theme = useMantineTheme();
-
   return <AppShell
     mah={'100vh'}
     header={{ height: 70 }}

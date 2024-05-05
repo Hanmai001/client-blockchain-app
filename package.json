@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/server": "^11.11.0",
+    "@mantine/carousel": "^7.9.0",
     "@mantine/core": "^7.5.3",
     "@mantine/dates": "^7.5.3",
     "@mantine/dropzone": "^7.5.3",
@@ -25,6 +26,8 @@
     "cross-storage": "^1.0.0",
     "dayjs": "^1.11.10",
     "dotenv": "^16.3.2",
+    "embla-carousel-autoplay": "^7.1.0",
+    "embla-carousel-react": "^7.1.0",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^6.9.2",
     "http-proxy-middleware": "^2.0.6",

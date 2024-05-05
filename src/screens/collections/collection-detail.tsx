@@ -12,7 +12,7 @@ import { FilterOptions } from "@/modules/nft/types";
 import { StringUtils } from "@/share/utils";
 import { AspectRatio, Box, Grid, Group, Pagination, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconSearch } from "@tabler/icons-react";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { NftCard } from "../../components/nft-card";
@@ -21,6 +21,8 @@ import { MyCombobox } from "@/components/combobox/my-combobox";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
 import { MarketStatus } from "@/modules/marketorder/types";
 import { useResponsive } from "@/modules/app/hooks";
+import { AppButton } from "@/components/app/app-button";
+import { onSubscribeCollection } from "@/components/modals/modal-subscribe-collection";
 
 export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const [activePage, setPage] = useState(1);
@@ -214,16 +216,29 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
         }}
         w={'100%'}
       >
-        <Stack color={theme.white} gap={4} m={isMobile ? 'auto' : theme.spacing.lg} style={{ zIndex: 2 }}>
-          <Title size={18} c={theme.colors.text[0]}>
-            {props.collection.title}
-          </Title>
-          <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
-          <Group justify="space-between" mt={4}>
-            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems || 0} items</Text>
-            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
-          </Group>
-        </Stack>
+        <Group>
+          <Stack color={theme.white} gap={4} m={isMobile ? 'auto' : theme.spacing.lg} style={{ zIndex: 2 }}>
+            <Title size={18} c={theme.colors.text[0]}>
+              {props.collection.title}
+            </Title>
+            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
+            <Group justify="space-between" mt={4}>
+              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems || 0} items</Text>
+              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
+            </Group>
+          </Stack>
+
+          <AppButton
+            color={theme.colors.primary[5]}
+            height={45}
+            px={20}
+            radius={8}
+            leftSection={<IconPlus size={18} />}
+            onClick={() => onSubscribeCollection({ collection: props.collection })}
+          >
+            Đăng kí kênh
+          </AppButton>
+        </Group>
 
         <Group m={isMobile ? 'auto' : theme.spacing.lg} gap={isMobile ? 20 : 40}>
           <Stack gap={4} style={{ textAlign: "center" }}>

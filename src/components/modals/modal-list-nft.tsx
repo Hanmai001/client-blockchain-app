@@ -2,7 +2,7 @@ import { useAccount } from "@/modules/account/context";
 import { renderPayment } from "@/modules/coins/utils";
 import { useConfig } from "@/modules/configs/context";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
-import { MarketOrderPayload, MarketStatus, TransactionEvent, UsageRight } from "@/modules/marketorder/types";
+import { MarketOrderPayload, MarketStatus, TransactionEvent } from "@/modules/marketorder/types";
 import { Nft } from "@/modules/nft/types";
 import { useBlockChain } from "@/share/blockchain/context";
 import { ActionIcon, Anchor, Avatar, Checkbox, Group, Menu, Modal, NumberInput, Stack, Text, Title, UnstyledButton, useMantineTheme } from "@mantine/core";
@@ -32,7 +32,6 @@ export const ModalListNft: FC = () => {
   const [limitUsers, setLimitUsers] = useState<number | string>(1);
   const [checked, setChecked] = useState(false);
   const [agreedPolicy, setAgreedPolicy] = useState(false);
-  const [usageRight, setUsageRight] = useState<string[]>([UsageRight.WATCH.toString()]);
   const { image, symbol } = renderPayment(selectedToken);
 
   const payments = [
@@ -74,7 +73,6 @@ export const ModalListNft: FC = () => {
           price: price!,
           seller: account.information?.wallet || '',
           status: MarketStatus.ISLISTING,
-          usageRight: usageRight[0],
           limitUsers: limitUsers
         };
         const res = await MarketOrderModule.create(payload);
@@ -91,13 +89,6 @@ export const ModalListNft: FC = () => {
       onClose();
       onError("Đăng bán thất bại")
     }
-  }
-
-  const handleSelectUsageRight = async (value: string[]) => {
-    if (value.length > 1)
-      value.shift();
-    // console.log(value)
-    setUsageRight(value);
   }
 
   return <Modal closeOnClickOutside={false} size="lg" centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
@@ -231,7 +222,7 @@ export const ModalListNft: FC = () => {
           onChange={setLimitUsers}
         />}
 
-        {checked && <>
+        {/* {checked && <>
           <label style={{ display: 'block', marginTop: '10px', marginBottom: '4px', fontWeight: 500, fontSize: '14px' }}>
             Chọn quyền cho phép sử dụng
             <span style={{ color: 'red' }}>*</span>
@@ -242,7 +233,7 @@ export const ModalListNft: FC = () => {
               <Checkbox value={UsageRight.DOWNLOAD.toString()} label="Cho phép xem và tải về" color={theme.colors.primary[5]} />
             </Group>
           </Checkbox.Group>
-        </>}
+        </>} */}
 
         <Checkbox
           my={10}

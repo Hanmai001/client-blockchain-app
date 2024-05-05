@@ -12,3 +12,28 @@
 .comboboxRootInput {
   min-width: 45%;
 }
+
+.chevron {
+  &[data-rotate] {
+    transform: rotate(45deg);
+  }
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.item {
+  &[data-active] {
+    background-color: var(--mantine-color-body);
+    box-shadow: var(--mantine-shadow-md);
+  }
+}
+
+.tab {
+  &[data-active] {
+    color: #8c36fa;
+    font-weight: 500;
+  }
+}

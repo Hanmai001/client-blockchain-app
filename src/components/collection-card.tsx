@@ -1,13 +1,13 @@
 import { AppImage } from "@/components/app/app-image";
+import { useAccount } from "@/modules/account/context";
 import { renderPayment } from "@/modules/coins/utils";
 import { Collection } from "@/modules/collection/types";
 import { StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Box, Card, Group, Stack, Text, Title, Tooltip, rem, useMantineTheme } from "@mantine/core";
+import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC } from "react";
 import { AppRoutes } from "../../app-router";
-import { useAccount } from "@/modules/account/context";
-import { IconEdit, IconEyeBolt } from "@tabler/icons-react";
 
 interface CollectionCardProps {
   collection: Collection

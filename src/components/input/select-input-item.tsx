@@ -21,7 +21,7 @@ export const SelectInputItem = forwardRef<HTMLDivElement, ItemProps>(
           cursor: "pointer"
         }}>
           <Image src={image} width={width} height={height} radius={12} />
-          <Text fw="bold" size={fontsize} c={theme.colors.text[1]}>{label}</Text>
+          <Text fw={500} size={fontsize} c={theme.colors.text[1]}>{label}</Text>
         </Group>
       </div>
     )

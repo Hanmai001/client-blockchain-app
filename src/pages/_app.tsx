@@ -17,11 +17,12 @@ import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
+import '@mantine/dropzone/styles.css';
+import '@mantine/carousel/styles.css';
 import { AppProps } from "next/app";
 import { FC, PropsWithChildren } from 'react';
 import { Provider } from 'react-redux';
-import "slick-carousel/slick/slick-theme.css";
-import "slick-carousel/slick/slick.css";
+import { ModalSubscribeCollection } from '@/components/modals/modal-subscribe-collection';
 
 const App: FC<PropsWithChildren> = (props) => {
 
@@ -38,6 +39,7 @@ const App: FC<PropsWithChildren> = (props) => {
         <ModalCancel />
         <ModalShareNft />
         <ModalNftDetail />
+        <ModalSubscribeCollection />
       </main>
     </AccountProvider>
   )
@@ -46,11 +48,6 @@ const App: FC<PropsWithChildren> = (props) => {
 export default function ({ Component, pageProps }: AppProps) {
   const { isDarkMode } = useConfig();
   const themeColors = AppModule.getThemeColors();
-
-  // const colorSchemeManager = localStorageColorSchemeManager({
-  //   key: 'my-color-scheme',
-  // });
-
   return <MantineProvider
     theme={{
       colors: {

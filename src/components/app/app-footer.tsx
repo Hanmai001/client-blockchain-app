@@ -1,6 +1,6 @@
 import { useResponsive } from "@/modules/app/hooks";
 import { useConfig } from "@/modules/configs/context";
-import { Text, Container, ActionIcon, Group, rem, useMantineTheme, Image } from '@mantine/core';
+import { Text, Container, ActionIcon, Group, rem, useMantineTheme, Image, Divider, AspectRatio, Stack } from '@mantine/core';
 import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram } from '@tabler/icons-react';
 import classes from '../../styles/app/AppFooter.module.scss';
 import { FC } from "react";
@@ -11,7 +11,7 @@ export const AppFooter: FC = () => {
   const { isMobile } = useResponsive();
   const { isDarkMode } = useConfig();
 
-  const data = [
+  const linksFooter = [
     {
       title: 'Về chúng tôi',
       links: [
@@ -40,7 +40,7 @@ export const AppFooter: FC = () => {
     },
   ];
 
-  const groups = data.map((group) => {
+  const groups = linksFooter.map((group) => {
     const links = group.links.map((link, index) => (
       <Text<'a'>
         c={theme.colors.text[0]}
@@ -54,28 +54,33 @@ export const AppFooter: FC = () => {
     ));
 
     return (
-      <div className={classes.wrapper} key={group.title}>
-        <Text c={theme.colors.text[0]} className={classes.title}>{group.title}</Text>
-        {links}
-      </div>
+      <Stack key={group.title} mt={isMobile ? 30 : ''}>
+        <Text c={theme.colors.text[0]} fw="bold" style={{
+          fontSize: '18px'
+        }}>{group.title}</Text>
+
+        <Stack gap={0}>
+          {links}
+        </Stack>
+      </Stack>
     );
   });
 
   return (
     <footer className={classes.footer}>
-      <Container className={classes.inner}>
+      <Container className={classes.inner} px={isMobile ? 20 :  200}>
         <div className={classes.logo}>
-          <Image src='/images/logo.png'/>
+          <Image src='/images/logo.png' />
           <Text c={theme.colors.text[0]} size="sm" className={classes.description}>
             Beyond Entertainment, Building With Trust Every Frame
           </Text>
         </div>
-        <div className={classes.groups}>{groups}</div>
+        {groups}
       </Container>
-      
-      <Container className={classes.afterFooter}>
+
+      <Container className={classes.afterFooter} px={isMobile ? 20 : 100}>
         <Text c={theme.colors.text[0]} size="sm">
-          © 2023 BlockClip
+          © 2023 - Copyright - BlockClip
         </Text>
 
         <Group gap={0} className={classes.social} justify="flex-end" wrap="nowrap">

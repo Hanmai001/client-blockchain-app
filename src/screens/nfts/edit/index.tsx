@@ -18,7 +18,7 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
   const { isMobile, isDesktop } = useResponsive();
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | string | null>(null);
   const [checked, setChecked] = useState(token.active);
   const [oldMetadata, setOldMetadata] = useState({
     title: token.title,
@@ -81,6 +81,7 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
       source: token.source,
       description: token.description,
     })
+    setFile(token.source)
   }, [token])
 
   return (
@@ -95,14 +96,20 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
             <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
               <MediaInput
                 label="Video"
-                value={token.source}
                 withAsterisk
-                width={"95%"}
-                height={500}
+                width={"100%"}
+                height={600}
+                ratio={150 / 260}
                 radius={10}
                 acceptance="video"
+                value={file || undefined}
                 onChange={(file) => setFile(file)}
                 onRemove={() => setFile(null)}
+                styles={{
+                  label: {
+                    marginBlock: "6px"
+                  }
+                }}
               />
             </Grid.Col>
 
@@ -115,15 +122,18 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
                 <Switch
                   checked={checked}
                   onChange={(event) => setChecked(event.currentTarget.checked)}
-                  onLabel={<IconEyeFilled size={20} />}
-                  offLabel={<IconEyeClosed size={20} />}
+                  onLabel={<IconEyeFilled size={18} />}
+                  offLabel={<IconEyeClosed size={18} />}
                   size="lg"
-                  label="Ẩn/Hiện video để người khác có thể xem video của bạn"
+                  label={checked ? "Ẩn" : "Hiện"}
                   color={theme.colors.primary[5]}
                   styles={{
                     label: {
                       fontSize: '14px',
                       fontWeight: 500
+                    },
+                    root: {
+                      display: "inline-flex"
                     }
                   }}
                 />

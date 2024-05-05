@@ -9,13 +9,13 @@ export const productionConfigs: Configs = {
       erc20s: {
         // USDM: '0x85eB2c83f72613B7beCbd8b78f2f89df326744Bf',
         // USDT: '0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684',
-        BCT: '0xfEbD70Cc6EbEedb5fA9FabFE88031F9c9911FE4a',
+        BCT: '0x470e18822EdfD20770231Cd02b0154bc30e2Eee0',
       },
       erc721s: {
-        BLOCKCLIP_NFT: '0x5089fbbA3a13103bf0683ebC7b11887Cf39810E3',
+        BLOCKCLIP_NFT: '0x455EbFdEb9B251D8a3ff8391C340228B40E933e2',
       },
       ercs: {
-        MARKETPLACE: '0x13fAE2bA327723f69D210e746Dba992F274b30A3'
+        MARKETPLACE: '0x98539031cE73f5eF94057836C3836c3a4b9803C8'
       }
     },
   },

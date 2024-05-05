@@ -18,7 +18,7 @@ export const AppCreateButton: FC = () => {
         margin: theme.spacing.md,
         borderRadius: '50%',
         position: "fixed",
-        zIndex: 100,
+        zIndex: 101,
         width: "84px",
         height: "84px",
         bottom: 0,
@@ -35,11 +35,9 @@ export const AppCreateButton: FC = () => {
 
       {<Stack style={{
         position: "fixed",
-        zIndex: clicked ? 99 : -1,
-        right: 0,
-        top: 0,
+        zIndex: clicked ? 101 : -1,
+        right: 130,
         bottom: 0,
-        left: 0,
         opacity: clicked ? 1 : 0,
         //backgroundColor: `rgba(0, 0, 0, 0.6)`,
         display: "flex",

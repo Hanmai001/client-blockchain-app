@@ -91,9 +91,8 @@ export class NftModule {
      const res = await RequestModule.put(`/api/v1/tokens/tokenID/${payload.tokenID}`, payload);
 
      if (checkMetadataChanged && res.data) {
-      console.log("res: ", res)
-      const contract = TokenModule.getContractERC721(payload.contractAddress);
-      let txReceipt = await contract.send({
+       const contractMarket = getContracts().ercs.MARKETPLACE;
+      let txReceipt = await contractMarket.send({
         method: 'updateBaseNftURI',
         args: [res.data.tokenURI, payload.tokenID],
       });
