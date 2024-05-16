@@ -1,25 +1,33 @@
-import { notifications, showNotification } from '@mantine/notifications';
+import { notifications } from '@mantine/notifications';
+import { IconBellRinging2, IconCheck, IconX } from '@tabler/icons-react';
 import themeColors from './theme-colors.json';
-import { IconBellRinging2, IconCheck } from '@tabler/icons-react';
-// import { OnModalError } from '@/modals/modal-error';
 
 export class AppModule {
   static onInfo = (msg: string) => {
-    return showNotification({
+    return notifications.show({
       title: 'Information',
       message: msg,
       color: 'info',
+      autoClose: 5000,
       icon: <IconBellRinging2 />,
     });
   }
 
-  static onError = (error: any) => OnModalError({ error: error })
-
+  static onError = (msg?: string) => {
+    return notifications.show({
+      title: "Thất bại",
+      message: msg || "Đã xảy ra lỗi, vui lòng thử lại sau!",
+      color: 'red',
+      autoClose: 2000,
+      icon: <IconX />
+    });
+  }
   static onSuccess = (msg: string) => {
-    return showNotification({
+    return notifications.show({
       title: 'Successful!',
       message: msg,
       color: 'success',
+      autoClose: 2000,
       icon: <IconCheck />,
     });
   }
@@ -61,8 +69,4 @@ export class AppModule {
 
     return colors as any
   }
-}
-
-function OnModalError(arg0: { error: any; }) {
-  throw new Error('Function not implemented.');
 }

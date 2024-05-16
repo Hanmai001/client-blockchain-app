@@ -15,7 +15,7 @@ import { getChainId } from "@/modules/configs/context";
 import { RequestModule } from "@/modules/request/request";
 import { chains } from "@/share/blockchain/chain";
 import { useBlockChain } from "@/share/blockchain/context";
-import { Grid, Group, Select, Stack, Text, TextInput, Textarea, ThemeIcon, Title, useMantineTheme } from "@mantine/core";
+import { Box, Grid, Group, Select, Stack, Text, TextInput, Textarea, ThemeIcon, Title, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconEye, IconNotebook, IconPhotoVideo } from "@tabler/icons-react";
 import { ethers } from "ethers";
@@ -135,7 +135,7 @@ export const CollectionCreateScreen: FC = () => {
                   }}
                 />
 
-                <Group mt={20} grow>
+                <Group mt={20} visibleFrom="sm" grow>
                   <TextInput
                     label="Tên bộ sưu tập"
                     placeholder="My Collection"
@@ -172,6 +172,42 @@ export const CollectionCreateScreen: FC = () => {
                     onChange={(value: CollectionType) => form.setFieldValue("category", value)}
                   />
                 </Group>
+
+                <Stack mt={20} hiddenFrom="sm">
+                  <TextInput
+                    label="Tên bộ sưu tập"
+                    placeholder="My Collection"
+                    withAsterisk
+                    styles={{
+                      input: {
+                        height: '45px',
+                        borderRadius: '10px',
+                        marginTop: "6px"
+                      },
+                    }}
+                    {...form.getInputProps('title')}
+                  />
+
+                  <MyCombobox
+                    initialvalue={CollectionType.TOURISM}
+                    options={CollectionType}
+                    label="Thể loại"
+                    styles={{
+                      dropdown: {
+                        maxHeight: '200px',
+                        overflow: 'hidden',
+                        overflowY: 'auto',
+                      },
+                    }}
+                    classNames={{
+                      dropdown: 'hidden-scroll-bar'
+                    }}
+                    classnamesinput={classes.comboboxInput}
+                    classnamesroot={classes.comboboxRootInput}
+                    onChange={(value: CollectionType) => form.setFieldValue("category", value)}
+                  />
+                </Stack>
+
                 <Textarea
                   label="Mô tả"
                   withAsterisk
@@ -262,11 +298,11 @@ export const CollectionCreateScreen: FC = () => {
             </Grid.Col>
           </Grid>
 
-          <Group my={30} justify="flex-end">
-            <AppButton async loading={isUploading} type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
+          <Box my={20}>
+            <AppButton async type='submit' width={isMobile ? '100%' : 150} height={50} radius={8} color={theme.colors.primary[5]}>
               Tạo ngay
             </AppButton>
-          </Group>
+          </Box>
         </form>
       </Stack>
     </BoundaryConnectWallet>

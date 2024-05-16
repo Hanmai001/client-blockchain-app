@@ -52,7 +52,7 @@ export const ModalSuccess: FC = () => {
             <Text size="20px">{state.title || 'Thành công'}</Text>
             <Text opacity={0.8}>{state?.message}</Text>
           </Stack>
-          <Group>
+          <Group gap='xs'>
             <AppButton color={theme.colors.primary[5]} onClick={() => { router.push('/'); close() }}>
               Trang chủ
             </AppButton>

@@ -33,10 +33,10 @@ export interface MarketPackagePayload {
   status: MarketPackageStatus,
   price: number,
   seller: string,
+  subscriber: string
 }
 
 export interface MarketPackageQuery extends Query {
-  tokenID?: string,
-  sort?: string,
-  active?: boolean | null
+  id?: string,
+  collectionID?: string
 }

@@ -26,9 +26,9 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
   const [activePage, setPage] = useState(1);
   const [filter, setFilter] = useState(CollectionStatus.ALL);
   const gridColumns = {
-    lg: 4,
-    sm: 6,
-    xs: 12
+    lg: 3,
+    sm: 4,
+    xs: 6
   }
   const CollectionTypeArray = Object.values(CollectionType).filter(type => type !== CollectionType.ALL) as string[];
 
@@ -53,10 +53,10 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
           if (filter === CollectionStatus.OLDEST) sort = '+createdAt';
           if (filter === CollectionStatus.NEWEST) sort = '-createdAt';
         }
-        const res = await CollectionModule.getList({ 
-          chainID: blockchain.chainId, 
-          limit: 20, 
-          offset: (activePage - 1) * 20, 
+        const res = await CollectionModule.getList({
+          chainID: blockchain.chainId,
+          limit: 20,
+          offset: (activePage - 1) * 20,
           active: true,
           sort
         })
@@ -86,10 +86,10 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
   }, [props.type, filter]);
 
   return (
-    <Stack>
+    <Stack gap={10}>
       {props.type === CollectionType.ALL ? featuredRes.map((v, k) => (
         <Box key={k}>
-          <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
+          <Title c={theme.colors.text[1]} order={4} fw={500} mt={theme.spacing.md}>
             Bộ sưu tập {CollectionTypeArray[k]} nổi bật
           </Title>
 
@@ -117,7 +117,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
         </Box>
       )) : <>
         <Group>
-          <Title flex={8} c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
+          <Title flex={8} c={theme.colors.text[1]} order={4} fw={500} mt={theme.spacing.md}>
             Tất cả Bộ sưu tập {props.type}
           </Title>
           <Box flex={4}>
@@ -152,7 +152,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
 
           if (collections.data?.count === 0) return <EmptyMessage />
 
-          return <Grid mt={10} gutter={theme.spacing.md}>
+          return <Grid gutter={theme.spacing.md}>
             {collections.data?.collections.map((v, k) => <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>)}

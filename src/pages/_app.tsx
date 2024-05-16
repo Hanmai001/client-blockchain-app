@@ -19,16 +19,25 @@ import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/carousel/styles.css';
+import { Notifications } from "@mantine/notifications";
+import '@mantine/notifications/styles.css';
 import { AppProps } from "next/app";
+import { Nunito } from 'next/font/google';
 import { FC, PropsWithChildren } from 'react';
 import { Provider } from 'react-redux';
 import { ModalSubscribeCollection } from '@/components/modals/modal-subscribe-collection';
 
+const nunito = Nunito({
+  weight: '500',
+  subsets: ['latin'],
+});
+
 const App: FC<PropsWithChildren> = (props) => {
 
   return (
-    <AccountProvider>
-      <main>
+    <>
+      {/* <Notifications /> */}
+      <main className={nunito.className}>
         {props.children}
 
         {/* APP MODALS */}
@@ -41,7 +50,7 @@ const App: FC<PropsWithChildren> = (props) => {
         <ModalNftDetail />
         <ModalSubscribeCollection />
       </main>
-    </AccountProvider>
+    </>
   )
 }
 
@@ -67,15 +76,17 @@ export default function ({ Component, pageProps }: AppProps) {
   >
     <BlockChainProvider>
       <ConfigsProvider>
-        <ChatProvider>
-          <NotificationProvider>
-            <Provider store={store}>
-              <App>
-                <Component {...pageProps} />
-              </App>
-            </Provider>
-          </NotificationProvider>
-        </ChatProvider>
+        <AccountProvider>
+          <ChatProvider>
+            <NotificationProvider>
+              <Provider store={store}>
+                <App>
+                  <Component {...pageProps} />
+                </App>
+              </Provider>
+            </NotificationProvider>
+          </ChatProvider>
+        </AccountProvider>
       </ConfigsProvider>
     </BlockChainProvider>
   </MantineProvider>

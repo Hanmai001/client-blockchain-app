@@ -1,10 +1,9 @@
-import { Text, Stack, UnstyledButton, useMantineTheme, Group } from "@mantine/core";
-import { useClickOutside, useHover } from "@mantine/hooks";
-import { IconCategory, IconUpload } from "@tabler/icons-react";
+import { Stack, Text, UnstyledButton, useMantineTheme } from "@mantine/core";
+import { IconUpload } from "@tabler/icons-react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { AppRoutes } from "../../../app-router";
-import Link from "next/link";
 
 
 export const AppCreateButton: FC = () => {
@@ -17,18 +16,13 @@ export const AppCreateButton: FC = () => {
       <UnstyledButton onClick={() => setClicked(!clicked)} style={{
         margin: theme.spacing.md,
         borderRadius: '50%',
-        position: "fixed",
-        zIndex: 101,
-        width: "84px",
-        height: "84px",
-        bottom: 0,
-        right: 12,
+        width: "74px",
+        height: "74px",
         backgroundColor: theme.colors.primary[5],
         color: theme.colors.text[0],
         display: "flex",
         justifyContent: "center",
-        flexWrap: "wrap",
-        alignContent: "center"
+        alignItems: "center"
       }} className="app-create-button">
         <IconUpload size={36} stroke={2} />
       </UnstyledButton>

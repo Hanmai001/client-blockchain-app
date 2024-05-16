@@ -20,10 +20,9 @@ export const AppNotification: FC = () => {
       <ActionIcon
         variant="light"
         color={theme.colors.primary[5]}
-        size={28}
-        h={40}
-        w={42}>
-        <IconBell size={26} />
+        size={40}
+      >
+        <IconBell size={24} stroke={1.5} />
       </ActionIcon>
     </Menu.Target>
 
@@ -42,7 +41,7 @@ export const AppNotification: FC = () => {
           //if (notification.isFetching) return <Skeleton h={100}/>
 
           return <>
-            {notification.notifications.map((v: Notification, k: number) => <NotificationItem key={k} notification={v}/>)}
+            {notification.notifications.map((v: Notification, k: number) => <NotificationItem key={k} notification={v} />)}
           </>
         }()}
       </InfiniteScroll>

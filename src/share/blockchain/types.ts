@@ -1,3 +1,4 @@
+import { JsonRpcSigner } from "ethers";
 import { ContractERC20 } from "./contracts/ERC20";
 import { ContractERC721 } from "./contracts/ERC721";
 import { Contract } from "./contracts/core";
@@ -101,7 +102,7 @@ export class BlockchainError {
   type?: ContractActionType;
   provider: string;
   method?: string;
-  wallet?: string;
+  wallet?: string | JsonRpcSigner;
   args?: string;
   contractName?: string;
   contractAddress?: string;
@@ -115,7 +116,7 @@ export class BlockchainError {
     type?: ContractActionType,
     provider?: string,
     method?: string,
-    wallet?: string,
+    wallet?: string | JsonRpcSigner,
     args?: string,
     contractName?: string,
     contractAddress?: string,

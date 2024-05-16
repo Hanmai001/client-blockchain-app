@@ -45,8 +45,3 @@ export const AppButton: FC<IButtonProps> = (props) => {
     </Button>
   )
 }
-
-AppButton.defaultProps = {
-  variant: 'filled'
-}
-

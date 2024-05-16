@@ -28,6 +28,7 @@ export enum PackageType {
 export interface Collection {
   collectionID: string,
   contractAddress: string,
+  totalSubscribers: number,
   id: string,
   creatorCollection: string,
   chainID: string,
@@ -82,9 +83,25 @@ export interface CollectionPayload {
   ],
 } 
 
+export interface CollectionUpdatePackagePayload {
+  package?: [
+    {
+      type:  PackageType,
+      price: number
+    },
+     {
+      type:  PackageType,
+      price: number
+    },
+     {
+      type:  PackageType,
+      price: number
+    }
+  ],
+}
+
 export interface CollectionUpdatePayload {
   collectionID: string,
-  contractAddress: string,
   chainID: string,
   title?: string,
   bannerURL?: string,

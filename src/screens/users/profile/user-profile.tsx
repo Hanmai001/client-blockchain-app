@@ -167,13 +167,16 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
   });
 
   return (
-    <AspectRatio ref={ref} ratio={400 / 100} style={{ overflow: 'hidden', cursor: hovered && isSignedUser ? 'pointer' : 'normal' }}>
-      <AppImage src={image} alt="" />
+    <Box pos='relative'>
+      <AspectRatio ref={ref} ratio={400 / 100} style={{ overflow: 'hidden', cursor: hovered && isSignedUser ? 'pointer' : 'normal' }}>
+        <AppImage src={image} alt="" />
+      </AspectRatio>
 
       <Group
         style={{
           alignItems: 'flex-end',
           justifyContent: 'center',
+
         }}
         w={'100%'}
       >
@@ -237,7 +240,7 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
         </div>}
 
       </Group>
-    </AspectRatio>
+    </Box>
   )
 }
 

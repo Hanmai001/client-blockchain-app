@@ -50,20 +50,20 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
     blockchain.connectChain(chainId);
   }
 
-  const contractERC721s = Object.keys(chainConfig.erc721s).reduce((output, key) => {
-    output[key] = new ContractERC721({
-      address: chainConfig.erc721s[key],
+  const contractERC721s: ERC721Contracts<ContractERC721> = Object.keys(chainConfig.erc721s).reduce((output, key) => {
+    output[key as keyof ERC721Contracts<ContractERC721>] = new ContractERC721({
+      address: chainConfig.erc721s[key as keyof ERC721Contracts<string>],
       chainId: status.chainId,
       provider: blockchain.provider,
       name: key,
       wallet: blockchain.wallet,
-    })
+    });
     return output;
-  }, {} as ERC721Contracts<ContractERC721>)
+  }, {} as ERC721Contracts<ContractERC721>);
 
   const contractERC20s = Object.keys(chainConfig.erc20s).reduce((output, key) => {
-    output[key] = new ContractERC20({
-      address: chainConfig.erc20s[key],
+    output[key as keyof ERC20Contracts<ContractERC20>] = new ContractERC20({
+      address: chainConfig.erc20s[key as keyof ERC20Contracts<string>],
       chainId: status.chainId,
       provider: blockchain.provider,
       name: key,
@@ -73,8 +73,8 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
   }, {} as ERC20Contracts<ContractERC20>);
 
   const otherContracts = Object.keys(chainConfig.ercs).reduce((output, key) => {
-    output[key] = new Contract({
-      address: chainConfig.ercs[key],
+    output[key as keyof OTHERContracts<Contract>] = new Contract({
+      address: chainConfig.ercs[key as keyof OTHERContracts<string>],
       chainId: status.chainId,
       provider: blockchain.provider,
       name: key,
@@ -85,7 +85,7 @@ export const ConfigsProvider: FC<PropsWithChildren> = (props) => {
   }, {} as OTHERContracts<Contract>);
 
   const contracts: Contracts = {
-    isAbleToWrite: !!blockchain.provider && !!blockchain.wallet && blockchain.chainId && blockchain.chainId === status.chainId,
+    isAbleToWrite: !!blockchain.provider && !!blockchain.wallet! && blockchain.chainId! && blockchain.chainId === status.chainId,
     erc20s: contractERC20s,
     erc721s: contractERC721s,
     ercs: otherContracts

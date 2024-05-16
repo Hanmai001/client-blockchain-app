@@ -2,6 +2,7 @@ import { ObjectUtils } from "@/share/utils";
 import axios, { AxiosRequestConfig } from "axios";
 import { AccountAccessToken } from "../account/acess-token";
 import { getChainId, getConfig } from "../configs/context";
+import { getAccount } from "../account/context";
 
 export class RequestModule {
   static getURL(subURL: string) {
@@ -82,8 +83,8 @@ export class RequestModule {
     }
   }
 
-  static async uploadMedia(subURL: string, file: File, limitSize?: number, key?: string) {
-    const configs = await this.getConfigs();
+  static async uploadMedia(subURL: string, file: File, limitSize?: number, key?: string, params = {}) {
+    const configs = await this.getConfigs(params);
     const formData = new FormData();
     formData.append(key || "file", file);
 

@@ -36,14 +36,14 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
     try {
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, active: true })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, active: true, limit: 12, sort: '-createdAt' })
         filteredRes = res.data!.collections.filter(v => true);
 
       } else {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, active: true })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, active: true, limit: 12, sort: '-createdAt' })
         filteredRes = res.data!.collections.filter(v => true);
       }
-      filteredRes = getRandomItems(filteredRes, 12);
+      // filteredRes = getRandomItems(filteredRes, 12);
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
     } catch (error) {
       setCollections(s => ({ ...s, isFetching: false }))
@@ -109,30 +109,33 @@ const BannerSlide: FC<{ collection: Collection }> = (props) => {
 
   return (
     <Link href={`/collections/${props.collection.collectionID}`}>
-      <Box className={classes.banner}>
-        <AspectRatio ratio={820 / 600} style={{ overflow: 'hidden', borderRadius: rem(10) }}>
+      <Box className={classes.banner} pos='relative'>
+        <AspectRatio ratio={820 / 600} w={'100%'} style={{ overflow: 'hidden', borderRadius: rem(10) }}>
           <AppImage src={props.collection.bannerURL} alt="" className={classes.bannerImage} />
-
-          <Group
-            //bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0))`}
-            style={{
-              alignItems: 'flex-end',
-              justifyContent: 'flex-start',
-              borderRadius: '12px',
-            }}
-          >
-            <Stack color={theme.white} gap={4} m={theme.spacing.lg} style={{ zIndex: 2 }}>
-              <Title size={18} c={theme.colors.text[0]}>
-                {props.collection.title}
-              </Title>
-              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
-              <Group justify="space-between" mt={4}>
-                <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems} items</Text>
-                <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
-              </Group>
-            </Stack>
-          </Group>
         </AspectRatio>
+
+        <Group
+          //bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0))`}
+          style={{
+            alignItems: 'flex-end',
+            justifyContent: 'flex-start',
+            borderRadius: '12px',
+            position: 'absolute',
+            left: 0,
+            bottom: 0
+          }}
+        >
+          <Stack color={theme.white} gap={4} m={theme.spacing.lg} style={{ zIndex: 2 }}>
+            <Title size={18} c={theme.colors.text[0]}>
+              {props.collection.title}
+            </Title>
+            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
+            <Group justify="space-between" mt={4}>
+              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems} items</Text>
+              <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>
+            </Group>
+          </Stack>
+        </Group>
       </Box>
     </Link>
   )

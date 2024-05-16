@@ -55,6 +55,8 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
         params: ['Sign in to BlockClip', wallet]
       });
 
+      if (!wallet) throw onError("Wallet is undefined");
+
       const payload: UserSignInPayload = {
         wallet,
         signature,

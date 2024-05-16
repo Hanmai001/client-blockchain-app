@@ -17,7 +17,7 @@ export const ConnectWallet: FC = () => {
     try {
       await account.signIn(providerType);
     } catch (error) {
-      
+
     }
   }
 
@@ -26,23 +26,21 @@ export const ConnectWallet: FC = () => {
   //If user have already an account in webapp
   if (account.information) {
     //User's connected chain is different from default chainId of webapp
-    if (config.chainId !== blockchain.chainId) {
-      return <Group>
-        <AppButton
-          async
-          color={theme.colors.primary[5]}
-          height={45}
-          width={156}
-          onClick={() => blockchain.connectChain(blockchain.chainId).catch(error => { })}
-        >
-          Đổi mạng
-        </AppButton>
-      </Group>
+    if (blockchain.chainId && config.chainId !== blockchain.chainId) {
+      return (
+        <Group>
+          <AppButton
+            async
+            color={theme.colors.primary[5]}
+            height={45}
+            width={156}
+            onClick={() => blockchain.connectChain(blockchain.chainId!).catch(error => { })}
+          >
+            Đổi mạng
+          </AppButton>
+        </Group>
+      );
     }
-
-    return <Group>
-
-    </Group>
   }
 
   //If user don't have an account in webapp

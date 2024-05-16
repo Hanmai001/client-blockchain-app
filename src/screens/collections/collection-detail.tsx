@@ -1,12 +1,20 @@
-import { AppCreateButton } from "@/components/app/app-create-button";
+import { AppButton } from "@/components/app/app-button";
+import { AppConnectedButtons } from "@/components/app/app-connected-buttons";
 import { AppImage } from "@/components/app/app-image";
 import { AppWrapper } from "@/components/app/app-wrapper";
+import { MyCombobox } from "@/components/combobox/my-combobox";
 import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
+import { onSubscribeCollection } from "@/components/modals/modal-subscribe-collection";
 import { useAccount } from "@/modules/account/context";
+import { useResponsive } from "@/modules/app/hooks";
 import { renderPayment } from "@/modules/coins/utils";
 import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
+import { MarketPackageModule } from "@/modules/market-package/modules";
+import { MarketPackage } from "@/modules/market-package/types";
+import { MarketOrderModule } from "@/modules/marketorder/modules";
+import { MarketStatus } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
 import { FilterOptions } from "@/modules/nft/types";
 import { StringUtils } from "@/share/utils";
@@ -17,12 +25,6 @@ import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { NftCard } from "../../components/nft-card";
 import classes from '../../styles/collections/CollectionDetail.module.scss';
-import { MyCombobox } from "@/components/combobox/my-combobox";
-import { MarketOrderModule } from "@/modules/marketorder/modules";
-import { MarketStatus } from "@/modules/marketorder/types";
-import { useResponsive } from "@/modules/app/hooks";
-import { AppButton } from "@/components/app/app-button";
-import { onSubscribeCollection } from "@/components/modals/modal-subscribe-collection";
 
 export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const [activePage, setPage] = useState(1);
@@ -35,9 +37,9 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
   const { isMobile, isTablet } = useResponsive();
 
   const gridColumns = {
-    lg: 3,
-    sm: 4,
-    xs: 6
+    lg: 12 / 5,
+    sm: 3,
+    xs: 4
   }
 
   const fetchItems = async () => {
@@ -149,7 +151,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 
           if (items.data?.count === 0) return <EmptyMessage />
 
-          return <Grid gutter={theme.spacing.md}>
+          return <Grid gutter={theme.spacing.xs}>
             {items.data?.tokens.map((v, k) => (
               <Grid.Col key={k} span={{ ...gridColumns }}>
                 <NftCard nft={v} key={k} />
@@ -172,7 +174,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
       />
     </Stack>
 
-    <AppCreateButton />
+    <AppConnectedButtons />
   </AppWrapper>
 }
 
@@ -181,6 +183,9 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
   const { symbol } = renderPayment(props.collection.paymentType);
   const [totalItems, setTotalItems] = useState(0);
   const { isMobile } = useResponsive();
+  const account = useAccount();
+  const [marketPackage, setMarketPackage] = useState<MarketPackage | null>(null);
+  const isSignedUser = account.information?.wallet === props.collection.creatorCollection;
 
   const fetchItemsOfCollection = async () => {
     try {
@@ -188,6 +193,15 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
       setTotalItems(listtokens.data?.count || 0);
     } catch (error) {
 
+    }
+  }
+
+  const fetchMarketPackage = async () => {
+    try {
+      const res = await MarketPackageModule.getListOfUser({ collectionID: props.collection.collectionID });
+      setMarketPackage(res.data[0] || null);
+    } catch (error) {
+      setMarketPackage(null);
     }
   }
 
@@ -204,15 +218,25 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
     updateTotalViews();
   }, [props.collection])
 
+  useEffect(() => {
+    fetchMarketPackage();
+  }, [account.information])
+
   return (
-    <AspectRatio ratio={isMobile ? 400 / 200 : 400 / 100} style={{ overflow: 'hidden' }}>
-      <AppImage src={props.collection.bannerURL} alt="" />
+    <Box pos='relative'>
+      <AspectRatio ratio={isMobile ? 400 / 200 : 400 / 100} style={{ overflow: 'hidden' }}>
+        <AppImage src={props.collection.bannerURL} alt="" />
+      </AspectRatio>
+
 
       <Group
         bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0))`}
         style={{
           alignItems: 'flex-end',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          position: 'absolute',
+          left: 0,
+          bottom: 0
         }}
         w={'100%'}
       >
@@ -228,7 +252,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
             </Group>
           </Stack>
 
-          <AppButton
+          {!isSignedUser && !marketPackage && <AppButton
             color={theme.colors.primary[5]}
             height={45}
             px={20}
@@ -237,7 +261,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
             onClick={() => onSubscribeCollection({ collection: props.collection })}
           >
             Đăng kí kênh
-          </AppButton>
+          </AppButton>}
         </Group>
 
         <Group m={isMobile ? 'auto' : theme.spacing.lg} gap={isMobile ? 20 : 40}>
@@ -257,6 +281,6 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
           </Stack>
         </Group>
       </Group>
-    </AspectRatio>
+    </Box>
   )
 }

@@ -1,18 +1,14 @@
-import { AppImage } from "@/components/app/app-image";
+import { AppButton } from "@/components/app/app-button";
+import { useAccount } from "@/modules/account/context";
 import { Nft } from "@/modules/nft/types";
 import { ClassNames, StringUtils } from "@/share/utils";
-import { AspectRatio, Card, Stack, Title, useMantineTheme, Text, Group, ActionIcon, rem, Tooltip, Box } from "@mantine/core";
-import Link from "next/link";
-import { FC, useEffect } from "react";
-import classes from '../styles/collections/CollectionDetail.module.scss';
-import { AppButton } from "@/components/app/app-button";
+import { ActionIcon, AspectRatio, Box, Card, Stack, Text, Title, Tooltip, rem, useMantineTheme } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
-import { useAccount } from "@/modules/account/context";
-import { ethers } from "ethers";
-import { IconEdit, IconEye, IconEyeBolt, IconEyeClosed, IconEyeFilled } from "@tabler/icons-react";
+import { IconEdit } from "@tabler/icons-react";
+import Link from "next/link";
+import { FC } from "react";
 import { AppRoutes } from "../../app-router";
-import { onError } from "./modals/modal-error";
-import { NftModule } from "@/modules/nft/modules";
+import classes from '../styles/collections/CollectionDetail.module.scss';
 
 export const NftCard: FC<{ nft: Nft }> = (props) => {
   const account = useAccount();
@@ -41,10 +37,24 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
 
         <Stack pt={theme.spacing.xs} gap={theme.spacing.xs}>
           <Tooltip label={props.nft.title}>
-            <Title size={15} c={theme.colors.text[1]}>{StringUtils.limitCharacters(props.nft.title, 15)}</Title>
+            <Text fw='bold' c={theme.colors.text[1]} style={{
+              display: '-webkit-box',
+              wordWrap: 'break-word',
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontSize: '15px'
+            }}>{props.nft.title}</Text>
           </Tooltip>
           <Box h={40}>
-            <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.nft.description, 100)}</Text>
+            <Text c={theme.colors.gray[6]} lh={1.5} style={{
+              display: '-webkit-box',
+              wordWrap: 'break-word',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontSize: '12px'
+            }}>{props.nft.description}</Text>
           </Box>
         </Stack>
 

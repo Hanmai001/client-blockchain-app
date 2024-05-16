@@ -9,7 +9,7 @@ import { onSuccess } from "@/components/modals/modal-success";
 import { useResponsive } from "@/modules/app/hooks";
 import { renderPayment } from "@/modules/coins/utils";
 import { CollectionModule } from "@/modules/collection/modules";
-import { Collection, CollectionUpdatePayload } from "@/modules/collection/types";
+import { Collection, CollectionUpdatePackagePayload, CollectionUpdatePayload } from "@/modules/collection/types";
 import { RequestModule } from "@/modules/request/request";
 import { chains } from "@/share/blockchain/chain";
 import { Accordion, Anchor, Avatar, Box, Card, Checkbox, Group, NumberInput, Select, Stack, Switch, Tabs, Text, TextInput, Textarea, useMantineTheme } from "@mantine/core";
@@ -51,7 +51,6 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
   const formUpdate = useForm<CollectionUpdatePayload>({
     initialValues: {
       collectionID: collection.collectionID,
-      contractAddress: collection.contractAddress,
       chainID: collection.chainID,
       title: collection.title,
       bannerURL: collection.bannerURL,
@@ -62,6 +61,13 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
     validate: {
       title: (value) => (value && value.length < 1 && 'Tên bộ sưu tập không hợp lệ'),
       description: (value) => (value && value.length < 1 && 'Mô tả không hợp lệ'),
+    },
+  })
+
+  const formPackage = useForm<CollectionUpdatePackagePayload>({
+    initialValues: {
+    },
+    validate: {
     },
   })
 
@@ -84,7 +90,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
         formUpdate.setFieldValue('bannerURL', payload.bannerURL);
       }
-      
+
       const checkMetadataChanged = isMetadataChanged();
       const res = await CollectionModule.updateCollection(payload, checkMetadataChanged);
       collection = res;
@@ -97,7 +103,29 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
     }
   })
 
+  const onSubmitUpdatePackage = formPackage.onSubmit(async (values) => {
+    try {
+      setIsUploading(true);
+      let payload = { ...values };
+
+      const res = await CollectionModule.updatePackage(collection.collectionID, payload);
+      collection = res;
+
+      onSuccess({ title: 'Cập nhật gói đăng kí thành công', message: '' });
+    } catch (error) {
+      onError("Cập nhật thất bại");
+    } finally {
+      setIsUploading(false);
+    }
+  })
+
   useEffect(() => {
+    formUpdate.setValues({
+      ...collection
+    })
+    formPackage.setValues({
+      ...collection
+    })
     setBannerFile(collection.bannerURL);
   }, [collection])
 
@@ -107,8 +135,8 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
 
       {isUploading && <AppLoading visible={isUploading} />}
 
-      <Box px={40} mt={90}>
-        <Card w={900} m='auto' withBorder radius={8} p={20}>
+      <Box px={isMobile ? 10 : 40} mt={90}>
+        <Card maw={900} m='auto' withBorder={isMobile ? false : true} radius={8} p={isMobile ? 0 :  20}>
           <Tabs value={activeTab} onChange={setActiveTab} color={theme.colors.primary[5]} styles={{
             tabLabel: {
               fontSize: '16px',
@@ -152,7 +180,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                     label="Hình nền"
                     withAsterisk
                     width={"100%"}
-                    height={400}
+                    height='auto'
                     ratio={260 / 150}
                     radius={10}
                     acceptance="image"
@@ -166,7 +194,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                     }}
                   />
 
-                  <Group mt={20} grow>
+                  <Group visibleFrom="sm" mt={20} grow>
                     <TextInput
                       label="Tên bộ sưu tập"
                       placeholder="My Collection"
@@ -203,6 +231,41 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                       onChange={(value: CollectionType) => formUpdate.setFieldValue("category", value)}
                     />
                   </Group>
+
+                  <Stack hiddenFrom="sm" mt={20}>
+                    <TextInput
+                      label="Tên bộ sưu tập"
+                      placeholder="My Collection"
+                      withAsterisk
+                      styles={{
+                        input: {
+                          height: '45px',
+                          borderRadius: '10px',
+                          marginTop: "6px"
+                        },
+                      }}
+                      {...formUpdate.getInputProps('title')}
+                    />
+
+                    <MyCombobox
+                      initialvalue={CollectionType.TOURISM}
+                      options={CollectionType}
+                      label="Thể loại"
+                      styles={{
+                        dropdown: {
+                          maxHeight: '200px',
+                          overflow: 'hidden',
+                          overflowY: 'auto',
+                        },
+                      }}
+                      classNames={{
+                        dropdown: 'hidden-scroll-bar'
+                      }}
+                      classnamesinput={classes.comboboxInput}
+                      classnamesroot={classes.comboboxRootInput}
+                      onChange={(value: CollectionType) => formUpdate.setFieldValue("category", value)}
+                    />
+                  </Stack>
 
                   <Textarea
                     label="Mô tả"
@@ -252,50 +315,78 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                     {...formUpdate.getInputProps('chainID')}
                   />
 
-                  <Group justify="flex-end">
-                    <AppButton async loading={isUploading} type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
+                  <Box my={20}>
+                    <AppButton async type='submit' width={'100%'} height={50} radius={8} color={theme.colors.primary[5]}>
                       Cập nhật
                     </AppButton>
-                  </Group>
+                  </Box>
                 </Stack>
               </form>
             </Tabs.Panel>
             <Tabs.Panel value="listing">
-              <Accordion
-                mt={20}
-                multiple
-                variant="contained"
-                defaultValue={['1']}
-                chevron={<IconPlus className={classes.icon} />}
-                radius={10}
-                styles={{
-                  item: {
-                    margin: '8px 10px',
-                    border: 'none',
-                    borderBottom: `1px solid ${theme.colors.gray[3]}`,
-                  },
-                  control: {
-                    color: theme.colors.primary[5],
-                    padding: '5px 10px',
-                  },
-                  panel: {
-                    borderTop: `1px solid ${theme.colors.gray[3]}`,
-                    backgroundColor: theme.white,
-                  },
-                  root: {
-                    //boxShadow: `0 1px 4px rgba(0, 0, 0, 0.1)`,
-                    border: `1px solid ${theme.colors.gray[2]}`,
-                    borderRadius: '8px'
-                  }
-                }}
-                classNames={classes}
-              >
-                <Accordion.Item key="1" value="1">
-                  <Accordion.Control icon={<IconStars />}>
-                    Gói 30 ngày
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Stack>
+              <form onSubmit={onSubmitUpdatePackage}>
+                <Accordion
+                  mt={20}
+                  multiple
+                  variant="contained"
+                  defaultValue={['1']}
+                  chevron={<IconPlus className={classes.icon} />}
+                  radius={10}
+                  styles={{
+                    item: {
+                      margin: '8px 10px',
+                      border: 'none',
+                      borderBottom: `1px solid ${theme.colors.gray[3]}`,
+                    },
+                    control: {
+                      color: theme.colors.primary[5],
+                      padding: '5px 10px',
+                    },
+                    panel: {
+                      borderTop: `1px solid ${theme.colors.gray[3]}`,
+                      backgroundColor: theme.white,
+                    },
+                    root: {
+                      //boxShadow: `0 1px 4px rgba(0, 0, 0, 0.1)`,
+                      border: `1px solid ${theme.colors.gray[2]}`,
+                      borderRadius: '8px'
+                    }
+                  }}
+                  classNames={classes}
+                >
+                  <Accordion.Item key="1" value="1">
+                    <Accordion.Control icon={<IconStars />}>
+                      Gói 30 ngày
+                    </Accordion.Control>
+                    <Accordion.Panel>
+                      <Stack>
+                        <NumberInput
+                          my={10}
+                          label="Giá đăng kí"
+                          placeholder="0.001"
+                          withAsterisk
+                          decimalScale={5}
+                          allowNegative={false}
+                          styles={{
+                            root: {
+                              width: '100%',
+                            },
+                            input: {
+                              height: '45px',
+                              borderRadius: '10px',
+                              marginTop: "6px"
+                            },
+                          }}
+                          {...formPackage.getInputProps('package.0.price')}
+                        />
+                      </Stack>
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                  <Accordion.Item key="2" value="2">
+                    <Accordion.Control icon={<IconStars />}>
+                      Gói 90 ngày
+                    </Accordion.Control>
+                    <Accordion.Panel>
                       <NumberInput
                         my={10}
                         label="Giá đăng kí"
@@ -313,120 +404,91 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                             marginTop: "6px"
                           },
                         }}
+                        {...formPackage.getInputProps('package.1.price')}
                       />
-                    </Stack>
-                  </Accordion.Panel>
-                </Accordion.Item>
-                <Accordion.Item key="2" value="2">
-                  <Accordion.Control icon={<IconStars />}>
-                    Gói 90 ngày
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <NumberInput
-                      my={10}
-                      label="Giá đăng kí"
-                      placeholder="0.001"
-                      withAsterisk
-                      decimalScale={5}
-                      allowNegative={false}
-                      styles={{
-                        root: {
-                          width: '100%',
-                        },
-                        input: {
-                          height: '45px',
-                          borderRadius: '10px',
-                          marginTop: "6px"
-                        },
-                      }}
-                    />
-                  </Accordion.Panel>
-                </Accordion.Item>
-                <Accordion.Item key="3" value="3">
-                  <Accordion.Control icon={<IconStars />}>
-                    Gói 1 năm
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <NumberInput
-                      my={10}
-                      label="Giá đăng kí"
-                      placeholder="0.001"
-                      withAsterisk
-                      decimalScale={5}
-                      allowNegative={false}
-                      styles={{
-                        root: {
-                          width: '100%',
-                        },
-                        input: {
-                          height: '45px',
-                          borderRadius: '10px',
-                          marginTop: "6px"
-                        },
-                      }}
-                    />
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </Accordion>
-              <Stack px={20} mt={20} gap={6}>
-                <label style={{ display: 'block', fontWeight: 500, fontSize: '15px' }}>
-                  Phương thức thanh toán
-                  <span style={{ color: 'red' }}>*</span>
-                </label>
-                <Group>
-                  {payments.map((v, k) => <Card
-                    withBorder
-                    px={40}
-                    py={20}
-                    radius={8}
-                    key={k}
-                    onClick={() => setSelectedToken(v.paymentType)}
-                    style={{
-                      border: selectedToken === v.paymentType ? `1px solid ${theme.colors.primary[5]}` : '',
-                      background: selectedToken === v.paymentType ? `${theme.colors.primary[5]}15` : '',
-                      cursor: 'pointer'
-                    }}>
-                    <Stack align="center">
-                      <Avatar src={v.image} w={48} h={48} />
-                      <Text c={theme.colors.text[1]} fw={500}>{v.symbol}</Text>
-                    </Stack>
-                  </Card>)}
-                </Group>
-                <Checkbox
-                  my={10}
-                  label={
-                    <>
-                      Tôi đồng ý <Anchor href="/policy" target="_blank" inherit
-                        style={{
-                          textDecoration: 'underline',
-                          color: 'blue'
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                  <Accordion.Item key="3" value="3">
+                    <Accordion.Control icon={<IconStars />}>
+                      Gói 1 năm
+                    </Accordion.Control>
+                    <Accordion.Panel>
+                      <NumberInput
+                        my={10}
+                        label="Giá đăng kí"
+                        placeholder="0.001"
+                        withAsterisk
+                        decimalScale={5}
+                        allowNegative={false}
+                        styles={{
+                          root: {
+                            width: '100%',
+                          },
+                          input: {
+                            height: '45px',
+                            borderRadius: '10px',
+                            marginTop: "6px"
+                          },
                         }}
-                      >Chính sách và điều khoản
-                      </Anchor> của BlockClip
-                    </>
-                  }
-                  checked={agreedPolicy}
-                  color={theme.colors.primary[5]}
-                  onChange={(event) => setAgreedPolicy(event.currentTarget.checked)}
-                  styles={{
-                    label: {
-                      fontStyle: 'italic'
+                        {...formPackage.getInputProps('package.2.price')}
+                      />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                </Accordion>
+                <Stack px={20} mt={20} gap={6}>
+                  <label style={{ display: 'block', fontWeight: 500, fontSize: '15px' }}>
+                    Phương thức thanh toán
+                    <span style={{ color: 'red' }}>*</span>
+                  </label>
+                  <Group>
+                    {payments.map((v, k) => <Card
+                      withBorder
+                      px={40}
+                      py={20}
+                      radius={8}
+                      key={k}
+                      onClick={() => setSelectedToken(v.paymentType)}
+                      style={{
+                        border: selectedToken === v.paymentType ? `1px solid ${theme.colors.primary[5]}` : '',
+                        background: selectedToken === v.paymentType ? `${theme.colors.primary[5]}15` : '',
+                        cursor: 'pointer'
+                      }}>
+                      <Stack align="center">
+                        <Avatar src={v.image} w={48} h={48} />
+                        <Text c={theme.colors.text[1]} fw={500}>{v.symbol}</Text>
+                      </Stack>
+                    </Card>)}
+                  </Group>
+                  <Checkbox
+                    my={10}
+                    label={
+                      <>
+                        Tôi đồng ý <Anchor href="/policy" target="_blank" inherit
+                          style={{
+                            textDecoration: 'underline',
+                            color: 'blue'
+                          }}
+                        >Chính sách và điều khoản
+                        </Anchor> của BlockClip
+                      </>
                     }
-                  }}
-                />
-              </Stack>
-              <Group justify="flex-end">
-                <AppButton
-                  async
-                  loading={isUploading}
-                  type='submit'
-                  width={150} height={54} radius={10}
-                  color={theme.colors.primary[5]}
-                  disabled={!agreedPolicy}
-                >
-                  Xác nhận
-                </AppButton>
-              </Group>
+                    checked={agreedPolicy}
+                    color={theme.colors.primary[5]}
+                    onChange={(event) => setAgreedPolicy(event.currentTarget.checked)}
+                    styles={{
+                      label: {
+                        fontStyle: 'italic'
+                      }
+                    }}
+                  />
+                </Stack>
+
+                <Box my={20}>
+                  <AppButton async type='submit' width={'100%'} height={50} radius={8} color={theme.colors.primary[5]}>
+                    Xác nhận
+                  </AppButton>
+                </Box>
+              </form>
             </Tabs.Panel>
           </Tabs>
         </Card>

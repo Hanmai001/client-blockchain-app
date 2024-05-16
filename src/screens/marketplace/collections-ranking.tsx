@@ -6,14 +6,14 @@ import { CollectionModule } from "@/modules/collection/modules";
 import { Collection, CollectionType } from "@/modules/collection/types";
 import { useBlockChain } from "@/share/blockchain/context";
 import { StringUtils } from "@/share/utils";
-import { AspectRatio, Group, Skeleton, Stack, Text, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Divider, Group, ScrollArea, Skeleton, Stack, Table, Text, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { EmptyMessage } from "@/components/empty-message";
 import { useResponsive } from "@/modules/app/hooks";
 
-export const CollectionsRanking: FC<{type: string | null}> = (props) => {
+export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
   const defaultState: ListLoadState<any, 'collections'> = { isFetching: true, data: { collections: [], count: 0 } }
   const [collections, setCollections] = useState(defaultState);
   const blockchain = useBlockChain();
@@ -33,7 +33,7 @@ export const CollectionsRanking: FC<{type: string | null}> = (props) => {
       }
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
     } catch (error) {
-      setCollections(s => ({...s, isFetching: false}))
+      setCollections(s => ({ ...s, isFetching: false }))
       onError(error)
     }
   }
@@ -42,12 +42,16 @@ export const CollectionsRanking: FC<{type: string | null}> = (props) => {
     fetchCollectionsRanking();
   }, [])
 
-  return <Stack>
-    <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
+  const firstFiveCollections = collections.data?.collections.slice(0, 5) || [];
+  const remainingCollections = collections.data?.collections.slice(5) || [];
+
+  return <ScrollArea offsetScrollbars type="always">
+    <Group mt={10} miw={800} grow align="flex-start">
+      {/* <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
       Xếp hạng trong tháng
     </Title>
 
-    <Stack p={theme.spacing.sm} gap={30} style={{
+    <Stack p={theme.spacing.sm} gap={0} style={{
       borderRadius: "10px",
       border: `1px solid ${theme.colors.gray[3]}`,
       boxShadow: `1px 3px ${theme.colors.gray[0]}`
@@ -65,29 +69,116 @@ export const CollectionsRanking: FC<{type: string | null}> = (props) => {
           ))}
         </>
       }()}
-    </Stack>
-  </Stack>
+    </Stack> */}
+      {function () {
+        if (collections.isFetching) return <Skeleton width={"100%"} height={300} />
+
+        if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
+
+        if (collections.data?.count === 0) return <Group><EmptyMessage /></Group>
+
+        return <Table
+          highlightOnHover
+          styles={{
+            td: {
+              padding: '15px 10px'
+            },
+            th: {
+              fontSize: '16px',
+              fontWeight: 'normal'
+            },
+          }}
+        >
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th flex={1}>#</Table.Th>
+              <Table.Th flex={8}>Bộ sưu tập</Table.Th>
+              <Table.Th flex={3}>Avg</Table.Th>
+              <Table.Th visibleFrom="sm">Lượt đăng ký</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {firstFiveCollections.map((v, k) => (
+              <CollectionRaking key={k} collection={v} rank={k + 1} />
+            ))}
+          </Table.Tbody>
+        </Table>
+      }()}
+
+      {function () {
+        if (collections.isFetching) return <Skeleton width={"100%"} height={300} />
+
+        if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
+
+        if (collections.data?.count === 0) return <Group><EmptyMessage /></Group>
+
+        return <Table
+          highlightOnHover
+          styles={{
+            td: {
+              padding: '15px 10px'
+            },
+            th: {
+              fontSize: '16px',
+              fontWeight: 'normal'
+            },
+          }}
+        >
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th flex={1}>Rank</Table.Th>
+              <Table.Th flex={8}>Bộ sưu tập</Table.Th>
+              <Table.Th flex={3}>Avg</Table.Th>
+              <Table.Th visibleFrom="sm">Lượt đăng ký</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {remainingCollections.map((v, k) => (
+              <CollectionRaking key={k} collection={v} rank={k + 1} />
+            ))}
+          </Table.Tbody>
+        </Table>
+      }()}
+    </Group>
+  </ScrollArea>
 }
 
 
-const CollectionRaking: FC<{ collection: Collection }> = (props) => {
+const CollectionRaking: FC<{ collection: Collection, rank: number }> = ({ collection, rank }) => {
   const theme = useMantineTheme();
-  const { symbol } = renderPayment(props.collection.paymentType);
+  const { symbol } = renderPayment(collection.paymentType);
 
   return (
-    <Link href={`/collections/${props.collection.collectionID}`}>
-      <Group>
-        <AspectRatio ratio={240 / 200} w={64} style={{ borderRadius: "12px", border: `2px solid ${theme.colors.primary[5]}`, overflow: "hidden" }}>
-          <AppImage src={props.collection.bannerURL} style={{ borderRadius: "12px" }} />
-        </AspectRatio>
+    // <Link href={`/collections/${props.collection.collectionID}`}>
+    //   <Divider my={15} />
+    // </Link>
+    <Table.Tr key={collection.collectionID}>
+      <Table.Td>
+        <Text fw="bold" c={theme.colors.text[1]}>
+          {rank}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Group>
+          <AspectRatio ratio={240 / 220} w={64} style={{ borderRadius: "12px", border: `2px solid ${theme.colors.primary[5]}`, overflow: "hidden" }}>
+            <AppImage src={collection.bannerURL} />
+          </AspectRatio>
 
-        <Stack gap={0}>
-          <Tooltip label={props.collection.title}>
-            <Text fw="bold" c={theme.colors.text[1]}>{StringUtils.limitCharacters(props.collection.title, 15)}</Text>
+          <Tooltip label={collection.title}>
+            <Text fw="bold" c={theme.colors.text[1]}>{StringUtils.limitCharacters(collection.title, 15)}</Text>
           </Tooltip>
-          <Text c={theme.colors.text[1]}>{props.collection.averagePrice} {symbol}</Text>
-        </Stack>
-      </Group>
-    </Link>
+        </Group>
+      </Table.Td>
+      <Table.Td>
+        <Text fw="bold" c={theme.colors.text[1]}>
+          {collection.averagePrice} {symbol}
+        </Text>
+      </Table.Td>
+      <Table.Td visibleFrom="sm">
+        <Text fw="bold" c={theme.colors.text[1]}>
+          123
+        </Text>
+      </Table.Td>
+    </Table.Tr>
   )
 }

@@ -2,8 +2,7 @@ import { ItemMode, ListLoadState } from "../../../types";
 import { CoinsModule } from "../coins/modules";
 import { getContracts } from "../configs/context";
 import { RequestModule } from "../request/request";
-import { TokenModule } from "../token/modules";
-import { Collection, CollectionPayload, CollectionQuery, CollectionUpdatePayload, PackageType } from "./types";
+import { Collection, CollectionPayload, CollectionQuery, CollectionUpdatePackagePayload, CollectionUpdatePayload, PackageType } from "./types";
 
 export class CollectionModule {
   static async create(payload: CollectionPayload): Promise<any> {
@@ -15,18 +14,16 @@ export class CollectionModule {
     const feeMint = await contractMarket.call({ method: 'getFeeMint' })
     const res = await CollectionModule.create(payload);
 
-    console.log(res)
+    // console.log(res)
 
     let txReceipt = await contractMarket.send({
       method: 'createCollection',
-      args: [payload.creatorCollection, res.data.collectionURI],
-      params: {
-        value: feeMint
-      }
+      args: [payload.creatorCollection, res.data.collectionURI]
     });
 
-    const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString() };
+    const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
     await this.updateAfterMint(res.data.collection.id, payloadUpdate);
+    await CoinsModule.fetchUserBalance();
   }
 
   static async getList(query?: CollectionQuery): Promise<ListLoadState<Collection, 'collections'>> {
@@ -58,11 +55,15 @@ export class CollectionModule {
     return res.data.collection;
   }
 
+  static async updatePackage(id: string, payload: CollectionUpdatePackagePayload): Promise<Collection> {
+    return RequestModule.put(`/api/v1/collections/collectionID/${id}`, payload);
+  }
+
   static async increaseTotalViews(id: string): Promise<any> {
     return RequestModule.patch(`/api/v1/collections/${id}/view`);
   }
 
-  static getModeName(mode: string): string {
+  static getModeName(mode: string | number): string {
     if (mode === ItemMode.PUBLIC) return "Công khai";
     if (mode === ItemMode.COMMERCIAL) return "Thương mại";
 

@@ -78,14 +78,14 @@ export const CreateNftScreen: FC = () => {
 
   const onSubmit = form.onSubmit(async (values) => {
     try {
-      let payload = { ...values, source: '' }
+      let payload = { ...values, mode: Number(mode[0]), source: '' }
       setIsUploading(true);
       if (collection) {
         payload.chainID = collection.data!.chainID;
         payload.collectionID = collection.data!.collectionID;
       }
       if (file instanceof File)
-        payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, file as File, 400, "source");
+        payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, file as File, 400, "source", {mode: mode[0]});
 
       await NftModule.mintNft(payload);
       onSuccess({ title: 'Tạo thành công', message: '' });

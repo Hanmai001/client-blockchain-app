@@ -310,7 +310,7 @@ export const getEvents = async (params: { chainId: ChainId, transactionHash: str
       const [descriptor] = params.abi
         .filter(v => {
           if (v.type !== 'event') return false;
-          const sign = ethers.id(v.name + '(' + v.inputs.map(input => input.type).join(',') + ')');
+          const sign = ethers.id(v.name + '(' + v.inputs.map((input: any) => input.type).join(',') + ')');
           return log.topics[0] === sign;
         })
 
@@ -389,7 +389,7 @@ export const getEvents = async (params: { chainId: ChainId, transactionHash: str
 }
 
 export const getEventSignature = (eventName: string, abi: any) => {
-  const eventAbi = abi.find((entry) => entry.name === eventName);
-  const types = eventAbi.inputs.map((input) => input.type);
+  const eventAbi = abi.find((entry: any) => entry.name === eventName);
+  const types = eventAbi.inputs.map((input: any) => input.type);
   return `${eventName}(${types.join(',')})`;
 }

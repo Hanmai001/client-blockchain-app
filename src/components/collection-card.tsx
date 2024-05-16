@@ -30,10 +30,24 @@ export const CollectionCard: FC<CollectionCardProps> = (props) => {
 
         <Stack pt={theme.spacing.xs} gap={theme.spacing.xs}>
           <Tooltip label={props.collection.title}>
-            <Title size={15} c={theme.colors.text[1]}>{StringUtils.limitCharacters(props.collection.title, 15)}</Title>
+            <Text fw='bold' c={theme.colors.text[1]} style={{
+              display: '-webkit-box',
+              wordWrap: 'break-word',
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontSize: '15px'
+            }}>{props.collection.title}</Text>
           </Tooltip>
           <Box h={40}>
-            <Text c={theme.colors.gray[6]} lh={1.5} size="12px">{StringUtils.limitCharacters(props.collection.description, 80)}</Text>
+            <Text c={theme.colors.gray[6]} lh={1.5} style={{
+              display: '-webkit-box',
+              wordWrap: 'break-word',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontSize: '12px'
+            }}>{props.collection.description}</Text>
           </Box>
 
           <Group justify="space-between">

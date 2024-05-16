@@ -1,4 +1,4 @@
-import { AppCreateButton } from '@/components/app/app-create-button';
+import { AppConnectedButtons } from '@/components/app/app-connected-buttons';
 import { AppWrapper } from '@/components/app/app-wrapper';
 import { MyCombobox } from '@/components/combobox/my-combobox';
 import { useResponsive } from '@/modules/app/hooks';
@@ -9,6 +9,7 @@ import classes from '../../styles/Marketplace.module.scss';
 import { BannerSection } from './banner-section';
 import { CollectionsRanking } from './collections-ranking';
 import { ListCollections } from './list-collections-section';
+import { NotableCollectionsSection } from './remarkable-collections';
 
 export const MarketplaceScreen = () => {
   const [activeTab, setActiveTab] = useState<string | null>(CollectionType.ALL);
@@ -49,8 +50,9 @@ export const MarketplaceScreen = () => {
           />}
 
           <BannerSection type={activeTab} />
-
-          <Grid w={'100%'}>
+          <CollectionsRanking type={activeTab}/>
+          <NotableCollectionsSection type={activeTab} />
+          {/* <Grid w={'100%'}>
             <Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
               <Stack>
                 <ListCollections type={activeTab} />
@@ -60,12 +62,11 @@ export const MarketplaceScreen = () => {
             <Grid.Col span={{ base: 12, md: 4, lg: 4 }}>
               <CollectionsRanking type={activeTab} />
             </Grid.Col>
-          </Grid>
-
+          </Grid> */}
+          <ListCollections type={activeTab} />
         </Stack>
       </Box>
-
-      <AppCreateButton />
+      <AppConnectedButtons />
     </AppWrapper>
   )
 }

@@ -2,6 +2,7 @@ import { getWallet } from "@/share/blockchain/context";
 import { CrossStorageModule } from "../cross-storage/modules";
 import { CrossStorageKey } from "../cross-storage/types";
 import { decodeJwt } from 'jose';
+import { getAccount } from "./context";
 
 export class AccountAccessToken {
   static async getList() {

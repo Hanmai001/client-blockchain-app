@@ -37,7 +37,7 @@ export interface NftPayload {
   creator: string,
   owner: string,
   chainID: string,
-  mode: ItemMode,
+  mode: ItemMode | number,
   collectionID: string,
   title: string,
   description: string

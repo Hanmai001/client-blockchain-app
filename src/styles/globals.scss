@@ -122,7 +122,7 @@ input, textarea {
     color: var(--mantine-color-white) !important;
 
     &:hover {
-      background-color: #8c36fa;
+      // background-color: #8c36fa;
     }
   }
 }
@@ -159,6 +159,27 @@ input, textarea {
     cursor: pointer;
     transform: translateY(-5px);
   }
+}
+
+//BUTTONS
+#app-connected-btns {
+  position: fixed;
+  right: 12px;
+  bottom: 10px;
+  z-index: 100;
+  align-items: center;
+}
+
+#btn-scroll-top {
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#btn-scroll-top.show {
+  opacity: 1;
 }
 
 .app-create-button {

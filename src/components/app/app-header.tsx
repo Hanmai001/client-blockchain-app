@@ -61,10 +61,9 @@ export const AppHeader: FC = () => {
               onClick={() => router.push(AppRoutes.user.messages)}
               variant="light"
               color={theme.colors.primary[5]}
-              size={28}
-              h={40}
-              w={42}>
-              <IconMessage2 size={26} />
+              size={40}
+              >
+              <IconMessage2 size={24} stroke={1.5}/>
             </ActionIcon>
 
             <AppNotification />
@@ -278,7 +277,7 @@ export const HeaderSearchMobile: FC = () => {
         borderRadius: rem(10),
         display: 'flex'
       }}>
-        <IconSearch color={theme.colors.primary[5]} size={28} stroke={1.5} />
+        <IconSearch color={theme.colors.primary[5]} size={24} stroke={1.5} />
       </UnstyledButton>
 
       <Modal opened={opened} onClose={close} title="Tìm kiếm" fullScreen

@@ -7,6 +7,11 @@ import { FC, useState } from "react";
 import { AppPayment } from "../../../types";
 import { AppButton } from "../app/app-button";
 import { IconCheck } from "@tabler/icons-react";
+import { onError } from "./modal-error";
+import { MarketPackagePayload, MarketPackageStatus } from "@/modules/market-package/types";
+import { useAccount } from "@/modules/account/context";
+import { MarketPackageModule } from "@/modules/market-package/modules";
+import { AppModule } from "@/modules/app/modules";
 
 interface State {
   collection: Collection,
@@ -21,21 +26,7 @@ export const ModalSubscribeCollection: FC = () => {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const payment = { ...renderPayment(AppPayment.ETH) };
   const [agreedPolicy, setAgreedPolicy] = useState(false);
-  const marketTest = [
-    {
-      type: PackageType.DAYS_30,
-      price: 1.5
-    },
-    {
-      type: PackageType.DAYS_90,
-      price: 3.5
-    },
-    {
-      type: PackageType.A_YEAR,
-      price: 10.5
-    }
-  ]
-  const [marketPackages, setMarketPackages] = useState(marketTest);
+  const account = useAccount();
 
   const gridColumns = {
     lg: 4,
@@ -46,6 +37,29 @@ export const ModalSubscribeCollection: FC = () => {
   onSubscribeCollection = (state) => {
     setState(state);
     open();
+  }
+
+  const handleSubscribe = async () => {
+    try {
+      if (!state?.collection) return;
+      const payload: MarketPackagePayload = {
+        chainID: state.collection.chainID,
+        collectionID: state.collection.collectionID,
+        paymentType: state.collection.paymentType,
+        status: MarketPackageStatus.SUBSCRIBED,
+        seller: state.collection.creatorCollection,
+        subscriber: account.information?.wallet || "",
+        packageType: selectedPackage.type,
+        price: selectedPackage.price
+      }
+      console.log(payload)
+
+      await MarketPackageModule.subscribe(payload);
+      onClose();
+      AppModule.onSuccess("Đăng kí thành công");
+    } catch (error) {
+      onError(error);
+    }
   }
 
   const onClose = () => {
@@ -67,7 +81,7 @@ export const ModalSubscribeCollection: FC = () => {
 
       return <Stack>
         <Grid>
-          {marketPackages.map((v, k) => <Grid.Col key={k} span={{ ...gridColumns }}>
+          {state?.collection.package.map((v, k) => <Grid.Col key={k} span={{ ...gridColumns }}>
             <Box
               className={`gradient-box ${selectedPackage?.type === v.type ? 'selected' : ''}`}
               onClick={() => setSelectedPackage(v)}
@@ -119,7 +133,7 @@ export const ModalSubscribeCollection: FC = () => {
 
         <Stack my={10}>
           <Group gap='xs'>
-            <IconCheck color="teal" size={18}/>
+            <IconCheck color="teal" size={18} />
             <Text size="14px" c={theme.colors.text[1]}>Bạn có thể truy cập mọi video của nhà sáng tạo trên Blockclip</Text>
           </Group>
           <Group gap='xs'>
@@ -127,7 +141,7 @@ export const ModalSubscribeCollection: FC = () => {
             <Text size="14px" c={theme.colors.text[1]}>Bạn có thể truy cập mọi video bị ẩn sau khi đăng kí thành công</Text>
           </Group>
         </Stack>
-        
+
         <Checkbox
           label={
             <>
@@ -150,11 +164,13 @@ export const ModalSubscribeCollection: FC = () => {
           }}
         />
         <AppButton
+          async
           color={theme.colors.primary[5]}
           radius={8}
           height={45}
           disabled={selectedPackage && agreedPolicy ? false : true}
           size="lg"
+          onClick={handleSubscribe}
         >
           Đăng kí
         </AppButton>

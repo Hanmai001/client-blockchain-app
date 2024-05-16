@@ -25,7 +25,8 @@ export const AppWrapper: FC<PropsWithChildren> = (props) => {
         // },
       },
       header: {
-        border: 'none'
+        border: 'none',
+        background: 'none'
       },
       footer: {
         display: "block",
@@ -35,11 +36,11 @@ export const AppWrapper: FC<PropsWithChildren> = (props) => {
     }}
     >
       <AppTitle />
-      <AppShell.Header style={{ zIndex: 99 }}>
+      <AppShell.Header style={{ zIndex: 99}}>
         <AppHeader />
       </AppShell.Header>
 
-      <AppShell.Navbar style={{ zIndex: 99 }}>
+      <AppShell.Navbar style={{ zIndex: 97 }}>
         <AppNavBar />
       </AppShell.Navbar>
 
@@ -48,7 +49,7 @@ export const AppWrapper: FC<PropsWithChildren> = (props) => {
         {/* <AppFooter /> */}
       </AppShell.Main>
 
-      <AppShell.Footer>
+      <AppShell.Footer style={{ zIndex: 98 }}>
         <AppFooter />
       </AppShell.Footer>
     </AppShell>

@@ -26,7 +26,6 @@ export class CoinsModule {
     }
 
     store.dispatch({ type: SET_USER_COIN_BALANCES, data: balances })
-
     return balances;
   }
 

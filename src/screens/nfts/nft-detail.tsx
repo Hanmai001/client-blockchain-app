@@ -26,8 +26,9 @@ import { useClipboard, useDebouncedValue } from "@mantine/hooks";
 import { IconCopy, IconCopyCheck, IconDownload, IconEye, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import { DataLoadState } from "../../../types";
+import { DataLoadState, ItemMode } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
+import { LicenseModule } from "@/modules/license/modules";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
@@ -48,6 +49,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [debounced] = useDebouncedValue(search, 200);
   const [isListing, setIsListing] = useState<boolean>();
   const { isMobile, isTablet } = useResponsive();
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const isTransferEvent = marketOrder?.event === TransactionEvent.TRANSFER;
 
   const fetchCollection = async () => {
@@ -188,6 +190,28 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
   }
 
+  const decryptVideo = async () => {
+    try {
+      if (token.mode.toString() === ItemMode.COMMERCIAL) {
+        const license = await LicenseModule.getLicense({tokenID: token.tokenID});
+        if (license) {
+          const videoData = await LicenseModule.decrypt(license, token.source);
+          console.log(videoData)
+          if (videoData) {
+            const blob = new Blob([videoData], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            setVideoUrl(url);
+
+            // Giải phóng URL khi component unmounts hoặc khi decryptedVideo thay đổi
+            return () => URL.revokeObjectURL(url);
+          }
+        }
+      }
+    } catch (error) {
+      
+    }
+  }
+
   useEffect(() => {
     fetchUser();
     checkLikeFavourite();
@@ -195,6 +219,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     fetchComments();
     fetchMarketOrders();
     fetchMarketOrderOfToken();
+    decryptVideo();
   }, [account.information])
 
   useEffect(() => {
@@ -488,7 +513,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     <video
                       controls
                       controlsList="nodownload"
-                      src={token.source}
+                      src={videoUrl || token.source}
                       onContextMenu={handleContextMenu}
                     />
                   </AspectRatio>

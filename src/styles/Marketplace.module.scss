@@ -3,8 +3,8 @@
   &:hover {
     cursor: pointer;
   }
+
   .bannerImage {
-    z-index: 1;
     &:hover {
       transition: 0.2s;
       transform: scale(1.05);
