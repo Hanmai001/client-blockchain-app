@@ -114,7 +114,7 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-              <Stack pos="relative" my={isMobile ? 0 : 30} justify="center"
+              <Stack pos="relative" my={isMobile ? 20 : 30} justify="center"
                 style={{
                   borderRadius: '10px'
                 }}

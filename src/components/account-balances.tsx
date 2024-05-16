@@ -38,7 +38,7 @@ export const Balances: FC = () => {
                   backgroundColor: theme.colors.primary[0]
                 })}>
                   <Group gap={4} justify="space-between">
-                    <Avatar size={38} src={image} p={4}/>
+                    <Avatar size={38} src={image} m={4}/>
                     <Text c={isDarkMode ? 'white' : 'dark'} size="sm" style={{ lineHeight: 1 }}>{NumberUtils.round(Number(balances.data[selectedToken]), 3)}</Text>
                     <IconSelector color={theme.colors.primary[5]} stroke={1.5}/>
                   </Group>

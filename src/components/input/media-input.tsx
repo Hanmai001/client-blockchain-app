@@ -35,7 +35,7 @@ export const MediaInput: FC<MediaInputsProps> = (props) => {
         onDrop={handleDrop}
         accept={props.acceptance === 'image' ? IMAGE_MIME_TYPE : ['video/mp4']}
         onReject={(files) => AppModule.onError('File không hợp lệ!')}
-        maxSize={5 * 1024 ** 2}
+        maxSize={props.acceptance === 'image' ? 20 * 1024 ** 2 : 5 * 1024 ** 2}
         styles={{
           root: {
             maxWidth: '100%',
@@ -91,7 +91,7 @@ export const MediaInput: FC<MediaInputsProps> = (props) => {
                 Kéo hoặc thả file
               </Text>
               <Text size="sm" c="dimmed" inline mt={7}>
-                Kích thước không quá 5MB
+                Kích thước không quá {props.acceptance === 'image' ? '20MB' : '5MB'}
               </Text>
             </div>
           </Center>
@@ -103,7 +103,7 @@ export const MediaInput: FC<MediaInputsProps> = (props) => {
           position: 'absolute',
           top: rem(40),
           right: rem(40),
-          zIndex: 999,
+          zIndex: 10,
           background: theme.colors.gray[0],
           opacity: 0.6,
           borderRadius: '50%',

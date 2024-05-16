@@ -2,7 +2,6 @@ import { AppButton } from "@/components/app/app-button";
 import { AppConnectedButtons } from "@/components/app/app-connected-buttons";
 import { AppImage } from "@/components/app/app-image";
 import { AppWrapper } from "@/components/app/app-wrapper";
-import { MyCombobox } from "@/components/combobox/my-combobox";
 import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
 import { onSubscribeCollection } from "@/components/modals/modal-subscribe-collection";
@@ -14,17 +13,17 @@ import { Collection } from "@/modules/collection/types";
 import { MarketPackageModule } from "@/modules/market-package/modules";
 import { MarketPackage } from "@/modules/market-package/types";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
-import { MarketStatus } from "@/modules/marketorder/types";
+import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
-import { FilterOptions } from "@/modules/nft/types";
-import { StringUtils } from "@/share/utils";
-import { AspectRatio, Box, Grid, Group, Pagination, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
+import { FilterOptions, Nft } from "@/modules/nft/types";
+import { DateTimeUtils, StringUtils } from "@/share/utils";
+import { ActionIcon, AspectRatio, Box, Button, Card, Grid, Group, Pagination, ScrollArea, Skeleton, Spoiler, Stack, Table, Text, TextInput, Title, Tooltip, Transition, rem, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconBorderAll, IconFilter, IconMenu2, IconPlus, IconSearch } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { NftCard } from "../../components/nft-card";
-import classes from '../../styles/collections/CollectionDetail.module.scss';
 
 export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const [activePage, setPage] = useState(1);
@@ -34,12 +33,14 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState(FilterOptions.ALL);
   const [debounced] = useDebouncedValue(search, 200);
-  const { isMobile, isTablet } = useResponsive();
+  const [opened, setIsOpened] = useState(false);
+  const [typeDisplay, setTypeDisplay] = useState(1);
 
   const gridColumns = {
     lg: 12 / 5,
-    sm: 3,
-    xs: 4
+    md: 3,
+    sm: 4,
+    base: 6
   }
 
   const fetchItems = async () => {
@@ -106,9 +107,19 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
       </Group>
 
       <Box mx={theme.spacing.md}>
-        <Group grow={isTablet ? true : false} mb={theme.spacing.lg} justify={isTablet ? "space-between" : ''}>
+        <Group mb={theme.spacing.lg} gap='xs' pos='relative'>
           <Text c={theme.colors.text[1]} fw={500}>{items.data?.count !== 0 ? items.data?.tokens.length : 0} {"kết quả"}</Text>
-          <TextInput placeholder="Nhập từ khóa" miw={'30%'} rightSection={<IconSearch />} radius={10} styles={{
+          <ActionIcon
+            color={theme.colors.primary[5]}
+            variant="light"
+            h={40}
+            radius={8}
+            w={40}
+            onClick={() => setIsOpened(s => !s)}
+          >
+            <IconFilter />
+          </ActionIcon>
+          <TextInput placeholder="Nhập từ khóa" flex={1} rightSection={<IconSearch />} radius={10} styles={{
             input: {
               height: '45px',
             },
@@ -119,26 +130,67 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <Group gap={0}>
+            <ActionIcon
+              variant={typeDisplay === 1 ? "light" : 'transparent'}
+              h={40}
+              radius={8}
+              w={40}
+              onClick={() => setTypeDisplay(1)}
+            >
+              <IconBorderAll />
+            </ActionIcon>
+            <ActionIcon
+              variant={typeDisplay === 2 ? "light" : 'transparent'}
+              h={40}
+              radius={8}
+              w={40}
+              onClick={() => setTypeDisplay(2)}
+            >
+              <IconMenu2 />
+            </ActionIcon>
+          </Group>
 
-          <MyCombobox
-            initialvalue={FilterOptions.ALL}
-            options={FilterOptions}
-            styles={{
-              dropdown: {
-                maxHeight: '200px',
-                overflow: 'hidden',
-                overflowY: 'auto',
-              },
-            }}
-            classNames={{
-              dropdown: 'hidden-scroll-bar'
-            }}
-            classnamesinput={classes.comboboxInput}
-            classnamesroot={classes.comboboxRootInput}
-            onChange={(value) => { setFilter(value) }}
-          />
+          <Transition
+            mounted={opened}
+            transition="fade"
+            duration={200}
+            timingFunction="ease"
+            keepMounted
+          >
+            {(styles) => <Card radius={8} pos="absolute" shadow="sm" w={'100%'} mah={600} top={50} withBorder
+              style={{
+                zIndex: 20,
+                overflow: "auto",
+
+                ...styles
+              }}
+            >
+              <Stack>
+                <Stack gap='xs'>
+                  <Title c={theme.colors.text[1]} order={5}>
+                    Bộ lọc
+                  </Title>
+                  <Group gap='xs'>
+                    {Object.values(FilterOptions).map((v, k) => <Button
+                      key={k}
+                      radius={8}
+                      h={40}
+                      color={theme.colors.primary[5]}
+                      variant={filter === v ? "outline" : "default"}
+                      onClick={() => setFilter(v)}
+                      style={{ fontWeight: 'normal' }}
+                    >
+                      {v}
+                    </Button>)}
+                  </Group>
+                </Stack>
+              </Stack>
+            </Card>}
+          </Transition>
         </Group>
-        {function () {
+
+        {typeDisplay === 1 && function () {
           if (items.isFetching || !items.data?.tokens) return <Grid>
             {Array(8).fill(0).map((_, key) => (
               <Grid.Col key={key} span={{ ...gridColumns }}>
@@ -158,6 +210,51 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
               </Grid.Col>
             ))}
           </Grid>
+        }()}
+
+        {typeDisplay === 2 && function () {
+          if (items.isFetching || !items.data?.tokens) return <Grid>
+            {Array(8).fill(0).map((_, key) => (
+              <Grid.Col key={key} span={{ base: 12 }}>
+                <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+              </Grid.Col>
+            ))}
+          </Grid>
+
+          if (items.error) return <Group><ErrorMessage error={items.error} /></Group>
+
+          if (items.data?.count === 0) return <EmptyMessage />
+
+          return <ScrollArea offsetScrollbars>
+            <Table
+              miw={800}
+              highlightOnHover
+              styles={{
+                td: {
+                  padding: '12px 10px'
+                },
+                th: {
+                  fontSize: '16px',
+                  fontWeight: 'normal'
+                },
+
+              }}
+            >
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th flex={1}>#</Table.Th>
+                  <Table.Th flex={6}>Video</Table.Th>
+                  <Table.Th flex={1}>Giá</Table.Th>
+                  <Table.Th flex={1}>Ngày đăng</Table.Th>
+                  <Table.Th flex={1} visibleFrom="sm">Lượt xem</Table.Th>
+                  <Table.Th flex={2}>Người sở hữu</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {items.data.tokens.map((v, k) => <NftItem key={k} nft={v} />)}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
         }()}
       </Box>
 
@@ -228,7 +325,6 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
         <AppImage src={props.collection.bannerURL} alt="" />
       </AspectRatio>
 
-
       <Group
         bg={`linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0))`}
         style={{
@@ -241,8 +337,8 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
         w={'100%'}
       >
         <Group>
-          <Stack color={theme.white} gap={4} m={isMobile ? 'auto' : theme.spacing.lg} style={{ zIndex: 2 }}>
-            <Title size={18} c={theme.colors.text[0]}>
+          <Stack color={theme.white} gap={6} m={theme.spacing.lg} style={{ zIndex: 2 }}>
+            <Title order={3} c={theme.colors.text[0]}>
               {props.collection.title}
             </Title>
             <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
@@ -258,13 +354,13 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
             px={20}
             radius={8}
             leftSection={<IconPlus size={18} />}
-            onClick={() => onSubscribeCollection({ collection: props.collection })}
+            onClick={() => onSubscribeCollection({ collection: props.collection, onUpdate: () => fetchMarketPackage() })}
           >
             Đăng kí kênh
           </AppButton>}
         </Group>
 
-        <Group m={isMobile ? 'auto' : theme.spacing.lg} gap={isMobile ? 20 : 40}>
+        <Group m={isMobile ? 'auto' : theme.spacing.lg} gap={isMobile ? 20 : 40} visibleFrom="sm">
           <Stack gap={4} style={{ textAlign: "center" }}>
             <Text c={theme.colors.text[0]}>Tổng Video</Text>
             <Text c={theme.colors.text[0]} fw={500} size={isMobile ? "18px" : "22px"}>{totalItems || 0}</Text>
@@ -282,5 +378,96 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
         </Group>
       </Group>
     </Box>
+  )
+}
+
+
+const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
+  const theme = useMantineTheme();
+  const [marketOrder, setMarketOrder] = useState<MarketOrder>();
+  const [lastSoldOrder, setLastSoldOrder] = useState<MarketOrder>();
+  const [payment, setPayment] = useState({ image: '', symbol: '' });
+  const { push } = useRouter();
+
+  const fetchMarketOrderOfToken = async () => {
+    try {
+      const checkListed = await MarketOrderModule.checkTokenIsListed(nft.tokenID, { status: MarketStatus.ISLISTING });
+      if (checkListed) {
+        const res = await MarketOrderModule.getListOrders({ tokenID: nft.tokenID, limit: 1, offset: 0, status: MarketStatus.ISLISTING });
+        const { image, symbol } = renderPayment(res.data.order[0].paymentType);
+        console.log(symbol)
+        setPayment({ image, symbol });
+        setMarketOrder(res.data.order[0]);
+        setLastSoldOrder(undefined);
+      } else {
+        //If NFT isn't listed, so get the nearest SOLD order
+        const res = await MarketOrderModule.getListOrders({ tokenID: nft.tokenID, status: MarketStatus.SOLD, sort: '-createdAt' });
+        const { image, symbol } = renderPayment(res.data.order[0].paymentType);
+        console.log(symbol)
+        setPayment({ image, symbol });
+        setLastSoldOrder(res.data.order[0]);
+      }
+    } catch (error) {
+      // onError(error);
+    }
+  }
+
+  useEffect(() => {
+    if (nft) fetchMarketOrderOfToken();
+  }, [nft])
+
+  return (
+    // <Link href={`/collections/${props.collection.collectionID}`}>
+    //   <Divider my={15} />
+    // </Link>
+    <Table.Tr
+      onClick={() => push(`/nfts/${nft.tokenID}`)}
+      style={{
+        cursor: 'pointer'
+      }}
+    >
+      <Table.Td>
+        <Text fw="bold" c={theme.colors.text[1]}>
+          {nft.tokenID}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Group>
+          <AspectRatio ratio={100 / 120} w={64}>
+            <video
+              controlsList="nodownload"
+              src={nft.source}
+              style={{
+                display: 'block'
+              }}
+            />
+          </AspectRatio>
+
+          <Tooltip label={nft.title}>
+            <Text fw="bold" c={theme.colors.text[1]}>{StringUtils.limitCharacters(nft.title, 15)}</Text>
+          </Tooltip>
+        </Group>
+      </Table.Td>
+      <Table.Td>
+        <Text fw="bold" c={theme.colors.text[1]}>
+          {marketOrder?.price || lastSoldOrder?.price || "Chưa được bán"} {payment.symbol}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text c={theme.colors.text[1]}>
+          {DateTimeUtils.formatToShow(nft.createdAt, false)}
+        </Text>
+      </Table.Td>
+      <Table.Td visibleFrom="sm">
+        <Text c={theme.colors.text[1]}>
+          {nft.totalViews || 0}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text c={theme.colors.text[1]}>
+          {StringUtils.compact(nft.creator, 5, 5)}
+        </Text>
+      </Table.Td>
+    </Table.Tr>
   )
 }

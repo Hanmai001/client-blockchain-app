@@ -26,15 +26,16 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
   const [activePage, setPage] = useState(1);
   const [filter, setFilter] = useState(CollectionStatus.ALL);
   const gridColumns = {
-    lg: 3,
+    xl: 3,
     sm: 4,
-    xs: 6
+    xs: 6,
+    base: 6
   }
   const CollectionTypeArray = Object.values(CollectionType).filter(type => type !== CollectionType.ALL) as string[];
 
   const fetchFeaturedCollections = async (category: CollectionType) => {
     try {
-      const featuredResItem = await CollectionModule.getList({ chainID: blockchain.chainId, category: category as string, sort: '+averagePrice', limit: 3, active: true });
+      const featuredResItem = await CollectionModule.getList({ chainID: blockchain.chainId, category: category as string, sort: '+averagePrice', limit: 4, active: true });
       const tempFeaturedResItem = { isFetching: false, data: { collections: featuredResItem.data?.collections || [], count: featuredResItem.data?.count || 0 } };
       setFeaturedRes(s => [...s, tempFeaturedResItem]);
     } catch (error) {
@@ -105,7 +106,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
             (featuredRes[k] as FeaturedProps).data.count < 1 ? (
               <EmptyMessage />
             ) : (
-              <Grid mt={10} gutter={theme.spacing.md}>
+              <Grid mt={10} gutter={theme.spacing.xs}>
                 {(featuredRes[k] as any).data.collections.map((item: any, index: any) => (
                   <Grid.Col key={index} span={{ ...gridColumns }}>
                     <CollectionCard key={k} collection={item} />
@@ -152,7 +153,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
 
           if (collections.data?.count === 0) return <EmptyMessage />
 
-          return <Grid gutter={theme.spacing.md}>
+          return <Grid gutter={theme.spacing.xs}>
             {collections.data?.collections.map((v, k) => <Grid.Col key={k} span={{ ...gridColumns }}>
               <CollectionCard key={k} collection={v} />
             </Grid.Col>)}

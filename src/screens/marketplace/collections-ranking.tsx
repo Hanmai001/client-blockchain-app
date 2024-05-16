@@ -1,4 +1,5 @@
 import { AppImage } from "@/components/app/app-image";
+import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
 import { onError } from "@/components/modals/modal-error";
 import { renderPayment } from "@/modules/coins/utils";
@@ -6,29 +7,25 @@ import { CollectionModule } from "@/modules/collection/modules";
 import { Collection, CollectionType } from "@/modules/collection/types";
 import { useBlockChain } from "@/share/blockchain/context";
 import { StringUtils } from "@/share/utils";
-import { AspectRatio, Divider, Group, ScrollArea, Skeleton, Stack, Table, Text, Title, Tooltip, useMantineTheme } from "@mantine/core";
-import Link from "next/link";
+import { AspectRatio, Group, ScrollArea, Skeleton, Table, Text, Tooltip, useMantineTheme } from "@mantine/core";
+import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
-import { EmptyMessage } from "@/components/empty-message";
-import { useResponsive } from "@/modules/app/hooks";
 
 export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
   const defaultState: ListLoadState<any, 'collections'> = { isFetching: true, data: { collections: [], count: 0 } }
   const [collections, setCollections] = useState(defaultState);
   const blockchain = useBlockChain();
-  const { isMobile } = useResponsive();
-  const theme = useMantineTheme();
-
+  
   const fetchCollectionsRanking = async () => {
     try {
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, sort: '+averagePrice', limit: 5, active: true })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, sort: '+totalSubscribers', limit: 10, active: true })
         filteredRes = res.data!.collections.filter(v => true);
 
       } else {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, sort: '+averagePrice', limit: 5, active: true })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, sort: '+totalSubscribers', limit: 10, active: true })
         filteredRes = res.data!.collections.filter(v => true);
       }
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
@@ -47,29 +44,6 @@ export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
 
   return <ScrollArea offsetScrollbars type="always">
     <Group mt={10} miw={800} grow align="flex-start">
-      {/* <Title c={theme.colors.text[1]} size={theme.fontSizes.md} mt={theme.spacing.md}>
-      Xếp hạng trong tháng
-    </Title>
-
-    <Stack p={theme.spacing.sm} gap={0} style={{
-      borderRadius: "10px",
-      border: `1px solid ${theme.colors.gray[3]}`,
-      boxShadow: `1px 3px ${theme.colors.gray[0]}`
-    }}>
-      {function () {
-        if (collections.isFetching) return <Skeleton width={"100%"} height={300}/>
-
-        if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
-
-        if (collections.data?.count === 0) return <Group><EmptyMessage /></Group>
-
-        return <>
-          {collections.data?.collections.map((v, k) => (
-            <CollectionRaking key={k} collection={v} />
-          ))}
-        </>
-      }()}
-    </Stack> */}
       {function () {
         if (collections.isFetching) return <Skeleton width={"100%"} height={300} />
 
@@ -134,7 +108,7 @@ export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
           </Table.Thead>
           <Table.Tbody>
             {remainingCollections.map((v, k) => (
-              <CollectionRaking key={k} collection={v} rank={k + 1} />
+              <CollectionRaking key={k} collection={v} rank={k + 6} />
             ))}
           </Table.Tbody>
         </Table>
@@ -147,12 +121,15 @@ export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
 const CollectionRaking: FC<{ collection: Collection, rank: number }> = ({ collection, rank }) => {
   const theme = useMantineTheme();
   const { symbol } = renderPayment(collection.paymentType);
+  const { push } = useRouter();
 
   return (
-    // <Link href={`/collections/${props.collection.collectionID}`}>
-    //   <Divider my={15} />
-    // </Link>
-    <Table.Tr key={collection.collectionID}>
+    <Table.Tr
+      onClick={() => push(`/collections/${collection.collectionID}`)}
+      style={{
+        cursor: 'pointer'
+      }}
+    >
       <Table.Td>
         <Text fw="bold" c={theme.colors.text[1]}>
           {rank}
@@ -176,7 +153,7 @@ const CollectionRaking: FC<{ collection: Collection, rank: number }> = ({ collec
       </Table.Td>
       <Table.Td visibleFrom="sm">
         <Text fw="bold" c={theme.colors.text[1]}>
-          123
+          {collection.totalSubscribers || 0}
         </Text>
       </Table.Td>
     </Table.Tr>

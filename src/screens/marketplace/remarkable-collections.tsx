@@ -18,18 +18,19 @@ export const NotableCollectionsSection: FC<{ type: string | null }> = (props) =>
   const gridColumns = {
     xl: 3,
     sm: 4,
-    xs: 6
+    xs: 6,
+    base: 6
   }
 
   const fetchCollections = async () => {
     try {
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, active: true, limit: 8 })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, active: true, limit: 8, sort: '+averagePrice' })
         filteredRes = res.data!.collections.filter(v => true);
 
       } else {
-        const res = await CollectionModule.getList({ chainID: blockchain.chainId, active: true, limit: 8 })
+        const res = await CollectionModule.getList({ chainID: blockchain.chainId, active: true, limit: 8, sort: '+averagePrice' })
         filteredRes = res.data!.collections.filter(v => true);
       }
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
@@ -44,7 +45,7 @@ export const NotableCollectionsSection: FC<{ type: string | null }> = (props) =>
 
   return <Box>
     <Title order={4} fw={500} c={theme.colors.text[1]}>
-      Được đăng ký nhiều
+      Giá tốt nhất
     </Title>
     {function () {
       if (collections.isFetching || !collections.data) return <Grid>

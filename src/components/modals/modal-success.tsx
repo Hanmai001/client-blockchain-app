@@ -1,7 +1,6 @@
 import { useConfig } from "@/modules/configs/context";
-import { Button, Group, Modal, Stack, Text, useMantineTheme } from "@mantine/core";
+import { Group, Modal, Stack, Text, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconBarrierBlock, IconCheck } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { AppButton } from "../app/app-button";
@@ -50,7 +49,7 @@ export const ModalSuccess: FC = () => {
           </div>
           <Stack gap={10} align='center'>
             <Text size="20px">{state.title || 'Thành công'}</Text>
-            <Text opacity={0.8}>{state?.message}</Text>
+            <Text opacity={0.8} style={{ textAlign: 'center'}}>{state?.message}</Text>
           </Stack>
           <Group gap='xs'>
             <AppButton color={theme.colors.primary[5]} onClick={() => { router.push('/'); close() }}>

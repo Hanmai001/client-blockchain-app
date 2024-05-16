@@ -1,21 +1,21 @@
+import { useAccount } from "@/modules/account/context";
 import { renderPayment } from "@/modules/coins/utils";
 import { CollectionModule } from "@/modules/collection/modules";
-import { Collection, PackageType } from "@/modules/collection/types";
-import { Anchor, Avatar, Box, Card, Checkbox, Divider, Grid, Group, Modal, Skeleton, Stack, Text, useMantineTheme } from "@mantine/core";
+import { Collection } from "@/modules/collection/types";
+import { MarketPackageModule } from "@/modules/market-package/modules";
+import { MarketPackagePayload, MarketPackageStatus } from "@/modules/market-package/types";
+import { Anchor, Avatar, Box, Card, Checkbox, Divider, Grid, Group, Modal, Stack, Text, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconCheck } from "@tabler/icons-react";
 import { FC, useState } from "react";
 import { AppPayment } from "../../../types";
 import { AppButton } from "../app/app-button";
-import { IconCheck } from "@tabler/icons-react";
 import { onError } from "./modal-error";
-import { MarketPackagePayload, MarketPackageStatus } from "@/modules/market-package/types";
-import { useAccount } from "@/modules/account/context";
-import { MarketPackageModule } from "@/modules/market-package/modules";
-import { AppModule } from "@/modules/app/modules";
+import { onSuccess } from "./modal-success";
 
 interface State {
   collection: Collection,
-  onUpdate?: () => void
+  onUpdate: () => void
 }
 
 export let onSubscribeCollection = (state: State) => undefined;
@@ -52,11 +52,10 @@ export const ModalSubscribeCollection: FC = () => {
         packageType: selectedPackage.type,
         price: selectedPackage.price
       }
-      console.log(payload)
-
       await MarketPackageModule.subscribe(payload);
+      state.onUpdate();
       onClose();
-      AppModule.onSuccess("Đăng kí thành công");
+      onSuccess({message: 'Đăng kí thành công! Bạn có thể thưởng thức BST ngay bây giờ'});
     } catch (error) {
       onError(error);
     }

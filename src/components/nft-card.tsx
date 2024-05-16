@@ -31,6 +31,9 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
               src={`${props.nft.source}`}
               muted
               onContextMenu={handleContextMenu}
+              style={{
+                display: 'block'
+              }}
             />
           </AspectRatio>
         </Card.Section>
