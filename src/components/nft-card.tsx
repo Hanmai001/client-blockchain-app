@@ -2,13 +2,14 @@ import { AppButton } from "@/components/app/app-button";
 import { useAccount } from "@/modules/account/context";
 import { Nft } from "@/modules/nft/types";
 import { ClassNames, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Card, Stack, Text, Title, Tooltip, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Card, Center, Stack, Text, Title, Tooltip, rem, useMantineTheme } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconPlayerPlay } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC } from "react";
 import { AppRoutes } from "../../app-router";
 import classes from '../styles/collections/CollectionDetail.module.scss';
+import { AppImage } from "./app/app-image";
 
 export const NftCard: FC<{ nft: Nft }> = (props) => {
   const account = useAccount();
@@ -23,18 +24,17 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
     <Link href={`/nfts/${props.nft.tokenID}`}>
       <Card className="app-card" shadow="sm" radius={10} ref={ref}>
         <Card.Section>
-          <AspectRatio ratio={100 / 120} style={{ overflow: 'hidden' }}>
-            <video
-              controls
-              controlsList="nodownload"
-              className={classes.video}
-              src={`${props.nft.source}`}
-              muted
-              onContextMenu={handleContextMenu}
-              style={{
-                display: 'block'
-              }}
-            />
+          <AspectRatio className="nft-card" ratio={100 / 120} style={{ overflow: 'hidden' }} styles={{
+            root: {
+              backgroundColor: `rgba(0, 0, 0, 0.8)`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundImage: `url("${props.nft.avatar}")`
+            }
+          }}>
+            <Center>
+              <AppImage className="nft-card-image" src="/images/icons/play-video.png" w={24} />
+            </Center>
           </AspectRatio>
         </Card.Section>
 

@@ -34,6 +34,7 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
 
   const fetchCollections = async () => {
     try {
+      setCollections({ isFetching: true, data: { collections: [], count: 0 } })
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
         const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, active: true, limit: 12, sort: '-createdAt' })
@@ -61,7 +62,7 @@ export const BannerSection: FC<{ type: string | null }> = (props) => {
         if (collections.isFetching || !collections.data) return <Grid>
           {Array(3).fill(0).map((_, key) => (
             <Grid.Col key={key} span={{ ...gridColumns }}>
-              <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+              <Skeleton key={key} radius={rem(10)} width='100%' height={320} />
             </Grid.Col>
           ))}
         </Grid>

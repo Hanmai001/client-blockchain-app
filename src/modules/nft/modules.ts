@@ -36,7 +36,7 @@ export class NftModule {
       }
     });
 
-    const payloadUpdate = { ...payload, tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
+    const payloadUpdate = { tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
     await NftModule.updateAfterMint(res.data.token.id, payloadUpdate);
     await CoinsModule.fetchUserBalance();
   }

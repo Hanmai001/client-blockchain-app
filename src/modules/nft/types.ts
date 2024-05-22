@@ -16,6 +16,7 @@ export interface Nft {
   id: string,
   creator: string,
   collectionID: string,
+  avatar: string,
   mode: ItemMode,
   contractAddress: string,
   owner: string,

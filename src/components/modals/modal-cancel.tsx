@@ -1,6 +1,4 @@
-import { getChainId, useConfig } from '@/modules/configs/context'
-import { renderLinkTransaction } from '@/share/blockchain/context'
-import { BlockchainError, BlockchainErrorCode } from '@/share/blockchain/types'
+import { useConfig } from '@/modules/configs/context'
 import { Button, Group, Modal, Stack, Text, useMantineTheme } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconBarrierBlock } from '@tabler/icons-react'
@@ -49,7 +47,7 @@ export const ModalCancel: FC = () => {
           return <Stack align='center' pt={20}>
             <IconBarrierBlock size={50} color={theme.colors.yellow[6]} />
             <Stack gap={10} align='center'>
-              <Text size="20px">{state.title || 'Action failed.'}</Text>
+              <Text size="20px">{state.title || 'Có lỗi xảy ra'}</Text>
               <Text opacity={0.8}>{state.message}</Text>
             </Stack>
             <Group>

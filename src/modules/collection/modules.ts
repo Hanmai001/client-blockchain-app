@@ -11,11 +11,7 @@ export class CollectionModule {
 
   static async mintCollection(payload: CollectionPayload) {
     const contractMarket = getContracts().ercs.MARKETPLACE;
-    const feeMint = await contractMarket.call({ method: 'getFeeMint' })
     const res = await CollectionModule.create(payload);
-
-    // console.log(res)
-
     let txReceipt = await contractMarket.send({
       method: 'createCollection',
       args: [payload.creatorCollection, res.data.collectionURI]
@@ -28,6 +24,10 @@ export class CollectionModule {
 
   static async getList(query?: CollectionQuery): Promise<ListLoadState<Collection, 'collections'>> {
     return RequestModule.get(`/api/v1/collections`, query);
+  }
+
+  static async getSubscribedCollections(query?: CollectionQuery): Promise<ListLoadState<Collection, 'collections'>> {
+    return RequestModule.get(`/api/v1/collections/subscribed`, query);
   }
 
   static async getCollectionByID(id: string): Promise<any> {

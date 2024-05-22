@@ -21,7 +21,7 @@ import { Nft } from "@/modules/nft/types";
 import { UserModule } from "@/modules/user/modules";
 import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Avatar, Box, Card, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, ThemeIcon, Title, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Avatar, Box, Card, Center, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, ThemeIcon, Title, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
 import { IconCopy, IconCopyCheck, IconDownload, IconEye, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
@@ -29,6 +29,8 @@ import { FC, useEffect, useState } from "react";
 import { DataLoadState, ItemMode } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
 import { LicenseModule } from "@/modules/license/modules";
+import { AppImage } from "@/components/app/app-image";
+import VideoJS from "@/components/media/video";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
@@ -51,6 +53,11 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const { isMobile, isTablet } = useResponsive();
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const isTransferEvent = marketOrder?.event === TransactionEvent.TRANSFER;
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+
+  const handlePlayButtonClick = () => {
+    setIsVideoPlaying(true);
+  };
 
   const fetchCollection = async () => {
     try {
@@ -193,7 +200,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const decryptVideo = async () => {
     try {
       if (token.mode.toString() === ItemMode.COMMERCIAL) {
-        const license = await LicenseModule.getLicense({tokenID: token.tokenID});
+        const license = await LicenseModule.getLicense({ tokenID: token.tokenID });
         if (license) {
           const videoData = await LicenseModule.decrypt(license, token.source);
           console.log(videoData)
@@ -208,9 +215,30 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
         }
       }
     } catch (error) {
-      
+
     }
   }
+
+  const videoJsOptions = {
+    controls: true,
+    responsive: true,
+    fluid: true,
+    sources: [{
+      src: videoUrl || token.source,
+      type: 'application/x-mpegURL'
+    }],
+    html5: {
+      hls: {
+        overrideNative: true,
+        useDevicePixelRatio: true
+      },
+      nativeAudioTracks: false,
+      nativeVideoTracks: false
+    },
+    controlBar: {
+      volumePanel: { inline: false }
+    }
+  };
 
   useEffect(() => {
     fetchUser();
@@ -248,16 +276,41 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
         return <>
           <Stack mx={20} my={90}>
             {isTablet ? <Stack gap={4}>
-              <AspectRatio ratio={100 / 120} style={{
-                overflow: 'hidden',
-                borderRadius: theme.radius.md
-              }}>
-                <video
-                  controls={false}
-                  controlsList="nodownload"
-                  src={token.source}
-                  onContextMenu={handleContextMenu}
-                />
+              <AspectRatio
+                ratio={100 / 120}
+                style={{
+                  overflow: 'hidden',
+                  borderRadius: theme.radius.md,
+                  position: 'relative',
+                }}
+              >
+                {isVideoPlaying ? (
+                  <video
+                    controls
+                    controlsList="nodownload"
+                    src={videoUrl || token.source}
+                    onContextMenu={handleContextMenu}
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      backgroundColor: `rgba(0, 0, 0, 0.8)`,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      position: 'relative',
+                    }}
+                    onClick={handlePlayButtonClick}
+                  >
+                    <Center>
+                      <AppImage className="nft-card-image" src="/images/icons/play-video.png" w={24} />
+                    </Center>
+                  </div>
+                )}
               </AspectRatio>
 
               {function () {
@@ -504,18 +557,47 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
               <Card flex={isTablet ? 6 : 4} w={500} p={0}>
                 <Card.Section>
                   <AspectRatio
-                    ratio={100 / 120}
+                    ratio={100 / 140}
                     style={{
                       overflow: 'hidden',
                       borderRadius: theme.radius.md,
-                      position: 'relative'
-                    }}>
-                    <video
-                      controls
-                      controlsList="nodownload"
-                      src={videoUrl || token.source}
-                      onContextMenu={handleContextMenu}
-                    />
+                      position: 'relative',
+                    }}
+                  >
+                    {isVideoPlaying ? (
+                      // <video
+                      //   controls
+                      //   controlsList="nodownload"
+                      //   src={videoUrl || token.source}
+                      //   onContextMenu={handleContextMenu}
+                      //   style={{ display: 'block' }}
+                      // />
+                      <VideoJS options={videoJsOptions} onReady={player => {
+                        console.log('Video.js player is ready!', player);
+                      }} />
+                    ) : (
+                      <div
+                        className="nft-card"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          backgroundColor: `rgba(0, 0, 0, 0.8)`,
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundImage: `url("${token.avatar}")`
+                        }}
+                        onClick={handlePlayButtonClick}
+                      >
+                        <Center>
+                          <Image className="nft-card-image" src="/images/icons/play-video.png" w={64} h={64} />
+                        </Center>
+                      </div>
+                    )}
                   </AspectRatio>
                 </Card.Section>
 

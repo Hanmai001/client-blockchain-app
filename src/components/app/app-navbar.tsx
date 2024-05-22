@@ -1,7 +1,7 @@
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { Tooltip } from "@mantine/core";
-import { IconBuildingStore, IconCameraBolt, IconFriends, IconLogout } from "@tabler/icons-react";
+import { IconBuildingStore, IconCameraBolt, IconFriends, IconLogout, IconUser } from "@tabler/icons-react";
 import { FC, useState } from "react";
 import { AppRoutes } from "../../../app-router";
 import classes from "../../styles/app/AppNavBar.module.scss";
@@ -18,7 +18,7 @@ export const AppNavBar: FC = () => {
 
   const navLinks = [
     { link: AppRoutes.root, label: 'Cửa hàng', icon: IconBuildingStore },
-    { link: `${AppRoutes.user.profile}/${blockchain.wallet}`, label: 'Hồ sơ của bạn', icon: IconCameraBolt },
+    { link: `${AppRoutes.user.profile}/${blockchain.wallet}`, label: 'Hồ sơ của bạn', icon: IconUser },
     { link: AppRoutes.friends, label: 'Bạn bè có gì mới', icon: IconFriends },
   ]
 

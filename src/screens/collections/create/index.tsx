@@ -15,13 +15,14 @@ import { getChainId } from "@/modules/configs/context";
 import { RequestModule } from "@/modules/request/request";
 import { chains } from "@/share/blockchain/chain";
 import { useBlockChain } from "@/share/blockchain/context";
-import { Box, Grid, Group, Select, Stack, Text, TextInput, Textarea, ThemeIcon, Title, useMantineTheme } from "@mantine/core";
+import { Box, Card, Grid, Group, Select, Stack, Text, TextInput, Textarea, ThemeIcon, Title, Transition, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconEye, IconNotebook, IconPhotoVideo } from "@tabler/icons-react";
+import { IconEye, IconNotebook, IconPhotoVideo, IconUpload } from "@tabler/icons-react";
 import { ethers } from "ethers";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../../types";
 import classes from '../../../styles/collections/CollectionCreate.module.scss';
+import { onCreateCollection, onSetStep } from "@/components/modals/modal-create-collection";
 
 export const CollectionCreateScreen: FC = () => {
   const theme = useMantineTheme();
@@ -92,27 +93,22 @@ export const CollectionCreateScreen: FC = () => {
 
   const onSubmit = form.onSubmit(async (values) => {
     try {
-      setIsUploading(true);
       let payload = { ...values };
 
       if (bannerFile instanceof File)
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
-
-      await CollectionModule.mintCollection(payload);
-      onSuccess({ title: 'Tạo thành công', message: '' });
+      onCreateCollection({payload});
     } catch (error) {
       onError("Tạo Bộ sưu tập không thành công!");
-    } finally {
-      setIsUploading(false);
     }
   })
 
   return (
     <BoundaryConnectWallet>
       <AppHeader />
-
-      {isUploading && <AppLoading visible={isUploading} />}
-      <Stack px={isMobile ? 15 : 40} mt={70}>
+{/* 
+      {isUploading && <AppLoading visible={isUploading} />} */}
+      <Stack px={isMobile ? 15 : 40} mt={70} mb={100}>
         <form onSubmit={onSubmit}>
           <Grid mt={20} gutter='md'>
             <Grid.Col span={{ base: 12, md: 7, lg: 7 }}>
@@ -130,7 +126,8 @@ export const CollectionCreateScreen: FC = () => {
                   onRemove={() => setBannerFile(null)}
                   styles={{
                     label: {
-                      marginBottom: "6px"
+                      marginBottom: "6px",
+                      fontWeight: 'bold'
                     }
                   }}
                 />
@@ -149,6 +146,9 @@ export const CollectionCreateScreen: FC = () => {
                         borderRadius: '10px',
                         marginTop: "6px"
                       },
+                      label: {
+                        fontWeight: 'bold'
+                      }
                     }}
                     {...form.getInputProps('title')}
                   />
@@ -184,6 +184,9 @@ export const CollectionCreateScreen: FC = () => {
                         borderRadius: '10px',
                         marginTop: "6px"
                       },
+                      label: {
+                        fontWeight: 'bold'
+                      }
                     }}
                     {...form.getInputProps('title')}
                   />
@@ -222,6 +225,9 @@ export const CollectionCreateScreen: FC = () => {
                     input: {
                       marginTop: '6px',
                       borderRadius: '10px'
+                    },
+                    label: {
+                      fontWeight: 'bold'
                     }
                   }}
                   {...form.getInputProps('description')}
@@ -247,6 +253,9 @@ export const CollectionCreateScreen: FC = () => {
                       height: '45px',
                       borderRadius: '10px',
                       marginTop: '6px'
+                    },
+                    label: {
+                      fontWeight: 'bold'
                     }
                   }}
                   classNames={{
@@ -299,9 +308,41 @@ export const CollectionCreateScreen: FC = () => {
           </Grid>
 
           <Box my={20}>
-            <AppButton async type='submit' width={isMobile ? '100%' : 150} height={50} radius={8} color={theme.colors.primary[5]}>
-              Tạo ngay
-            </AppButton>
+            <Transition
+              mounted={true}
+              transition='slide-up'
+              duration={300}
+              timingFunction="ease"
+              keepMounted
+            >
+              {(transitionStyle) => (
+                <Card p={20}
+                  style={{
+                    position: 'fixed',
+                    zIndex: 10,
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    boxShadow: '0px -4px 6px rgba(0, 0, 0, 0.1), 2px 0px 4px rgba(0, 0, 0, 0.1)',
+                    ...transitionStyle
+                  }}
+                >
+                  <Group justify="flex-end">
+                    <AppButton
+                      type="submit"
+                      async
+                      width={160}
+                      height={50}
+                      radius={8}
+                      color={theme.colors.primary[5]}
+                      leftSection={<IconUpload />}
+                    >
+                      Tạo ngay
+                    </AppButton>
+                  </Group>
+                </Card>
+              )}
+            </Transition>
           </Box>
         </form>
       </Stack>

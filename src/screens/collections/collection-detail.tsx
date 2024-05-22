@@ -17,13 +17,15 @@ import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
 import { FilterOptions, Nft } from "@/modules/nft/types";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Button, Card, Grid, Group, Pagination, ScrollArea, Skeleton, Spoiler, Stack, Table, Text, TextInput, Title, Tooltip, Transition, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Button, Card, Grid, Group, Image, Pagination, ScrollArea, Skeleton, Spoiler, Stack, Table, Text, TextInput, Title, Tooltip, Transition, rem, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconBorderAll, IconFilter, IconMenu2, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { NftCard } from "../../components/nft-card";
+import Link from "next/link";
+import { renderLinkContract } from "@/share/blockchain/context";
 
 export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collection }) => {
   const [activePage, setPage] = useState(1);
@@ -381,7 +383,6 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
   )
 }
 
-
 const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
   const theme = useMantineTheme();
   const [marketOrder, setMarketOrder] = useState<MarketOrder>();
@@ -434,13 +435,7 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
       <Table.Td>
         <Group>
           <AspectRatio ratio={100 / 120} w={64}>
-            <video
-              controlsList="nodownload"
-              src={nft.source}
-              style={{
-                display: 'block'
-              }}
-            />
+            <Image src={nft.avatar} />
           </AspectRatio>
 
           <Tooltip label={nft.title}>
@@ -464,9 +459,11 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
         </Text>
       </Table.Td>
       <Table.Td>
-        <Text c={theme.colors.text[1]}>
-          {StringUtils.compact(nft.creator, 5, 5)}
-        </Text>
+        <Link href={renderLinkContract(nft.creator, nft.chainID)} target="_blank" style={{
+          color: theme.colors.blue[6],
+          textDecoration: 'underline',
+          fontSize: '15px'
+        }}>{StringUtils.compact(nft.creator, 5, 5)}</Link>
       </Table.Td>
     </Table.Tr>
   )

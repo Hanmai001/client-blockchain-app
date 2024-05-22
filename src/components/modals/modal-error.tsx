@@ -12,7 +12,7 @@ interface State {
   onClose?: () => any
 }
 
-export let OnErrorModal: (state: State) => void = () => {}
+export let OnErrorModal: (state: State) => void = () => { }
 export let onError = (error: any) => OnErrorModal({ error })
 
 export const ErrorModal: FC = () => {
@@ -50,7 +50,7 @@ export const ErrorModal: FC = () => {
             return <Stack align='center' pt={20}>
               <IconBarrierBlock size={50} color={theme.colors.yellow[6]} />
               <Stack gap={10} align='center'>
-                <Text size="20px">{message || state.title || 'Action failed.'}</Text>
+                <Text size="20px">{message || state.title || 'Đã xảy ra lỗi'}</Text>
                 <Text size="sm" opacity={0.8}>Code: {1000 + Object.values(BlockchainErrorCode).indexOf(code)}</Text>
               </Stack>
 
@@ -84,8 +84,8 @@ export const ErrorModal: FC = () => {
           return <Stack align='center' pt={20}>
             <IconBarrierBlock size={50} color={theme.colors.yellow[6]} />
             <Stack gap={10} align='center'>
-              <Text size="20px">{state.title || 'Action failed.'}</Text>
-              <Text opacity={0.8}>{message}</Text>
+              <Text size="20px">{state.title || 'Đã xảy ra lỗi'}</Text>
+              <Text opacity={0.8}>{message || "Vui lòng thực hiện lại sau"}</Text>
             </Stack>
             <Group>
               <Button color='gray' onClick={close} variant={isDarkMode ? 'outline' : 'default'}>

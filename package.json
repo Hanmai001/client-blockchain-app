@@ -52,6 +52,7 @@
     "socket.io-client": "^4.7.5",
     "uuid": "^9.0.1",
     "video-encryptor": "^3.0.0",
+    "video.js": "^8.12.0",
     "web3-core": "^4.3.2",
     "web3-eth-abi": "^4.2.1"
   },

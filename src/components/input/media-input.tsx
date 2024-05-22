@@ -35,7 +35,7 @@ export const MediaInput: FC<MediaInputsProps> = (props) => {
         onDrop={handleDrop}
         accept={props.acceptance === 'image' ? IMAGE_MIME_TYPE : ['video/mp4']}
         onReject={(files) => AppModule.onError('File không hợp lệ!')}
-        maxSize={props.acceptance === 'image' ? 20 * 1024 ** 2 : 5 * 1024 ** 2}
+        //maxSize={props.acceptance === 'image' ? 20 * 1024 ** 2 : 5 * 1024 ** 2}
         styles={{
           root: {
             maxWidth: '100%',

@@ -19,6 +19,7 @@ export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
   
   const fetchCollectionsRanking = async () => {
     try {
+      setCollections({ isFetching: true, data: { collections: [], count: 0 } })
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
         const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, sort: '+totalSubscribers', limit: 10, active: true })
@@ -37,7 +38,7 @@ export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
 
   useEffect(() => {
     fetchCollectionsRanking();
-  }, [])
+  }, [props.type])
 
   const firstFiveCollections = collections.data?.collections.slice(0, 5) || [];
   const remainingCollections = collections.data?.collections.slice(5) || [];

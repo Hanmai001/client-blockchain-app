@@ -29,12 +29,12 @@ export const AppCreateButton: FC = () => {
 
       {<Stack style={{
         position: "fixed",
-        zIndex: clicked ? 101 : -1,
+        zIndex: clicked ? 101 : -99,
         right: 130,
         bottom: 0,
         opacity: clicked ? 1 : 0,
         //backgroundColor: `rgba(0, 0, 0, 0.6)`,
-        display: "flex",
+        display: clicked ? "flex" : "none",
         alignItems: "flex-end",
         justifyContent: "flex-end",
         transition: `0.5s ease`
@@ -64,7 +64,6 @@ export const AppCreateButton: FC = () => {
             <Text mr={10} c={theme.colors.primary[5]} fw="bold" size="sm">Tạo Video</Text>
           </UnstyledButton>
         </Link>
-
       </Stack>}
     </>
   )

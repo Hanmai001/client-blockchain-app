@@ -18,13 +18,14 @@ import { RequestModule } from "@/modules/request/request";
 import { useBlockChain } from "@/share/blockchain/context";
 import { AspectRatio, Box, Card, Checkbox, CheckboxGroup, Flex, Grid, Group, Image, Skeleton, Stack, Text, TextInput, Textarea, Transition, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconUpload } from "@tabler/icons-react";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { AppRoutes } from "../../../../app-router";
 import { DataLoadState, ItemMode, ListLoadState } from "../../../../types";
 import classes from '../../../styles/nfts/NftCreate.module.scss';
+import { onCreateNft } from "@/components/modals/modal-create-nft";
 
 export const CreateNftScreen: FC = () => {
   const theme = useMantineTheme();
@@ -75,24 +76,17 @@ export const CreateNftScreen: FC = () => {
     setMode(value);
   }
 
-
   const onSubmit = form.onSubmit(async (values) => {
     try {
       let payload = { ...values, mode: Number(mode[0]), source: '' }
-      setIsUploading(true);
       if (collection) {
         payload.chainID = collection.data!.chainID;
         payload.collectionID = collection.data!.collectionID;
       }
-      if (file instanceof File)
-        payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, file as File, 400, "source", {mode: mode[0]});
-
-      await NftModule.mintNft(payload);
-      onSuccess({ title: 'Tạo thành công', message: '' });
+      
+      onCreateNft({ payload, mode: mode[0], file });
     } catch (error) {
       onError(error);
-    } finally {
-      setIsUploading(false);
     }
   })
 
@@ -112,8 +106,8 @@ export const CreateNftScreen: FC = () => {
     <BoundaryConnectWallet>
       <AppHeader />
 
-      {isUploading && <AppLoading visible={isUploading} />}
-      <Stack px={isMobile ? 15 : 40} mt={70}>
+      {/* {isUploading && <AppLoading visible={isUploading} />} */}
+      <Stack px={isMobile ? 15 : 40} mt={70} mb={100}>
         <form onSubmit={onSubmit}>
           <Grid mt={20} gutter={isDesktop ? 40 : 0}>
             <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
@@ -128,6 +122,12 @@ export const CreateNftScreen: FC = () => {
                 value={file || undefined}
                 onChange={(file) => setFile(file)}
                 onRemove={() => setFile(null)}
+                styles={{
+                  label: {
+                    fontWeight: 'bold',
+                    marginBottom: '6px'
+                  }
+                }}
               />
             </Grid.Col>
 
@@ -138,7 +138,7 @@ export const CreateNftScreen: FC = () => {
                 }}
               >
                 <Stack gap={14}>
-                  <Text mt={isMobile ? 40 : 0} style={{ display: 'block', fontWeight: 500, fontSize: '15px', lineHeight: '12px' }}>
+                  <Text mt={isMobile ? 40 : 0} style={{ display: 'block', fontWeight: 'bold', fontSize: '15px', lineHeight: '12px' }}>
                     Chọn bộ sưu tập
                     <span style={{ color: 'red' }}>*</span>
                   </Text>
@@ -171,7 +171,7 @@ export const CreateNftScreen: FC = () => {
 
                 <Transition mounted={opened}
                   transition='scale-y'
-                  duration={200}
+                  duration={100}
                   timingFunction="ease"
                   keepMounted
                 >
@@ -208,10 +208,10 @@ export const CreateNftScreen: FC = () => {
                           }}
                         >
                           <Group>
-                            <AspectRatio flex={2}>
+                            <AspectRatio flex={1}>
                               <Image radius={12} src={v.bannerURL} alt={v.name} />
                             </AspectRatio>
-                            <Text flex={10} c={v.collectionID === collection.data!.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
+                            <Text flex={11} c={v.collectionID === collection.data!.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
                           </Group>
                         </Box>)}
                       </>
@@ -232,6 +232,9 @@ export const CreateNftScreen: FC = () => {
                       borderRadius: '10px',
                       marginTop: "6px"
                     },
+                    label: {
+                      fontWeight: 'bold'
+                    }
                   }}
                   {...form.getInputProps('title')}
                 />
@@ -250,6 +253,9 @@ export const CreateNftScreen: FC = () => {
                     input: {
                       marginTop: '6px',
                       borderRadius: '10px'
+                    },
+                    label: {
+                      fontWeight: 'bold'
                     }
                   }}
                   {...form.getInputProps('description')}
@@ -261,26 +267,63 @@ export const CreateNftScreen: FC = () => {
                   withAsterisk
                   value={mode}
                   onChange={handleSelectMode}
-                  color={theme.colors.primary[5]}
                   styles={{
                     label: {
+                      fontWeight: 'bold',
                       marginBottom: '6px'
                     }
                   }}
                 >
                   <Group>
-                    {Object.values(ItemMode).map((v, k) => <Checkbox key={k} value={v} label={CollectionModule.getModeName(v)} />)}
+                    {Object.values(ItemMode).map((v, k) => <Checkbox
+                      color={theme.colors.primary[5]}
+                      key={k}
+                      value={v}
+                      label={CollectionModule.getModeName(v)}
+                    />)}
                   </Group>
                 </CheckboxGroup>
               </Stack>
             </Grid.Col>
           </Grid>
 
-          <Group my={30} justify="flex-end">
-            <AppButton async type='submit' width={150} height={54} radius={10} color={theme.colors.primary[5]}>
-              Tạo ngay
-            </AppButton>
-          </Group>
+          <Box my={20}>
+            <Transition
+              mounted={true}
+              transition='slide-up'
+              duration={300}
+              timingFunction="ease"
+              keepMounted
+            >
+              {(transitionStyle) => (
+                <Card p={20}
+                  style={{
+                    position: 'fixed',
+                    zIndex: 10,
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    boxShadow: '0px -4px 6px rgba(0, 0, 0, 0.1), 2px 0px 4px rgba(0, 0, 0, 0.1)',
+                    ...transitionStyle
+                  }}
+                >
+                  <Group justify="flex-end">
+                    <AppButton
+                      type="submit"
+                      async
+                      width={160}
+                      height={50}
+                      radius={8}
+                      color={theme.colors.primary[5]}
+                      leftSection={<IconUpload />}
+                    >
+                      Tạo ngay
+                    </AppButton>
+                  </Group>
+                </Card>
+              )}
+            </Transition>
+          </Box>
         </form>
       </Stack>
     </BoundaryConnectWallet>

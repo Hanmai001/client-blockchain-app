@@ -189,7 +189,8 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                     onRemove={() => setBannerFile(null)}
                     styles={{
                       label: {
-                        marginBottom: "6px"
+                        marginBottom: "6px",
+                        fontWeight: 'bold'
                       }
                     }}
                   />
@@ -208,6 +209,9 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                           borderRadius: '10px',
                           marginTop: "6px"
                         },
+                        label: {
+                          fontWeight: 'bold'
+                        }
                       }}
                       {...formUpdate.getInputProps('title')}
                     />
@@ -243,6 +247,9 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                           borderRadius: '10px',
                           marginTop: "6px"
                         },
+                        label: {
+                          fontWeight: 'bold'
+                        }
                       }}
                       {...formUpdate.getInputProps('title')}
                     />
@@ -281,6 +288,9 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                       input: {
                         marginTop: '6px',
                         borderRadius: '10px'
+                      },
+                      label: {
+                        fontWeight: 'bold'
                       }
                     }}
                     {...formUpdate.getInputProps('description')}
@@ -307,6 +317,9 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
                         height: '45px',
                         borderRadius: '10px',
                         marginTop: '6px'
+                      },
+                      label: {
+                        fontWeight: 'bold'
                       }
                     }}
                     classNames={{

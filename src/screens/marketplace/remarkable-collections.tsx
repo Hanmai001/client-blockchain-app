@@ -24,6 +24,7 @@ export const NotableCollectionsSection: FC<{ type: string | null }> = (props) =>
 
   const fetchCollections = async () => {
     try {
+      setCollections({ isFetching: true, data: { collections: [], count: 0 } })
       let filteredRes: any;
       if (props.type !== CollectionType.ALL) {
         const res = await CollectionModule.getList({ chainID: blockchain.chainId, category: props.type as string, active: true, limit: 8, sort: '+averagePrice' })

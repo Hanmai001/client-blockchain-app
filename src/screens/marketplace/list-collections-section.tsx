@@ -45,6 +45,7 @@ export const ListCollections: FC<{ type: string | null }> = (props) => {
 
   const fetchCollections = async () => {
     try {
+      setCollections(defaultState);
       if (props.type !== CollectionType.ALL) {
         let sort = '';
         //get list by filter

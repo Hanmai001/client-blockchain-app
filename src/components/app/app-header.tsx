@@ -11,7 +11,7 @@ import { ChainId } from "@/share/blockchain/types";
 import { StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Box, Burger, Card, Center, Divider, Drawer, Group, Image, Loader, Menu, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
-import { IconFriends, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUserBolt, IconWallet } from "@tabler/icons-react";
+import { IconFriends, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUser, IconWallet } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
@@ -62,8 +62,8 @@ export const AppHeader: FC = () => {
               variant="light"
               color={theme.colors.primary[5]}
               size={40}
-              >
-              <IconMessage2 size={24} stroke={1.5}/>
+            >
+              <IconMessage2 size={24} stroke={1.5} />
             </ActionIcon>
 
             <AppNotification />
@@ -173,7 +173,7 @@ export const HeaderSearch: FC = () => {
                           overflow: 'hidden',
                           borderRadius: '8px'
                         }}>
-                          <img src={'/images/default/video.svg'} />
+                          <img src={'/images/default/video.svg'} style={{ display: 'block' }} />
                         </AspectRatio>
 
                         <Stack gap={4}>
@@ -190,7 +190,7 @@ export const HeaderSearch: FC = () => {
                     {collections.map((item, key) => <Link key={key} href={`/collections/${item.collectionID}`}>
                       <Group className="menu-item" gap={8}>
                         <AspectRatio ratio={64 / 48} w={64} style={{ overflow: 'hidden' }}>
-                          <Image radius={10} src={item.bannerURL} />
+                          <Image radius={10} src={item.bannerURL} style={{ display: 'block' }} />
                         </AspectRatio>
 
                         <Stack gap={2}>
@@ -210,7 +210,7 @@ export const HeaderSearch: FC = () => {
                           overflow: 'hidden',
                           borderRadius: '8px'
                         }}>
-                          <img src={item.avatar || '/images/default/ava.jpeg'} />
+                          <img src={item.avatar || '/images/default/ava.jpeg'} style={{ display: 'block' }} />
                         </AspectRatio>
 
                         <Stack gap={4}>
@@ -325,7 +325,7 @@ export const HeaderSearchMobile: FC = () => {
                             overflow: 'hidden',
                             borderRadius: '8px'
                           }}>
-                            <img src={'/images/default/video.svg'} />
+                            <img src={'/images/default/video.svg'} style={{ display: 'block' }} />
                           </AspectRatio>
 
                           <Stack gap={4}>
@@ -366,7 +366,7 @@ export const HeaderSearchMobile: FC = () => {
                             overflow: 'hidden',
                             borderRadius: '8px'
                           }}>
-                            <img src={item.avatar || '/images/default/ava.jpeg'} />
+                            <img src={item.avatar || '/images/default/ava.jpeg'} style={{ display: 'block' }} />
                           </AspectRatio>
 
                           <Stack gap={4}>
@@ -411,7 +411,7 @@ export const Account: FC = () => {
   const [checked, setChecked] = useState(false);
 
   const profileMenu = [
-    { label: 'Trang cá nhân', route: `${AppRoutes.user.profile}/${account.information?.wallet}`, icon: <IconUserBolt />, },
+    { label: 'Trang cá nhân', route: `${AppRoutes.user.profile}/${account.information?.wallet}`, icon: <IconUser />, },
     { label: 'Bạn bè', route: AppRoutes.user.friends, icon: <IconFriends />, },
     { label: 'Cài đặt', route: 'd', icon: <IconSettings /> },
     { label: 'Chế độ tối', icon: <IconMoonFilled /> }

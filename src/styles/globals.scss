@@ -79,6 +79,19 @@ input, textarea {
   }
 }
 
+//NFT CARD
+.nft-card {
+  .nft-card-image {
+    opacity: 0.8;
+  }
+
+  &:hover {
+    .nft-card-image {
+      opacity: 1;
+    }
+  }
+}
+
 .menu-item {
   padding: 10px 8px;
   border-radius: 8px;

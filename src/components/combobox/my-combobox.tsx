@@ -50,6 +50,11 @@ export const MyCombobox: FC<MyComboBox> = (props) => {
           input: props.classnamesinput,
           root: props.classnamesroot,
         }}
+        styles={{
+          label: {
+            fontWeight: 'bold'
+          }
+        }}
       >
         {value}
       </InputBase>
