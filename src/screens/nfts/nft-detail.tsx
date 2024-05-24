@@ -1,6 +1,7 @@
 import { AppButton } from "@/components/app/app-button";
 import { AppFooter } from "@/components/app/app-footer";
 import { AppHeader } from "@/components/app/app-header";
+import { AppImage } from "@/components/app/app-image";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { EmptyMessage } from "@/components/empty-message";
 import { onBuyNft } from "@/components/modals/modal-buy-nft";
@@ -14,6 +15,7 @@ import { useResponsive } from "@/modules/app/hooks";
 import { renderPayment } from "@/modules/coins/utils";
 import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
+import { LicenseModule } from "@/modules/license/modules";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
 import { MarketOrder, MarketStatus, TransactionEvent } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
@@ -21,16 +23,13 @@ import { Nft } from "@/modules/nft/types";
 import { UserModule } from "@/modules/user/modules";
 import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Avatar, Box, Card, Center, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, ThemeIcon, Title, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Avatar, Box, Card, Center, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
 import { IconCopy, IconCopyCheck, IconDownload, IconEye, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { DataLoadState, ItemMode } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
-import { LicenseModule } from "@/modules/license/modules";
-import { AppImage } from "@/components/app/app-image";
-import VideoJS from "@/components/media/video";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
@@ -219,27 +218,6 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     }
   }
 
-  const videoJsOptions = {
-    controls: true,
-    responsive: true,
-    fluid: true,
-    sources: [{
-      src: videoUrl || token.source,
-      type: 'application/x-mpegURL'
-    }],
-    html5: {
-      hls: {
-        overrideNative: true,
-        useDevicePixelRatio: true
-      },
-      nativeAudioTracks: false,
-      nativeVideoTracks: false
-    },
-    controlBar: {
-      volumePanel: { inline: false }
-    }
-  };
-
   useEffect(() => {
     fetchUser();
     checkLikeFavourite();
@@ -277,7 +255,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
           <Stack mx={20} my={90}>
             {isTablet ? <Stack gap={4}>
               <AspectRatio
-                ratio={100 / 120}
+                ratio={100 / 140}
+                p={10}
                 style={{
                   overflow: 'hidden',
                   borderRadius: theme.radius.md,
@@ -290,10 +269,11 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     controlsList="nodownload"
                     src={videoUrl || token.source}
                     onContextMenu={handleContextMenu}
-                    style={{ width: '100%', height: '100%' }}
+                    style={{ display: 'block', objectFit: 'contain' }}
                   />
                 ) : (
                   <div
+                    className="nft-card"
                     style={{
                       width: '100%',
                       height: '100%',
@@ -303,11 +283,14 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                       alignItems: 'center',
                       cursor: 'pointer',
                       position: 'relative',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundImage: `url("${token.avatar}")`
                     }}
                     onClick={handlePlayButtonClick}
                   >
                     <Center>
-                      <AppImage className="nft-card-image" src="/images/icons/play-video.png" w={24} />
+                      <Image className="nft-card-image" src="/images/icons/play-video.png" w={64} h={64} />
                     </Center>
                   </div>
                 )}
@@ -558,6 +541,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 <Card.Section>
                   <AspectRatio
                     ratio={100 / 140}
+                    p={10}
                     style={{
                       overflow: 'hidden',
                       borderRadius: theme.radius.md,
@@ -565,16 +549,13 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     }}
                   >
                     {isVideoPlaying ? (
-                      // <video
-                      //   controls
-                      //   controlsList="nodownload"
-                      //   src={videoUrl || token.source}
-                      //   onContextMenu={handleContextMenu}
-                      //   style={{ display: 'block' }}
-                      // />
-                      <VideoJS options={videoJsOptions} onReady={player => {
-                        console.log('Video.js player is ready!', player);
-                      }} />
+                      <video
+                        controls
+                        controlsList="nodownload"
+                        src={videoUrl || token.source}
+                        onContextMenu={handleContextMenu}
+                          style={{ display: 'block', objectFit: 'contain'  }}
+                      />
                     ) : (
                       <div
                         className="nft-card"

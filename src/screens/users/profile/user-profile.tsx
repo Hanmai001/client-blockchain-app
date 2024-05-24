@@ -40,7 +40,7 @@ import Link from "next/link";
 
 enum UserTabsProfile {
   ALL = 'Video',
-  CREATED_COLLECTIONS = 'Bộ sưu tập của bạn',
+  CREATED_COLLECTIONS = 'Bộ sưu tập',
   SUBSCRIBED_COLLECTIONS = 'Đã đăng ký',
   FAVOURITE = 'Đã yêu thích',
   ACTIVITY = 'Hoạt động'
@@ -92,11 +92,11 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
                 <TabCollections user={user} isSignedUser={isSignedUser} />
               </Tabs.Panel>
 
-              <Tabs.Panel value={UserTabsProfile.CREATED_COLLECTIONS}>
+              <Tabs.Panel value={UserTabsProfile.SUBSCRIBED_COLLECTIONS}>
                 {isSignedUser ? <TabSubscribedCollections user={user} /> : <Group mt={100} justify="center">
                   <Stack align="center">
                     <IconLockAccess size={48} stroke={1.5} color={theme.colors.gray[7]} />
-                    <Text fw={500} c={theme.colors.gray[7]}>Bạn không có quyền xem</Text>
+                    <Text fw={500} c={theme.colors.gray[7]}>Bạn không có quyền truy cập</Text>
                   </Stack>
                 </Group>}
               </Tabs.Panel>
@@ -105,7 +105,7 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
                 {isSignedUser ? <TabFavouritedNfts user={user} /> : <Group mt={100} justify="center">
                   <Stack align="center">
                     <IconLockAccess size={48} stroke={1.5} color={theme.colors.gray[7]} />
-                    <Text fw={500} c={theme.colors.gray[7]}>Bạn không có quyền xem</Text>
+                    <Text fw={500} c={theme.colors.gray[7]}>Bạn không có quyền truy cập</Text>
                   </Stack>
                 </Group>}
               </Tabs.Panel>
@@ -779,11 +779,12 @@ const TabNfts: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, i
             <Table.Thead>
               <Table.Tr>
                 <Table.Th flex={1}>#</Table.Th>
-                <Table.Th flex={6}>Video</Table.Th>
+                <Table.Th flex={5}>Video</Table.Th>
                 <Table.Th flex={1}>Giá</Table.Th>
                 <Table.Th flex={1}>Ngày đăng</Table.Th>
                 <Table.Th flex={1} visibleFrom="sm">Lượt xem</Table.Th>
                 <Table.Th flex={2}>Người sở hữu</Table.Th>
+                <Table.Th flex={1}></Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -1052,7 +1053,7 @@ const TabSubscribedCollections: FC<{ user: UserInformation }> = ({ user }) => {
         />
       </Group>
 
-      {/* {function () {
+      {function () {
         if (collections.isFetching || !collections.data) return <Grid>
           {Array(4).fill(0).map((_, key) => (
             <Grid.Col key={key} span={{ ...gridColumns }}>
@@ -1064,6 +1065,7 @@ const TabSubscribedCollections: FC<{ user: UserInformation }> = ({ user }) => {
         if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
 
         if (collections.data.count === 0) return <EmptyMessage />
+
         return <Grid gutter={theme.spacing.md}>
           {collections.data?.collections.map((v, k) => (
             <Grid.Col key={k} span={{ ...gridColumns }}>
@@ -1071,7 +1073,7 @@ const TabSubscribedCollections: FC<{ user: UserInformation }> = ({ user }) => {
             </Grid.Col>
           ))}
         </Grid>
-      }()} */}
+      }()}
 
       <Pagination color={theme.colors.primary[5]} total={totalPages} siblings={2} value={activePage} onChange={setPage} styles={{
         root: {
@@ -1323,7 +1325,6 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
       if (checkListed) {
         const res = await MarketOrderModule.getListOrders({ tokenID: nft.tokenID, limit: 1, offset: 0, status: MarketStatus.ISLISTING });
         const { image, symbol } = renderPayment(res.data.order[0].paymentType);
-        console.log(symbol)
         setPayment({ image, symbol });
         setMarketOrder(res.data.order[0]);
         setLastSoldOrder(undefined);
@@ -1331,7 +1332,6 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
         //If NFT isn't listed, so get the nearest SOLD order
         const res = await MarketOrderModule.getListOrders({ tokenID: nft.tokenID, status: MarketStatus.SOLD, sort: '-createdAt' });
         const { image, symbol } = renderPayment(res.data.order[0].paymentType);
-        console.log(symbol)
         setPayment({ image, symbol });
         setLastSoldOrder(res.data.order[0]);
       }
@@ -1345,9 +1345,6 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
   }, [nft])
 
   return (
-    // <Link href={`/collections/${props.collection.collectionID}`}>
-    //   <Divider my={15} />
-    // </Link>
     <Table.Tr
       onClick={() => push(`/nfts/${nft.tokenID}`)}
       style={{
@@ -1391,6 +1388,16 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
           textDecoration: 'underline',
           fontSize: '15px'
         }}>{StringUtils.compact(nft.creator, 5, 5)}</Link>
+      </Table.Td>
+      <Table.Td visibleFrom="sm">
+        <Link href={`/nfts/edit/${nft.tokenID}`}>
+          <ActionIcon
+            color={theme.colors.primary[5]}
+            variant="light"
+          >
+            <IconEdit stroke={1.5} />
+          </ActionIcon>
+        </Link>
       </Table.Td>
     </Table.Tr>
   )

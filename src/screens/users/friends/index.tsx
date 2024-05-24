@@ -43,7 +43,7 @@ export const UserFriendsScreen: FC = () => {
         res = await FriendRequestModule.getListFriends({ limit, offset: (activePage - 1) * limit });
       } else {
         res = await FriendRequestModule.getListFriendRequests({ limit, offset: (activePage - 1) * limit, status: FriendRequestStatus.ISPENDING, to: account.information?.wallet });
-        const requesters = [];
+        const requesters: UserInformation[] = [];
         for (const v of res.data.request) {
           const from = await UserModule.getByWallet(v.from);
           requesters.push(from);

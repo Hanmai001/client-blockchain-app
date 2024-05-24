@@ -1,6 +1,5 @@
 import { AppWrapper } from "@/components/app/app-wrapper";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
-import { EmptyMessage } from "@/components/empty-message";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { NftModule } from "@/modules/nft/modules";
@@ -9,13 +8,13 @@ import { UserModule } from "@/modules/user/modules";
 import { UserInformation } from "@/modules/user/types";
 import { getChainId } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Avatar, Group, Skeleton, Spoiler, Stack, Text, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Avatar, Card, Group, Skeleton, Spoiler, Stack, Text, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { IconCopy, IconCopyCheck } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import { ListLoadState } from "../../../types";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { ListLoadState } from "../../../types";
 
 export const FriendsScreen: FC = () => {
   const [items, setItems] = useState<ListLoadState<any, 'tokens'>>({ isFetching: true, data: { tokens: [], count: 0 } });
@@ -62,10 +61,6 @@ export const FriendsScreen: FC = () => {
     setUsers(usersResult);
   };
 
-  const handleContextMenu = (event: any) => {
-    event.preventDefault();
-  };
-
   useEffect(() => {
     fetchItems();
   }, [account.information?.wallet, activePage])
@@ -87,12 +82,14 @@ export const FriendsScreen: FC = () => {
           </Group>
         }
       >
-        {users.map(({ token, user }, k) => <Group py={25} w={isMobile ? 400 : 800} key={k} m={'auto'}>
+        {users.map(({ token, user }, k) => <Group py={25} key={k}
+          justify="center"
+          align="flex-start"
+        >
           <Link href={`/nfts/${token.tokenID}`}>
-            <AspectRatio ratio={100 / 160} style={{
+            <AspectRatio ratio={100 / 160} w={400} style={{
               overflow: 'hidden',
               borderRadius: theme.radius.md,
-              width: rem(400)
             }}>
               <video
                 controls
@@ -100,7 +97,10 @@ export const FriendsScreen: FC = () => {
                 // crossOrigin="use-credentials"
                 preload="auto"
                 src={token.source}
-                onContextMenu={handleContextMenu}
+                style={{
+                  display: 'block',
+                  objectFit: 'contain'
+                }}
               />
             </AspectRatio>
           </Link>
@@ -108,15 +108,16 @@ export const FriendsScreen: FC = () => {
           {function () {
             if (users.length === 0) return <Skeleton h={'100vh'} />
 
-            return <Stack gap={0} mih={isMobile ? '' : 640}>
+            return <Stack gap='md'>
               <Group align="flex-start" justify="space-between">
                 <Link href={`/users/${user.wallet}`}>
                   <Group align="flex-start">
-                    <Avatar w={64} h={64} src={user.avatar || '/images/default/avatar.png'} />
-                    <Stack gap={0}>
-                      <Text fw={500} c={theme.colors.text[1]}>{StringUtils.limitCharacters(user.username!, 15)}</Text>
-
-                      <Text size="14px" c="dimmed">Tạo vào {DateTimeUtils.formatToShow(user.createdAt)}</Text>
+                    <Avatar w={64} h={64} src={user.avatar || '/images/default/avatar.png'} style={{
+                      border: `1px solid ${theme.colors.primary[5]}`
+                    }} />
+                    <Stack gap={6}>
+                      <Text fw='bold' c={theme.colors.text[1]}>{StringUtils.limitCharacters(user.username!, 15)}</Text>
+                      <Text size="14px" c="dimmed">Đăng vào {DateTimeUtils.formatToShow(token.createdAt)}</Text>
                     </Stack>
                   </Group>
                 </Link>
@@ -133,20 +134,21 @@ export const FriendsScreen: FC = () => {
                 </Group>
               </Group>
 
-              <Text mt={10} fw={500} ml={10} c={theme.colors.text[1]}>{token.title}</Text>
-
-              <Spoiler ml={10} maw={370} mt={5} maxHeight={150} showLabel="Xem thêm" hideLabel="Ẩn" styles={{
-                control: {
-                  color: theme.colors.primary[5]
-                },
-                content: {
-                  wordWrap: 'break-word',
-                  overflowWrap: 'break-word',
-                  color: theme.colors.text[1]
-                }
-              }}>
-                {token.description}
-              </Spoiler>
+              <Card shadow="sm" radius={8} p={10}>
+                <Text mt={10} fw='bold' ml={10} c={theme.colors.text[1]}>{token.title}</Text>
+                <Spoiler ml={10} mt={5} maxHeight={150} showLabel="Xem thêm" hideLabel="Ẩn" styles={{
+                  control: {
+                    color: theme.colors.primary[5]
+                  },
+                  content: {
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                    color: theme.colors.text[1]
+                  }
+                }}>
+                  {token.description}
+                </Spoiler>
+              </Card>
             </Stack>
           }()}
         </Group>)}

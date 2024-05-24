@@ -17,9 +17,9 @@ import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
 import { FilterOptions, Nft } from "@/modules/nft/types";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Button, Card, Grid, Group, Image, Pagination, ScrollArea, Skeleton, Spoiler, Stack, Table, Text, TextInput, Title, Tooltip, Transition, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, Anchor, AspectRatio, Box, Button, Card, Grid, Group, Image, Pagination, ScrollArea, Skeleton, Spoiler, Stack, Table, Text, TextInput, Title, Tooltip, Transition, rem, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconBorderAll, IconFilter, IconMenu2, IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconBorderAll, IconEdit, IconFilter, IconMenu2, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
@@ -245,11 +245,12 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th flex={1}>#</Table.Th>
-                  <Table.Th flex={6}>Video</Table.Th>
+                  <Table.Th flex={5}>Video</Table.Th>
                   <Table.Th flex={1}>Giá</Table.Th>
                   <Table.Th flex={1}>Ngày đăng</Table.Th>
                   <Table.Th flex={1} visibleFrom="sm">Lượt xem</Table.Th>
                   <Table.Th flex={2}>Người sở hữu</Table.Th>
+                  <Table.Th flex={1}></Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -418,9 +419,6 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
   }, [nft])
 
   return (
-    // <Link href={`/collections/${props.collection.collectionID}`}>
-    //   <Divider my={15} />
-    // </Link>
     <Table.Tr
       onClick={() => push(`/nfts/${nft.tokenID}`)}
       style={{
@@ -464,6 +462,16 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
           textDecoration: 'underline',
           fontSize: '15px'
         }}>{StringUtils.compact(nft.creator, 5, 5)}</Link>
+      </Table.Td>
+      <Table.Td visibleFrom="sm">
+        <Link href={`/nfts/edit/${nft.tokenID}`}>
+          <ActionIcon
+            color={theme.colors.primary[5]}
+            variant="light"
+          >
+            <IconEdit stroke={1.5} />
+          </ActionIcon>
+        </Link>
       </Table.Td>
     </Table.Tr>
   )
