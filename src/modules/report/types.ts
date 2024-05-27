@@ -9,8 +9,8 @@ export enum ReportStatus {
 export interface ReportEntity {
   id: string,
   from: string, //wallet user,
-  tokenId: string,
-  owner: string,
+  tokenID: string,
+  to: string,
   description: string,
   status: ReportStatus,
   createdAt: Date,
@@ -19,9 +19,13 @@ export interface ReportEntity {
 
 export interface ReportEntityPayload {
   from: string, //wallet user,
-  tokenId: string,
+  tokenID: string,
   owner: string,
   description: string,
+  status: ReportStatus,
+}
+
+export interface ReportUpdatePayload {
   status: ReportStatus,
 }
 

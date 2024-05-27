@@ -28,6 +28,7 @@ import { Provider } from 'react-redux';
 import { ModalSubscribeCollection } from '@/components/modals/modal-subscribe-collection';
 import { ModalCreateCollection } from '@/components/modals/modal-create-collection';
 import { ModalCreateNft } from '@/components/modals/modal-create-nft';
+import { ModalReport } from '@/components/modals/modal-report';
 
 const nunito = Nunito({
   weight: '500',
@@ -53,6 +54,7 @@ const App: FC<PropsWithChildren> = (props) => {
         <ModalSubscribeCollection />
         <ModalCreateCollection />
         <ModalCreateNft />
+        <ModalReport />
       </main>
     </>
   )

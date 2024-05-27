@@ -19,7 +19,8 @@ export const AppRoutes = {
     users: '/admin/users',
     nfts: '/admin/nfts',
     collections: '/admin/collections',
-    system: '/admin/system'
+    system: '/admin/system',
+    reports: '/admin/reports'
   },
   friends: '/friends'
 }

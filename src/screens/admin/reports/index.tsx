@@ -1,22 +1,23 @@
 import { AdminWrapper } from "@/components/admin/admin-wrapper";
 import { AppButton } from "@/components/app/app-button";
 import { EmptyMessage } from "@/components/empty-message";
-import { onError } from "@/components/modals/modal-error";
-import { onViewNft } from "@/components/modals/modal-nft-detail";
-import { NftModule } from "@/modules/nft/modules";
-import { Nft } from "@/modules/nft/types";
+import { PUBLIC_URL } from "@/modules/configs/context";
+import { ReportModule } from "@/modules/report/modules";
+import { ReportEntity } from "@/modules/report/types";
 import { getChainId, renderLinkContract } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
 import { Box, Card, Divider, Group, Pagination, Skeleton, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconEye, IconLock, IconLockOff, IconSearch } from "@tabler/icons-react";
+import { IconEye, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../../types";
+import { NftModule } from "@/modules/nft/modules";
+import { onViewNft } from "@/components/modals/modal-nft-detail";
 
-export const AdminNftsScreen: FC = () => {
+export const AdminReportsScreen: FC = () => {
   const theme = useMantineTheme();
-  const [items, setItems] = useState<ListLoadState<Nft, 'tokens'>>({ isFetching: true, isInitialized: false, data: { tokens: [], count: 0 } });
+  const [items, setItems] = useState<ListLoadState<ReportEntity, 'reports'>>({ isFetching: true, isInitialized: false, data: { reports: [], count: 0 } });
   const [search, setSearch] = useState('');
   const [debounced] = useDebouncedValue(search, 200);
   const [activePage, setActivePage] = useState(1);
@@ -24,19 +25,19 @@ export const AdminNftsScreen: FC = () => {
 
   const fetchNfts = async () => {
     try {
-      const res = await NftModule.getList({ limit, offset: (activePage - 1) * limit, search });
+      const res = await ReportModule.getListReports({ limit, offset: (activePage - 1) * limit, search });
       setItems(s => ({ ...s, isFetching: false, data: res.data }));
     } catch (error) {
 
     }
   }
 
-  const handleActive = async (token: Nft) => {
+  const handleViewReport = async (id: string) => {
     try {
-      await NftModule.updateToken({ ...token, active: !token.active }, false);
-      await fetchNfts();
+      const token = await NftModule.getNftByID(id);
+      onViewNft({ token: token.data })
     } catch (error) {
-      onError("Có lỗi xảy ra, vui lòng thử lại sau");
+
     }
   }
 
@@ -48,7 +49,7 @@ export const AdminNftsScreen: FC = () => {
     <AdminWrapper>
       <Stack p={20}>
         <Card radius="md" shadow="sm" withBorder>
-          <Title order={4} c={theme.colors.text[1]}>Danh sách NFTs</Title>
+          <Title order={4} c={theme.colors.text[1]}>Danh sách báo cáo từ người dùng</Title>
 
           <Divider my={10} />
 
@@ -76,58 +77,53 @@ export const AdminNftsScreen: FC = () => {
 
             return <Table striped highlightOnHover withRowBorders={false}>
               <Table.Thead c={theme.colors.text[1]}>
-                <Table.Th>Tiêu đề</Table.Th>
+                <Table.Th>Nội dung</Table.Th>
                 <Table.Th>Chủ sở hữu</Table.Th>
-                <Table.Th>Người tạo</Table.Th>
+                <Table.Th>Link</Table.Th>
                 <Table.Th>Ngày tạo</Table.Th>
+                <Table.Th>Trạng thái</Table.Th>
                 <Table.Th>Thao tác</Table.Th>
               </Table.Thead>
 
               <Table.Tbody>
-                {items.data.tokens.map((v, k) => <Table.Tr key={k}>
+                {items.data.reports.map((v, k) => <Table.Tr key={k}>
                   <Table.Td c={theme.colors.text[1]}>
-                    <Tooltip label={v.title}>
-                      <Text>{StringUtils.limitCharacters(v.title!, 20)}</Text>
+                    <Box maw={350}>
+                      {v.description}
+                    </Box>
+                  </Table.Td>
+                  <Table.Td c={theme.colors.text[1]}>
+                    <Tooltip label={v.to}>
+                      <Link href={renderLinkContract(v.to!, getChainId()!)} target="_blank" style={{
+                        color: theme.colors.blue[6],
+                        textDecoration: 'underline'
+                      }}>{StringUtils.compact(v.to, 5, 5)}</Link>
                     </Tooltip>
                   </Table.Td>
                   <Table.Td c={theme.colors.text[1]}>
-                    <Tooltip label={v.owner}>
-                      <Link href={renderLinkContract(v.owner!, getChainId()!)} target="_blank" style={{
+                    <Tooltip label={v.to}>
+                      <Link href={`/nfts/${v.tokenID}`} target="_blank" style={{
                         color: theme.colors.blue[6],
                         textDecoration: 'underline'
-                      }}>{StringUtils.compact(v.owner, 5, 5)}</Link>
-                    </Tooltip>
-                  </Table.Td>
-                  <Table.Td c={theme.colors.text[1]}>
-                    <Tooltip label={v.owner}>
-                      <Link href={renderLinkContract(v.creator!, getChainId()!)} target="_blank" style={{
-                        color: theme.colors.blue[6],
-                        textDecoration: 'underline'
-                      }}>{StringUtils.compact(v.creator, 5, 5)}</Link>
+                      }}>{`${PUBLIC_URL}/nfts/${v.tokenID}`}</Link>
                     </Tooltip>
                   </Table.Td>
                   <Table.Td c={theme.colors.text[1]}>{DateTimeUtils.formatToShow(v.createdAt, false)}</Table.Td>
+                  <Table.Td>
+                    <Text fw='bold'>
+                      {ReportModule.getNameOfStatuc(v.status)}
+                    </Text>
+                  </Table.Td>
                   <Table.Td>
                     <Group gap='xs'>
                       <AppButton
                         variant="outline"
                         color={theme.colors.primary[5]}
                         px={8}
-                        onClick={() => onViewNft({ token: v })}
+                        onClick={() => handleViewReport(v.tokenID)}
                       >
                         <Tooltip label="Xem chi tiết">
                           <IconEye size={18} />
-                        </Tooltip>
-                      </AppButton>
-
-                      <AppButton
-                        async
-                        color="danger"
-                        onClick={() => handleActive(v)}
-                        px={8}
-                      >
-                        <Tooltip label={v.active ? "Ẩn" : "Hiện"}>
-                          {v.active ? <IconLock size={18} /> : <IconLockOff size={18} />}
                         </Tooltip>
                       </AppButton>
                     </Group>

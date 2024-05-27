@@ -1,5 +1,5 @@
 import { Box, Button, Collapse, Divider, Group, Image, Stack, ThemeIcon, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
-import { IconBrandStorytel, IconBuilding, IconChevronRight, IconGauge, IconMenu2, IconNotes, IconUsersGroup, IconVideo } from "@tabler/icons-react";
+import { IconBrandStorytel, IconBuilding, IconChevronRight, IconFlag, IconGauge, IconMenu2, IconNotes, IconUsersGroup, IconVideo } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
@@ -20,6 +20,7 @@ export const AdminNavbar: FC = () => {
         { label: 'Người dùng', icon: IconUsersGroup, link: AppRoutes.admin.users },
         { label: 'NFT', icon: IconVideo, link: AppRoutes.admin.nfts },
         { label: 'Bộ sưu tập', icon: IconBrandStorytel, link: AppRoutes.admin.collections },
+        { label: 'Báo cáo', icon: IconFlag, link: AppRoutes.admin.reports },
       ],
     },
     { label: 'Hệ thống', icon: IconBuilding, link: AppRoutes.admin.system },

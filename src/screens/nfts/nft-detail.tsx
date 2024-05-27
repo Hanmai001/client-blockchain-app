@@ -1,7 +1,6 @@
 import { AppButton } from "@/components/app/app-button";
 import { AppFooter } from "@/components/app/app-footer";
 import { AppHeader } from "@/components/app/app-header";
-import { AppImage } from "@/components/app/app-image";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { EmptyMessage } from "@/components/empty-message";
 import { onBuyNft } from "@/components/modals/modal-buy-nft";
@@ -25,11 +24,12 @@ import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
 import { ActionIcon, AspectRatio, Avatar, Box, Card, Center, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
-import { IconCopy, IconCopyCheck, IconDownload, IconEye, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
+import { IconCopy, IconCopyCheck, IconEye, IconFlag, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { DataLoadState, ItemMode } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
+import { onReport } from "@/components/modals/modal-report";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const theme = useMantineTheme();
@@ -190,10 +190,6 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     } catch (error) {
       // onError(error);
     }
-  }
-
-  const handleDownload = async () => {
-
   }
 
   const decryptVideo = async () => {
@@ -554,7 +550,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                         controlsList="nodownload"
                         src={videoUrl || token.source}
                         onContextMenu={handleContextMenu}
-                          style={{ display: 'block', objectFit: 'contain'  }}
+                        style={{ display: 'block', objectFit: 'contain' }}
                       />
                     ) : (
                       <div
@@ -733,17 +729,15 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     </Stack>
                   </Group>
 
-                  <Stack gap={0}>
-                    <ActionIcon
-                      onClick={handleDownload}
-                      size={isTablet ? rem(24) : rem(36)}
-                      radius='50%'
-                      variant="transparent"
-                      c={theme.colors.gray[7]}
-                    >
-                      <IconDownload stroke={1.5} width={isTablet ? 24 : 36} height={isTablet ? 24 : 36} />
-                    </ActionIcon>
-                  </Stack>
+                  <ActionIcon
+                    onClick={() => onReport({ nft: token })}
+                    size={isTablet ? rem(24) : rem(36)}
+                    radius='50%'
+                    variant="light"
+                    color={theme.colors.primary[3]}
+                  >
+                    <IconFlag />
+                  </ActionIcon>
                 </Group>
 
                 <Card mt={20} withBorder shadow="sm" radius={theme.radius.md} p={30}>

@@ -48,7 +48,7 @@ export const AdminCollectionsScreen: FC = () => {
     <AdminWrapper>
       <Stack p={20}>
         <Card radius="md" shadow="sm" withBorder>
-          <Title order={4} c={theme.colors.text[1]}>Danh sách NFTs</Title>
+          <Title order={4} c={theme.colors.text[1]}>Danh sách Bộ sưu tầm</Title>
 
           <Divider my={10} />
 
