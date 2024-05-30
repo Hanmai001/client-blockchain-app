@@ -1,18 +1,50 @@
 import { AdminWrapper } from "@/components/admin/admin-wrapper";
 import { AppButton } from "@/components/app/app-button";
-import { Box, Card, Grid, Group, Stack, Text, ThemeIcon, Title, useMantineTheme } from "@mantine/core";
-import { IconArrowUp, IconChartBar, IconChartLine, IconNetwork, IconUsers, IconVideo } from "@tabler/icons-react";
+import { ActionIcon, Avatar, Box, Card, Grid, Group, Skeleton, Stack, Text, ThemeIcon, Title, useMantineTheme } from "@mantine/core";
+import { IconArrowDown, IconArrowUp, IconChartBar, IconChartLine, IconNetwork, IconUsers, IconVideo } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Legend, Bar } from 'recharts';
 import classes from '../../../styles/admin/AdminDashboard.module.scss';
+import { useAccount } from "@/modules/account/context";
+import { StatisticModule } from "@/modules/statistic/modules";
+import { Statistic, StatisticType } from "@/modules/statistic/types";
+import { DateTimeUtils, NumberUtils } from "@/share/utils";
+import { AppPayment, ListLoadState } from "../../../../types";
+import { renderPayment } from "@/modules/coins/utils";
+import { Roles } from "@/modules/user/types";
 
 export const AdminDashBoard: FC = () => {
   const theme = useMantineTheme();
+  const defaultState: ListLoadState<Statistic, 'results'> = { isFetching: true, isInitialized: false, data: { results: [], count: 0 } }
+  const [newUsers, setNewUsers] = useState<ListLoadState<Statistic, 'results'>>(defaultState);
+  const [newNfts, setNfts] = useState<ListLoadState<Statistic, 'results'>>(defaultState);
+  const [orderRevenue, setOrderRevenue] = useState<any>(defaultState);
+  const [newSubscribers, setNewSubscribers] = useState<ListLoadState<Statistic, 'results'>>(defaultState);
+  const account = useAccount();
+
+  const getStatistics = async () => {
+    try {
+      let res = await StatisticModule.getUserStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(1)), to: DateTimeUtils.formatDate(new Date()) })
+      setNewUsers(s => ({ isFetching: false, data: res.data }))
+      res = await StatisticModule.getTokenStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(1)), to: DateTimeUtils.formatDate(new Date()) })
+      console.log(res)
+      setNfts(s => ({ isFetching: false, data: res.data }))
+      res = await StatisticModule.getOrderRevenueStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(1)), to: DateTimeUtils.formatDate(new Date()) })
+      console.log(res)
+      setOrderRevenue(s => ({ isFetching: false, data: res }))
+      res = await StatisticModule.getNewSubscriberStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(1)), to: DateTimeUtils.formatDate(new Date()) })
+      console.log(res)
+      setNewSubscribers(s => ({ isFetching: false, data: res.data }))
+    } catch (error) {
+
+    }
+  }
+
+  useEffect(() => {
+    getStatistics();
+  }, [account.information])
 
   return <Box bg="#f8f9fe">
-    {/* <BoundaryConnectWallet>
-      
-    </BoundaryConnectWallet> */}
     <AdminWrapper>
       <Grid bg={theme.colors.dark[6]} style={{
         padding: '20px 20px 80px 20px'
@@ -20,10 +52,14 @@ export const AdminDashBoard: FC = () => {
         <Grid.Col span={{ base: 12, md: 3, lg: 3 }}>
           <Card flex={3} radius="md">
             <Group justify="space-between">
-              <Stack gap={6}>
-                <Text fw={500} c={theme.colors.primary[5]}>Người dùng mới</Text>
-                <Text fw={500} size="18px">350,897</Text>
-              </Stack>
+              {function () {
+                if (newUsers.isFetching || !newUsers.data) return <Skeleton h={10} />
+
+                return <Stack gap={6}>
+                  <Text fw={500} c={theme.colors.primary[5]}>Người dùng mới</Text>
+                  <Text fw={500} size="18px">{newUsers.data?.results[1].count}</Text>
+                </Stack>
+              }()}
 
               <ThemeIcon
                 variant="gradient"
@@ -36,12 +72,18 @@ export const AdminDashBoard: FC = () => {
             </Group>
 
             <Group mt={20}>
-              <Group gap={0}>
-                <IconArrowUp color={theme.colors.green[5]} />
-                <Text c={theme.colors.green[5]}>3,41 %</Text>
-              </Group>
+              {function () {
+                if (newUsers.isFetching || !newUsers.data) return <Skeleton h={10} />
 
-              <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                return <>
+                  <Group gap={0}>
+                    {newUsers.data.results[1].count >= newUsers.data.results[0].count ? <IconArrowUp color={theme.colors.green[5]} /> : <IconArrowDown color="red" />}
+                    <Text c={newUsers.data.results[1].count >= newUsers.data.results[0].count ? theme.colors.green[5] : "red"}>{NumberUtils.calcPercentChange(newUsers.data.results[1].count, newUsers.data.results[0].count)} %</Text>
+                  </Group>
+
+                  <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                </>
+              }()}
             </Group>
           </Card>
         </Grid.Col>
@@ -49,10 +91,14 @@ export const AdminDashBoard: FC = () => {
         <Grid.Col span={{ base: 12, md: 3, lg: 3 }}>
           <Card flex={3} radius="md">
             <Group justify="space-between">
-              <Stack gap={6}>
-                <Text fw={500} c={theme.colors.primary[5]}>Tổng NFT</Text>
-                <Text fw={500} size="18px">350,897</Text>
-              </Stack>
+              {function () {
+                if (newNfts.isFetching || !newNfts.data) return <Skeleton h={10} />
+
+                return <Stack gap={6}>
+                  <Text fw={500} c={theme.colors.primary[5]}>NFT mới</Text>
+                  <Text fw={500} size="18px">{newNfts.data?.results[1].count}</Text>
+                </Stack>
+              }()}
 
               <ThemeIcon
                 variant="gradient"
@@ -65,12 +111,18 @@ export const AdminDashBoard: FC = () => {
             </Group>
 
             <Group mt={20}>
-              <Group gap={0}>
-                <IconArrowUp color={theme.colors.green[5]} />
-                <Text c={theme.colors.green[5]}>3,41 %</Text>
-              </Group>
+              {function () {
+                if (newNfts.isFetching || !newNfts.data) return <Skeleton h={10} />
 
-              <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                return <>
+                  <Group gap={0}>
+                    {newNfts.data.results[1].count >= newNfts.data.results[0].count ? <IconArrowUp color={theme.colors.green[5]} /> : <IconArrowDown color="red" />}
+                    <Text c={newNfts.data.results[1].count >= newNfts.data.results[0].count ? theme.colors.green[5] : "red"}>{NumberUtils.calcPercentChange(newNfts.data.results[1].count, newNfts.data.results[0].count)} %</Text>
+                  </Group>
+
+                  <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                </>
+              }()}
             </Group>
           </Card>
         </Grid.Col>
@@ -78,10 +130,14 @@ export const AdminDashBoard: FC = () => {
         <Grid.Col span={{ base: 12, md: 3, lg: 3 }}>
           <Card flex={3} radius="md">
             <Group justify="space-between">
-              <Stack gap={6}>
-                <Text fw={500} c={theme.colors.primary[5]}>Doanh thu</Text>
-                <Text fw={500} size="18px">350,897</Text>
-              </Stack>
+              {function () {
+                if (orderRevenue.isFetching || !orderRevenue.data) return <Skeleton h={10} />
+
+                return <Stack gap={6}>
+                  <Text fw={500} c={theme.colors.primary[5]}>Doanh thu</Text>
+                  <Text fw={500} size="18px">{newUsers.data?.results[1].count}</Text>
+                </Stack>
+              }()}
 
               <ThemeIcon
                 variant="gradient"
@@ -94,12 +150,18 @@ export const AdminDashBoard: FC = () => {
             </Group>
 
             <Group mt={20}>
-              <Group gap={0}>
-                <IconArrowUp color={theme.colors.green[5]} />
-                <Text c={theme.colors.green[5]}>3,41 %</Text>
-              </Group>
+              {function () {
+                if (orderRevenue.isFetching || !orderRevenue.data) return <Skeleton h={10} />
 
-              <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                return <>
+                  <Group gap={0}>
+                    {orderRevenue.data.results[1].revenue >= orderRevenue.data.results[0].revenue ? <IconArrowUp color={theme.colors.green[5]} /> : <IconArrowDown color="red" />}
+                    <Text c={orderRevenue.data.results[1].revenue >= orderRevenue.data.results[0].revenue ? theme.colors.green[5] : "red"}>{NumberUtils.calcPercentChange(orderRevenue.data.results[1].revenue, orderRevenue.data.results[0].revenue)} %</Text>
+                  </Group>
+
+                  <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                </>
+              }()}
             </Group>
           </Card>
         </Grid.Col>
@@ -107,10 +169,14 @@ export const AdminDashBoard: FC = () => {
         <Grid.Col span={{ base: 12, md: 3, lg: 3 }}>
           <Card flex={3} radius="md">
             <Group justify="space-between">
-              <Stack gap={6}>
-                <Text fw={500} c={theme.colors.primary[5]}>Mua NFT</Text>
-                <Text fw={500} size="18px">350,897</Text>
-              </Stack>
+              {function () {
+                if (newSubscribers.isFetching || !newSubscribers.data) return <Skeleton h={10} />
+
+                return <Stack gap={6}>
+                  <Text fw={500} c={theme.colors.primary[5]}>Lượt đăng kí mới</Text>
+                  <Text fw={500} size="18px">{newSubscribers.data?.results[1].count}</Text>
+                </Stack>
+              }()}
 
               <ThemeIcon
                 variant="gradient"
@@ -123,12 +189,18 @@ export const AdminDashBoard: FC = () => {
             </Group>
 
             <Group mt={20}>
-              <Group gap={0}>
-                <IconArrowUp color={theme.colors.green[5]} />
-                <Text c={theme.colors.green[5]}>3,41 %</Text>
-              </Group>
+              {function () {
+                if (newSubscribers.isFetching || !newSubscribers.data) return <Skeleton h={10} />
 
-              <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                return <>
+                  <Group gap={0}>
+                    {newSubscribers.data.results[1].count >= newSubscribers.data.results[0].count ? <IconArrowUp color={theme.colors.green[5]} /> : <IconArrowDown color="red" />}
+                    <Text c={newSubscribers.data.results[1].count >= newSubscribers.data.results[0].count ? theme.colors.green[5] : "red"}>{NumberUtils.calcPercentChange(newSubscribers.data.results[1].count, newSubscribers.data.results[0].count)} %</Text>
+                  </Group>
+
+                  <Text c={theme.colors.text[1]}>So với tháng trước</Text>
+                </>
+              }()}
             </Group>
           </Card>
         </Grid.Col>
@@ -172,97 +244,49 @@ export const AdminDashBoard: FC = () => {
 }
 
 const RevenueChart: FC = () => {
-  const dataTest = [
-    {
-      date: '1',
-      Revenue: 2890,
-    },
-    {
-      date: '2',
-      Revenue: 2756,
-    },
-    {
-      date: '3',
-      Revenue: 3322,
-    },
-    {
-      date: '4',
-      Revenue: 3470,
-    },
-    {
-      date: '5',
-      Revenue: 3129,
-    },
-    {
-      date: '6',
-      Revenue: 2890,
-    },
-    {
-      date: '7',
-      Revenue: 2756,
-    },
-    {
-      date: '8',
-      Revenue: 3322,
-    },
-    {
-      date: '9',
-      Revenue: 3470,
-    },
-    {
-      date: '10',
-      Revenue: 3129,
-    },
-    {
-      date: '11',
-      Revenue: 3129,
-    },
-    {
-      date: '12',
-      Revenue: 3129,
-    },
-  ];
-
   const theme = useMantineTheme();
-  const [data, setData] = useState<any>([])
+  const [data, setData] = useState<any>([]);
+  const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
+  const account = useAccount();
+  //const isAdmin = account.information && account.information?.roles.includes(Roles.ADMIN);
 
   const formatXAxisLabel = (value: any) => {
-    const monthNames = ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"];
-    return monthNames[value - 1];
+    const parts = value.split('/');
+    return `${parts[0]}/${parts[2]}`
   };
 
+  const getOrderStatistic = async () => {
+    const res = await StatisticModule.getOrderRevenueStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(12)), to: DateTimeUtils.formatDate(new Date()) })
+    setData(res.results);
+  }
+
   useEffect(() => {
-    setData(dataTest);
-  }, [])
+     getOrderStatistic();
+  }, [account.information, selectedToken])
 
   return <Card shadow="sm">
     <Group justify="space-between">
       <Title order={4} c={theme.colors.text[1]}>Doanh thu</Title>
 
       <Group gap='sm'>
-        <AppButton
-          async
-          variant="outline"
-          color={theme.colors.primary[5]}
+        {Object.values(AppPayment).map((v, k) => <ActionIcon
+          key={k}
+          radius='50%'
+          variant="transparent"
+          size={48}
         >
-          Tuần
-        </AppButton>
-        <AppButton
-          async
-          color={theme.colors.primary[5]}
-        >
-          Tháng
-        </AppButton>
+          <Avatar src={renderPayment(v).image} size={64} />
+        </ActionIcon>)}
       </Group>
     </Group>
     <Card.Section py={30}>
       {function () {
         if (data) return <LineChart width={800} height={350} data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis tickFormatter={formatXAxisLabel} dataKey="date" />
+          <XAxis tickFormatter={formatXAxisLabel} dataKey="from" />
           <YAxis />
           <Tooltip />
-          <Line type="natural" dataKey="Revenue" stroke={theme.colors.primary[5]} strokeWidth={2} />
+          <Line type="natural" dataKey="revenue" stroke={theme.colors.primary[5]} strokeWidth={2} />
         </LineChart>
       }()}
     </Card.Section>
@@ -270,43 +294,24 @@ const RevenueChart: FC = () => {
 }
 
 const UsersChart: FC = () => {
-  const dataTest = [
-    {
-      date: '7',
-      Users: 10,
-    },
-    {
-      date: '8',
-      Users: 20,
-    },
-    {
-      date: '9',
-      Users: 12,
-    },
-    {
-      date: '10',
-      Users: 23,
-    },
-    {
-      date: '11',
-      Users: 43,
-    },
-    {
-      date: '12',
-      Users: 43,
-    },
-  ];
   const theme = useMantineTheme();
   const [data, setData] = useState<any>([])
+  const account = useAccount();
+  //const isAdmin = account.information && account.information.roles.includes(Roles.ADMIN);
 
   const formatXAxisLabel = (value: any) => {
-    const monthNames = ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"];
-    return monthNames[value - 1];
+    const parts = value.split('/');
+    return `${parts[0]}/${parts[2]}`
   };
 
+  const getUserStatistic = async () => {
+    const res = await StatisticModule.getUserStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(12)), to: DateTimeUtils.formatDate(new Date()) })
+    setData(res.data?.results);
+  }
+
   useEffect(() => {
-    setData(dataTest);
-  }, [])
+    getUserStatistic();
+  }, [account.information])
 
   return <Card shadow="sm">
     <Group justify="space-between">
@@ -317,11 +322,11 @@ const UsersChart: FC = () => {
       {function () {
         if (data) return <BarChart width={350} height={360} data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis tickFormatter={formatXAxisLabel} dataKey="date" />
-          <YAxis />
+          <XAxis tickFormatter={formatXAxisLabel} dataKey="from" />
+          <YAxis allowDecimals={false} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="Users" fill="#f5365c" />
+          <Bar dataKey="count" fill="#f5365c" />
         </BarChart>
       }()}
     </Card.Section>

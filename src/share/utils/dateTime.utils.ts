@@ -123,4 +123,19 @@ export class DateTimeUtils {
     const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
     return daysDiff;
   }
+
+  static formatDate = (date: any) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
+  
+  static getDateWithOffsetMonths = (offsetMonths: number) => {
+    const currentDate = new Date();
+    currentDate.setMonth(currentDate.getMonth() - offsetMonths);
+
+    return currentDate;
+  };
 }

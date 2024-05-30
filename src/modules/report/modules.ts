@@ -11,10 +11,10 @@ export class ReportModule {
   }
 
   static async update(id: string, payload: ReportUpdatePayload) {
-    return RequestModule.post(`/api/v1/reports/${id}`, payload);
+    return RequestModule.patch(`/api/v1/reports/${id}`, payload);
   }
 
-  static getNameOfStatuc(status: ReportStatus): string {
+  static getNameOfStatuc(status: ReportStatus | string): string {
     if (status === ReportStatus.ISPENDING) return "Đang chờ";
     if (status === ReportStatus.NORMAL) return "Không vi phạm";
     if (status === ReportStatus.VIOLATED) return "Vi phạm";

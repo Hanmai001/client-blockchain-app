@@ -26,7 +26,7 @@ export interface ReportEntityPayload {
 }
 
 export interface ReportUpdatePayload {
-  status: ReportStatus,
+  status: ReportStatus | string,
 }
 
 export interface ReportQuery extends Query {

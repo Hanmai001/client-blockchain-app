@@ -88,6 +88,7 @@ export const AdminSystemScreen: FC = () => {
               async
               color={theme.colors.primary[5]}
               height={40}
+              radius={8}
               style={{
                 float: 'right'
               }}
@@ -119,6 +120,7 @@ export const AdminSystemScreen: FC = () => {
               async
               color={theme.colors.primary[5]}
               height={40}
+              radius={8}
               style={{
                 float: 'right'
               }}
@@ -149,6 +151,7 @@ export const AdminSystemScreen: FC = () => {
               async
               color={theme.colors.primary[5]}
               height={40}
+              radius={8}
               style={{
                 float: 'right'
               }}
@@ -179,6 +182,7 @@ export const AdminSystemScreen: FC = () => {
               async
               color={theme.colors.primary[5]}
               height={40}
+              radius={8}
             >
               Cập nhật
             </AppButton>

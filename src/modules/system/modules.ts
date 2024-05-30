@@ -7,7 +7,7 @@ export class SystemModule {
     const feeMint = await contractMarket.call({ method: 'getFeeMint' });
     const feeRate = await contractMarket.call({ method: 'getFeeRate' });
     const mintAddress = await contractMarket.call({ method: 'getMintAddress' });
-    const receiverAddress = await contractMarket.call({ method: 'getreceiverAddress' });
+    const receiverAddress = await contractMarket.call({ method: 'getReceiverAddress' });
     return {
       feeMint: ethers.formatEther(feeMint),
       feeRate: feeRate.toString(),

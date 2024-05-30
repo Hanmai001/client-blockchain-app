@@ -57,4 +57,11 @@ export class NumberUtils {
   static isOdd(n: number) {
     return Math.abs(n % 2) == 1
   }
+
+  static calcPercentChange(newValue: number, oldValue: number) {
+    if (oldValue === 0) return 0;
+    
+    const percent = ((newValue - oldValue) / oldValue) * 100;
+    return parseFloat(percent.toFixed(2));
+  }
 }
