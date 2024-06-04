@@ -87,11 +87,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 
   useEffect(() => {
     fetchItems();
-  }, [debounced, filter, account.information?.wallet])
-
-  useEffect(() => {
-    fetchItems();
-  }, [])
+  }, [debounced, filter, account.information])
 
   return <AppWrapper>
     <Stack>

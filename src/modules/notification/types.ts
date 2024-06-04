@@ -1,9 +1,11 @@
 import { Query } from "../../../types"
 
 export enum NotificationType {
-  BUY_TOKEN = '1', //
-  FRIEND_REQUEST = '2',
-  OTHER = '3' //LIKE, SHARE, COMMENT, CANCEL/LIST ORDER
+  BUY_TOKEN = '1',
+  SUBSCRIBE_COLLECTION = '2',
+  FRIEND_REQUEST = '3',
+  OTHER = '4', //LIKE, SHARE, COMMENT, CANCEL/LIST ORDER
+  REPORT = '5'
 }
 
 export interface NotificationStatus {

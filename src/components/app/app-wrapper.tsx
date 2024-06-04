@@ -49,9 +49,9 @@ export const AppWrapper: FC<PropsWithChildren> = (props) => {
         {/* <AppFooter /> */}
       </AppShell.Main>
 
-      <AppShell.Footer style={{ zIndex: 98 }}>
+      {/* <AppShell.Footer style={{ zIndex: 98 }}>
         <AppFooter />
-      </AppShell.Footer>
+      </AppShell.Footer> */}
     </AppShell>
   )
 }

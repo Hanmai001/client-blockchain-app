@@ -1,20 +1,17 @@
 import { AppButton } from "@/components/app/app-button";
 import { AppHeader } from "@/components/app/app-header";
-import { AppLoading } from "@/components/app/app-loading";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { EmptyMessage } from "@/components/empty-message";
 import { ErrorMessage } from "@/components/error-message";
 import { MediaInput } from "@/components/input/media-input";
 import { SelectInputItem } from "@/components/input/select-input-item";
-import { onError } from "@/components/modals/modal-error";
-import { onSuccess } from "@/components/modals/modal-success";
+import { onCreateNft } from "@/components/modals/modal-create-nft";
+import { OnErrorModal, onError } from "@/components/modals/modal-error";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
-import { NftModule } from "@/modules/nft/modules";
 import { NftPayload } from "@/modules/nft/types";
-import { RequestModule } from "@/modules/request/request";
 import { useBlockChain } from "@/share/blockchain/context";
 import { AspectRatio, Box, Card, Checkbox, CheckboxGroup, Flex, Grid, Group, Image, Skeleton, Stack, Text, TextInput, Textarea, Transition, useMantineTheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -25,7 +22,6 @@ import { FC, useEffect, useState } from "react";
 import { AppRoutes } from "../../../../app-router";
 import { DataLoadState, ItemMode, ListLoadState } from "../../../../types";
 import classes from '../../../styles/nfts/NftCreate.module.scss';
-import { onCreateNft } from "@/components/modals/modal-create-nft";
 
 export const CreateNftScreen: FC = () => {
   const theme = useMantineTheme();
@@ -35,8 +31,7 @@ export const CreateNftScreen: FC = () => {
   const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({ isFetching: true, data: { collections: [], count: 0 } });
   const [collection, setCollection] = useState<DataLoadState<Collection>>({ isFetching: true });
   const [opened, setOpened] = useState(false);
-  const router = useRouter();
-  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const router = useRouter()
   const [file, setFile] = useState<File | string | null>(null);
   const [mode, setMode] = useState<string[]>([]);
 
@@ -78,12 +73,22 @@ export const CreateNftScreen: FC = () => {
 
   const onSubmit = form.onSubmit(async (values) => {
     try {
+      if (!file) {
+        OnErrorModal({ title: 'Tạo Video', error: "Vui lòng chọn video để tải lên" });
+        return;
+      }
+
+      if (mode.length < 1) {
+        OnErrorModal({ title: 'Tạo Video', error: "Vui lòng chọn chế độ cho video tải lên" });
+        return;
+      }
+
       let payload = { ...values, mode: Number(mode[0]), source: '' }
       if (collection) {
         payload.chainID = collection.data!.chainID;
         payload.collectionID = collection.data!.collectionID;
       }
-      
+
       onCreateNft({ payload, mode: mode[0], file });
     } catch (error) {
       onError(error);

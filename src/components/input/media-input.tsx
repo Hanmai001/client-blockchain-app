@@ -1,8 +1,9 @@
 import { AppModule } from "@/modules/app/modules";
-import { AspectRatio, Box, Card, Center, Image, Input, InputBaseProps, Text, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
+import { AspectRatio, Box, Card, Center, Image, Input, InputBaseProps, Stack, Text, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { IconX } from "@tabler/icons-react";
 import { FC } from "react";
+import { OnErrorModal } from "../modals/modal-error";
 
 interface MediaInputsProps extends InputBaseProps {
   value?: (string | File),
@@ -17,6 +18,11 @@ interface MediaInputsProps extends InputBaseProps {
 export const MediaInput: FC<MediaInputsProps> = (props) => {
   const theme = useMantineTheme();
   const handleDrop = (files: File[]) => {
+    const allowedSize = props.acceptance === 'image' ? 20 * 1024 ** 2 : 5 * 1024 ** 2
+    if (files[0].size > allowedSize) {
+      OnErrorModal({ title: '', error: 'Kích thước file không hợp lệ' })
+      return;
+    }
     props.onChange(files[0]);
   }
 
@@ -34,8 +40,7 @@ export const MediaInput: FC<MediaInputsProps> = (props) => {
         maxFiles={1}
         onDrop={handleDrop}
         accept={props.acceptance === 'image' ? IMAGE_MIME_TYPE : ['video/mp4']}
-        onReject={(files) => AppModule.onError('File không hợp lệ!')}
-        //maxSize={props.acceptance === 'image' ? 20 * 1024 ** 2 : 5 * 1024 ** 2}
+        onReject={(files) => OnErrorModal({ title: '', error: 'File không hợp lệ' })}
         styles={{
           root: {
             maxWidth: '100%',
@@ -86,14 +91,14 @@ export const MediaInput: FC<MediaInputsProps> = (props) => {
           );
 
           return <Center h={'100%'}>
-            <div>
+            <Stack gap={0} align="center">
               <Text size="xl" inline>
                 Kéo hoặc thả file
               </Text>
               <Text size="sm" c="dimmed" inline mt={7}>
-                Kích thước không quá {props.acceptance === 'image' ? '20MB' : '5MB'}
+                Kích thước không quá {props.acceptance === 'video' ? '20MB' : '5MB'}
               </Text>
-            </div>
+            </Stack>
           </Center>
         }()}
       </Dropzone>

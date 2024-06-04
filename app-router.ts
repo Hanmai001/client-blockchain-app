@@ -22,5 +22,6 @@ export const AppRoutes = {
     system: '/admin/system',
     reports: '/admin/reports'
   },
-  friends: '/friends'
+  friends: '/friends',
+  explore: '/explore'
 }

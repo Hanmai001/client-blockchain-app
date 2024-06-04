@@ -261,7 +261,7 @@ const RevenueChart: FC = () => {
   }
 
   useEffect(() => {
-     getOrderStatistic();
+    getOrderStatistic();
   }, [account.information, selectedToken])
 
   return <Card shadow="sm">

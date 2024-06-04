@@ -4,7 +4,7 @@ import { AppLoading } from "@/components/app/app-loading";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { MyCombobox } from "@/components/combobox/my-combobox";
 import { MediaInput } from "@/components/input/media-input";
-import { onError } from "@/components/modals/modal-error";
+import { OnErrorModal, onError } from "@/components/modals/modal-error";
 import { onSuccess } from "@/components/modals/modal-success";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
@@ -94,6 +94,11 @@ export const CollectionCreateScreen: FC = () => {
   const onSubmit = form.onSubmit(async (values) => {
     try {
       let payload = { ...values };
+
+      if (!bannerFile) {
+        OnErrorModal({ title: 'Tạo BST', error: "Vui lòng chọn ảnh cho BST" });
+        return;
+      }
 
       if (bannerFile instanceof File)
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");

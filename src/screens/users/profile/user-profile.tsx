@@ -178,78 +178,71 @@ const UserCover: FC<{ user: UserInformation }> = (props) => {
 
   return (
     <Box pos='relative'>
-      <AspectRatio ref={ref} ratio={400 / 100} style={{ overflow: 'hidden', cursor: hovered && isSignedUser ? 'pointer' : 'normal' }}>
-        <AppImage src={image} alt="" />
+      <AspectRatio ref={ref} ratio={400 / 100} style={{
+        overflow: 'hidden',
+        //cursor: hovered && isSignedUser ? 'pointer' : 'normal',
+      }}>
+        <AppImage src={image} />
       </AspectRatio>
 
-      <Group
-        style={{
-          alignItems: 'flex-end',
+      {/* {isSignedUser && previewImage && <Group pos="absolute" style={{
+        top: 0,
+        bottom: 0,
+        right: 0,
+        left: 0,
+      }}>
+        <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+
+        <Group gap='xs' style={{
+          position: 'absolute',
+          top: rem(8),
+          right: rem(8),
+          borderRadius: '50%',
+          padding: rem(4),
+          cursor: 'pointer',
+          display: 'flex',
           justifyContent: 'center',
-
-        }}
-        w={'100%'}
-      >
-        {isSignedUser && previewImage && <Group pos="relative" style={{
-          top: 0,
-          bottom: 0,
-          right: 0,
-          left: 0,
+          alignContent: 'center',
+          flexWrap: 'wrap'
         }}>
-          <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+          <AppButton async color={theme.colors.primary[5]} onClick={handleChangeBanner}>
+            Lưu
+          </AppButton>
 
-          <Group gap='xs' style={{
-            position: 'absolute',
-            top: rem(8),
-            right: rem(8),
-            borderRadius: '50%',
-            padding: rem(4),
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'center',
-            alignContent: 'center',
-            flexWrap: 'wrap'
-          }}>
-            <AppButton async color={theme.colors.primary[5]} onClick={handleChangeBanner}>
-              Lưu
-            </AppButton>
+          <UnstyledButton
+            onClick={removeImage}
+          >
+            <IconTrash color={theme.colors.text[0]} />
+          </UnstyledButton>
+        </Group>
+      </Group>} */}
 
-            <UnstyledButton
-              onClick={removeImage}
-            >
-              <IconTrash color={theme.colors.text[0]} />
-            </UnstyledButton>
-          </Group>
-        </Group>}
+      {/* {isSignedUser && hovered && !previewImage && <div
+        {...getRootProps({
+          className: classes.dropzone,
+        })}
+        style={{
+          background: hovered ? `linear-gradient(to top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3))` : '',
+        }}
+      >
+        <input {...getInputProps()} />
 
-        {isSignedUser && hovered && !previewImage && <div
-          {...getRootProps({
-            className: classes.dropzone,
-          })}
-          style={{
-            background: hovered ? `linear-gradient(to top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3))` : '',
-          }}
-        >
-          <input {...getInputProps()} />
-
-          <Group gap={4}>
-            <IconUpload
-              style={{ width: rem(52), height: rem(52) }}
-              stroke={1.5}
-              color={theme.colors.text[0]}
-            />
-            <Stack gap={2}>
-              <Text size="xl" c={theme.colors.text[0]} inline>
-                Kéo hoặc thả ảnh
-              </Text>
-              <Text size="sm" c={theme.colors.text[0]} inline mt={7}>
-                Kích thước ảnh không quá 5MB
-              </Text>
-            </Stack>
-          </Group>
-        </div>}
-
-      </Group>
+        <Group gap={4}>
+          <IconUpload
+            style={{ width: rem(52), height: rem(52) }}
+            stroke={1.5}
+            color={theme.colors.text[0]}
+          />
+          <Stack gap={2}>
+            <Text size="xl" c={theme.colors.text[0]} inline>
+              Kéo hoặc thả ảnh
+            </Text>
+            <Text size="sm" c={theme.colors.text[0]} inline mt={7}>
+              Kích thước ảnh không quá 5MB
+            </Text>
+          </Stack>
+        </Group>
+      </div>} */}
     </Box>
   )
 }
@@ -818,8 +811,8 @@ const TabCollections: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ 
   }
   const theme = useMantineTheme();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState(CollectionType.ALL);
-  const [status, setStatus] = useState(CollectionStatus.ALL);
+  const [filter, setFilter] = useState<CollectionType>(CollectionType.ALL);
+  const [status, setStatus] = useState<CollectionStatus>(CollectionStatus.ALL);
   const [activePage, setPage] = useState(1);
   const [debounced] = useDebouncedValue(search, 200);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -839,7 +832,7 @@ const TabCollections: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ 
         if (status === CollectionStatus.OLDEST) sort = '+createdAt';
       }
 
-      listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter as string : '', active: isSignedUser ? null : true });
+      listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter : '', active: isSignedUser ? null : true });
       if (search.length > 0 && !!listItems.data.collections) {
         const collections = listItems.data.collections.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
@@ -892,7 +885,9 @@ const TabCollections: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ 
           }}
           classnamesinput="combobox-input"
           classnamesroot="combobox-root-input"
-          onChange={(val) => { setFilter(val) }}
+          onChange={(val) => {
+            if (val !== true && val !== false) setFilter(val)
+          }}
         />
         <MyCombobox
           initialvalue={CollectionStatus.ALL}
@@ -909,7 +904,9 @@ const TabCollections: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ 
           }}
           classnamesinput="combobox-input"
           classnamesroot="combobox-root-input"
-          onChange={(val) => { setStatus(val) }}
+          onChange={(val) => {
+            if (val !== true && val !== false) setStatus(val)
+          }}
         />
       </Group>
 
@@ -1032,7 +1029,9 @@ const TabSubscribedCollections: FC<{ user: UserInformation }> = ({ user }) => {
           }}
           classnamesinput="combobox-input"
           classnamesroot="combobox-root-input"
-          onChange={(val) => { setFilter(val) }}
+          onChange={(val) => {
+            if (val !== true && val !== false) setFilter(val)
+          }}
         />
         <MyCombobox
           initialvalue={CollectionStatus.ALL}
@@ -1049,7 +1048,9 @@ const TabSubscribedCollections: FC<{ user: UserInformation }> = ({ user }) => {
           }}
           classnamesinput="combobox-input"
           classnamesroot="combobox-root-input"
-          onChange={(val) => { setStatus(val) }}
+          onChange={(val) => {
+            if (val !== true && val !== false) setStatus(val)
+          }}
         />
       </Group>
 

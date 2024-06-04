@@ -5,7 +5,7 @@ import { useConfig } from "@/modules/configs/context";
 import { useBlockChain } from "@/share/blockchain/context";
 import { Group, Skeleton, rem, useMantineTheme } from "@mantine/core";
 import { IconWallet } from "@tabler/icons-react";
-import { ProviderType } from "@/share/blockchain/types";
+import { ChainId, ProviderType } from "@/share/blockchain/types";
 
 export const ConnectWallet: FC = () => {
   const account = useAccount();
@@ -34,7 +34,7 @@ export const ConnectWallet: FC = () => {
             color={theme.colors.primary[5]}
             height={45}
             width={156}
-            onClick={() => blockchain.connectChain(blockchain.chainId!).catch(error => { })}
+            onClick={() => blockchain.connectChain(blockchain.chainId as ChainId).catch(error => { })}
           >
             Đổi mạng
           </AppButton>

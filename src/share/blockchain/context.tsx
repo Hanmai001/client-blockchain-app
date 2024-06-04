@@ -38,24 +38,27 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
   const setup = async (provider: ethers.Eip1193Provider, providerType: ProviderType, forceChainId?: ChainId) => {
     const providerUse = new ethers.BrowserProvider(provider);
     let currentChainId = (await providerUse.getNetwork()).chainId.toString() as ChainId;
+    try {
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
+      const wallet = ethers.getAddress(accounts[0].toString());
 
-    const accounts = await provider.request({ method: 'eth_requestAccounts'});
-    const wallet = ethers.getAddress(accounts[0].toString());
-
-    //if user want to connect to another chain
-    if (forceChainId && forceChainId !== currentChainId) {
-      try {
-        await connectChain(forceChainId);
-      } catch (error) {
-        return false;
+      //if user want to connect to another chain
+      if (forceChainId && forceChainId !== currentChainId) {
+        try {
+          await connectChain(forceChainId);
+        } catch (error) {
+          return false;
+        }
+        currentChainId = (await providerUse.getNetwork()).chainId.toString() as ChainId;
       }
-      currentChainId = (await providerUse.getNetwork()).chainId.toString() as ChainId;
+
+      setStatus(s => ({ ...s, chainId: currentChainId, wallet, provider, providerType }));
+      setIsInitialized(true);
+
+      return { chainId: currentChainId, wallet, provider, providerType };
+    } catch (error) {
+      return { chainId: currentChainId, provider, providerType}
     }
-
-    setStatus(s => ({ ...s, chainId: currentChainId, wallet, provider, providerType }));
-    setIsInitialized(true);
-
-    return { chainId: currentChainId, wallet, provider, providerType };
   }
 
   const initProvider = async (providerType: ProviderType) => {
@@ -109,6 +112,7 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
 
   connectChain = async (chainId: any) => {
     const chain = chains.find(v => v.chainId === chainId);
+    console.log(chainId)
     if (!chain) throw Error("Chain does not supported yet");
 
     try {

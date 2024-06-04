@@ -1,13 +1,13 @@
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
+import { useBlockChain } from "@/share/blockchain/context";
 import { Tooltip } from "@mantine/core";
-import { IconBuildingStore, IconCameraBolt, IconFriends, IconLogout, IconUser } from "@tabler/icons-react";
-import { FC, useState } from "react";
+import { IconBuildingStore, IconFriends, IconLogout, IconSearch, IconUser } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
+import { FC } from "react";
 import { AppRoutes } from "../../../app-router";
 import classes from "../../styles/app/AppNavBar.module.scss";
-import { useRouter } from "next/router";
-import { usePathname } from "next/navigation";
-import { useBlockChain } from "@/share/blockchain/context";
 
 export const AppNavBar: FC = () => {
   const account = useAccount();
@@ -18,6 +18,7 @@ export const AppNavBar: FC = () => {
 
   const navLinks = [
     { link: AppRoutes.root, label: 'Cửa hàng', icon: IconBuildingStore },
+    { link: AppRoutes.explore, label: 'Khám phá', icon: IconSearch },
     { link: `${AppRoutes.user.profile}/${blockchain.wallet}`, label: 'Hồ sơ của bạn', icon: IconUser },
     { link: AppRoutes.friends, label: 'Bạn bè có gì mới', icon: IconFriends },
   ]

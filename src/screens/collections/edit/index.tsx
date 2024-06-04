@@ -4,7 +4,7 @@ import { AppLoading } from "@/components/app/app-loading";
 import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { MyCombobox } from "@/components/combobox/my-combobox";
 import { MediaInput } from "@/components/input/media-input";
-import { onError } from "@/components/modals/modal-error";
+import { OnErrorModal, onError } from "@/components/modals/modal-error";
 import { onSuccess } from "@/components/modals/modal-success";
 import { useResponsive } from "@/modules/app/hooks";
 import { renderPayment } from "@/modules/coins/utils";
@@ -82,6 +82,11 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
 
   const onSubmitUpdate = formUpdate.onSubmit(async (values) => {
     try {
+      if (!bannerFile) {
+        OnErrorModal({ title: 'Cập nhật BST', error: "Vui lòng chọn ảnh cho BST" });
+        return;
+      }
+      
       setIsUploading(true);
 
       let payload = { ...values, active: checked };
