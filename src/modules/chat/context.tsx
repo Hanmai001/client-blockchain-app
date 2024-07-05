@@ -7,7 +7,7 @@ import { ChatPropsContext, ChatStatus, Message } from "./types";
 export const ChatContext = createContext<ChatPropsContext>({} as any);
 
 //sever for chat
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "http://blockclip.pro.vn:5000";
 var socket: Socket;
 
 export const ChatProvider: FC<PropsWithChildren> = (props) => {
