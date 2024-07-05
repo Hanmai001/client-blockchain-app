@@ -16,6 +16,7 @@ export interface NotificationStatus {
 
 export interface NotificationPropsContext extends NotificationStatus {
   pushNotification: PushNotification,
+  sendNotification: SendNotification,
   setActivePage: SetActivePage
 }
 
@@ -27,13 +28,25 @@ export interface Notification {
   image: string,
   type: NotificationType,
   isRead: boolean,
+  receiver: string,
   createdAt: Date,
   updatedAt: Date
+}
+
+export interface NotificationPayload {
+  title: string,
+  description: string,
+  link: string,
+  receiver: string,
+  image: string,
+  type: NotificationType,
+  isRead: boolean,
 }
 
 export interface NotificationQuery extends Query {
   type?: NotificationType
 }
 
-export type PushNotification = () => Promise<any>
+export type PushNotification = (newNotification: Notification) => void;
+export type SendNotification = (payload: NotificationPayload) => Promise<any>;
 export type SetActivePage = () => void;

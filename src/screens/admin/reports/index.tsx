@@ -81,7 +81,7 @@ export const AdminReportsScreen: FC = () => {
               </Table.Thead>
 
               <Table.Tbody>
-                {items.data.reports.map((v, k) => <ReportItem report={v} />)}
+                {items.data.reports.map((v, k) => <ReportItem key={k} report={v} />)}
               </Table.Tbody>
             </Table>
           }()}
@@ -170,7 +170,7 @@ const ReportItem: FC<{ report: ReportEntity }> = ({ report }) => {
       <Table.Td>
         {isEdittingStatus ? <Group gap='xs'>
           <Select
-            data={Object.values(ReportStatus).map(v => ({ value: v.toString(), label: ReportModule.getNameOfStatuc(v) }))}
+            data={Object.values(ReportStatus).map(v => ({ value: v.toString(), label: ReportModule.getNameOfStatus(v) }))}
             value={status}
             onChange={(v) => setStatus(v!)}
             maw={150}
@@ -205,7 +205,7 @@ const ReportItem: FC<{ report: ReportEntity }> = ({ report }) => {
           </Group>
         </Group> : <Group>
           <Text fw='bold'>
-            {ReportModule.getNameOfStatuc(report.status)}
+            {ReportModule.getNameOfStatus(report.status)}
           </Text>
           <ActionIcon
             variant="outline"

@@ -233,18 +233,18 @@ export function parseEvent(abi: any[], address: string, receipt: TransactionRece
         })
       
         // console.log("description: ", descriptor)
-      if (descriptor) {
-        event.event = descriptor.name
-        event.signature = descriptor.signature
-        event.returnValues = web3EthAbi.decodeLog(
-          descriptor.inputs,
-          event.raw.data,
-          event.raw.topics.slice(1)
-        )
+      // if (descriptor) {
+      //   event.event = descriptor.name
+      //   event.signature = descriptor.signature
+      //   event.returnValues = web3EthAbi.decodeLog(
+      //     descriptor.inputs,
+      //     event.raw.data,
+      //     event.raw.topics.slice(1)
+      //   )
 
-        // delete event.returnValues.__length__
-        events.push(event)
-      }
+      //   // delete event.returnValues.__length__
+      //   events.push(event)
+      // }
 
       delete receipt.events[n]
     })

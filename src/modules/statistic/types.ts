@@ -1,3 +1,5 @@
+import { AppPayment } from "../../../types"
+
 export enum StatisticType {
   MONTH='MONTH',
   YEAR='YEAR',
@@ -13,5 +15,6 @@ export interface Statistic {
 export interface StatisticQuery {
   type: StatisticType,
   from?: string,
-  to?: string
+  to?: string,
+  payment?: AppPayment
 }

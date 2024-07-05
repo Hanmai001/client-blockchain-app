@@ -1,11 +1,11 @@
-import { FC } from "react";
-import { AppButton } from "../app/app-button";
 import { useAccount } from "@/modules/account/context";
 import { useConfig } from "@/modules/configs/context";
 import { useBlockChain } from "@/share/blockchain/context";
-import { Group, Skeleton, rem, useMantineTheme } from "@mantine/core";
-import { IconWallet } from "@tabler/icons-react";
 import { ChainId, ProviderType } from "@/share/blockchain/types";
+import { Group, Skeleton, useMantineTheme } from "@mantine/core";
+import { IconWallet } from "@tabler/icons-react";
+import { FC } from "react";
+import { AppButton } from "../app/app-button";
 
 export const ConnectWallet: FC = () => {
   const account = useAccount();

@@ -14,7 +14,7 @@ export class ReportModule {
     return RequestModule.patch(`/api/v1/reports/${id}`, payload);
   }
 
-  static getNameOfStatuc(status: ReportStatus | string): string {
+  static getNameOfStatus(status: ReportStatus | string): string {
     if (status === ReportStatus.ISPENDING) return "Đang chờ";
     if (status === ReportStatus.NORMAL) return "Không vi phạm";
     if (status === ReportStatus.VIOLATED) return "Vi phạm";

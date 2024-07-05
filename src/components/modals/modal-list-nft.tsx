@@ -49,7 +49,6 @@ export const ModalListNft: FC = () => {
   const handleSubmit = async () => {
     try {
       let payload: MarketOrderPayload = {
-        event: TransactionEvent.TRANSFER,
         chainID: blockchain.chainId as string,
         tokenID: state!.nft!.tokenID,
         tokenAddress: state!.nft!.contractAddress,
@@ -110,7 +109,7 @@ export const ModalListNft: FC = () => {
                 key={k}
                 onClick={() => (setSelectedToken(v.paymentType))}
                 mih={60}
-                rightSection={selectedToken === v.paymentType ? <IconCheck color="teal"/> : null}
+                rightSection={selectedToken === v.paymentType ? <IconCheck color="teal" /> : null}
               >
                 <Group gap={8}>
                   <Avatar size={30} src={v.image} />

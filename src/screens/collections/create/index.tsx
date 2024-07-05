@@ -304,8 +304,8 @@ export const CollectionCreateScreen: FC = () => {
                   </ThemeIcon>
                   <Stack flex={11} gap={2}>
                     <Text fw={500} c={theme.colors.gray[8]}>Chế độ</Text>
-                    <Text c={theme.colors.gray[7]}>Mọi người có thể xem được các video trong BST của bạn nếu chế độ là "công khai"</Text>
-                    <Text c={theme.colors.gray[7]}>Các video nằm trong BST "thương mại" sẽ được bảo vệ khỏi quyền truy cập bất hợp pháp và mọi người chỉ được xem sau khi đã thanh toán</Text>
+                    <Text c={theme.colors.gray[7]}>Mọi người có thể xem được các video trong BST của bạn nếu chế độ là công khai</Text>
+                    <Text c={theme.colors.gray[7]}>Các video nằm trong BST có chế độ thương mại sẽ được bảo vệ khỏi quyền truy cập bất hợp pháp và mọi người chỉ được xem sau khi đã thanh toán</Text>
                   </Stack>
                 </Group>
               </Stack>

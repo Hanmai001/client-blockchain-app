@@ -13,6 +13,10 @@ export class StatisticModule {
     const res = await RequestModule.get(`/api/v1/statistics/revenue`, query);
     return res.data.orderRevenue;
   }
+  static async getPackageRevenueStatistic(query: StatisticQuery): Promise<any> {
+    const res = await RequestModule.get(`/api/v1/statistics/revenue`, query);
+    return res.data.packageRevenue;
+  }
   static async getNewSubscriberStatistic(query: StatisticQuery): Promise<ListLoadState<Statistic, 'results'>> {
     return RequestModule.get(`/api/v1/statistics/newSubscriber`, query)
   }

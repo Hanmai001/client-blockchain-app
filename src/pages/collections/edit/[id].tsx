@@ -6,26 +6,28 @@ export default CollectionEditScreen;
 
 export async function getStaticPaths() {
   let res: any;
+  let paths: Array<{ params: { id: string } }> = [];
+
   try {
     res = await CollectionModule.getList();
+    if (res?.data?.collections) {
+      paths = res.data.collections.map((v: Collection) => ({
+        params: { id: v.collectionID ? v.collectionID.toString() : "" },
+      }));
+    }
   } catch (error) {
-
-  } finally {
-    const paths = res.data.collections.map((v: Collection) => ({
-      params: { id: v.collectionID ? v.collectionID.toString() : "" },
-    }));
-    return { paths, fallback: true };
   }
+
+  return { paths, fallback: true };
 }
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
   const { id } = params;
   const res = await CollectionModule.getCollectionByID(id);
-  console.log(res)
 
   return {
     props: {
       collection: res.data
     }
   };
-} 
+}

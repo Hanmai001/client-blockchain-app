@@ -6,25 +6,34 @@ export default UserProfileScreen;
 
 export async function getStaticPaths() {
   let res: any;
+  let paths: Array<{ params: { id: string } }> = [];
+
   try {
     res = await UserModule.getListUsers();
+    if (res?.data?.users) {
+      paths = res.data.users.map((v: UserInformation) => ({
+        params: { id: v.wallet ? v.wallet.toString() : "" },
+      }));
+    }
   } catch (error) {
-
-  } finally {
-    const paths = res.data.users.map((v: UserInformation) => ({
-      params: { id: v.wallet ? v.wallet.toString() : "" },
-    }));
-    return { paths, fallback: true };
   }
+
+  return { paths, fallback: true };
 }
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
   const { id } = params;
-  const res = await UserModule.getByWallet(id);
+  let user: UserInformation | null = null;
+
+  try {
+    const res = await UserModule.getByWallet(id);
+    user = res;
+  } catch (error) {
+  }
 
   return {
     props: {
-      user: res
-    }
+      user,
+    },
   };
-} 
+}

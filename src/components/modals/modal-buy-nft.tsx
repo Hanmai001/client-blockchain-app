@@ -2,18 +2,18 @@ import { renderPayment } from "@/modules/coins/utils";
 import { useConfig } from "@/modules/configs/context";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
 import { MarketOrder, TransactionEvent } from "@/modules/marketorder/types";
-import { ActionIcon, Anchor, Avatar, Box, Card, Checkbox, Group, Modal, NumberInput, Stack, Text, TextInput, Title, Transition, UnstyledButton, useMantineTheme } from "@mantine/core";
+import { Nft } from "@/modules/nft/types";
+import { ActionIcon, Anchor, Avatar, Checkbox, CheckboxGroup, Group, Modal, NumberInput, Stack, Text, Title, UnstyledButton, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconCalendar, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import { AppPayment } from "../../../types";
 import { AppButton } from "../app/app-button";
 import { onSuccess } from "./modal-success";
-import { DatePicker } from "@mantine/dates";
-import { DateTimeUtils } from "@/share/utils";
 
 interface State {
   order: MarketOrder,
+  nft: Nft,
   onUpdate: () => void
 }
 
@@ -26,14 +26,12 @@ export const ModalBuyNft: FC = () => {
   const { isDarkMode } = useConfig();
   const [state, setState] = useState<State>();
   const [opened, { open, close }] = useDisclosure(false);
+  const [priceWithBenefits, setPriceWithBenefits] = useState<number>();
+  const [event, setEvent] = useState<string[]>([]);
   const [selectedToken, setSelectedToken] = useState<string | undefined>();
   const [price, setPrice] = useState<number | string>();
   const { image, symbol } = renderPayment(state?.order.paymentType || AppPayment.ETH);
-  const [dates, setDates] = useState<[Date | null, Date | null]>([currentDate, maxDate]);
-  const [value, setValue] = useState(`${DateTimeUtils.formatToShow(currentDate, false)} - ${DateTimeUtils.formatToShow(maxDate, false)}`);
-  const [openedCalendar, setOpenedCalendar] = useState(false);
   const [agreedPolicy, setAgreedPolicy] = useState(false);
-  const isTransferEvent = state?.order.event === TransactionEvent.TRANSFER;
 
   onBuyNft = (state) => {
     setState(state);
@@ -46,16 +44,12 @@ export const ModalBuyNft: FC = () => {
 
   const handleSubmit = async () => {
     try {
-      if (isTransferEvent) {
-        await MarketOrderModule.purchaseItem(state?.order!);
-      }
-      else {
-        await MarketOrderModule.purchaseItem(state?.order!, {
-          startAt: dates[0]!,
-          endAt: dates[1]!,
-          price
-        });
-      }
+      const priceUpdate = TransactionEvent.FULL_BENEFITS ? priceWithBenefits : price
+      await MarketOrderModule.purchaseItem(state?.order!, {
+        event: event[0],
+        price: priceUpdate,
+        collectionId: '0'
+      });
 
       onClose();
       onSuccess({ title: 'Mua thành công', message: "Bạn có thể kiểm tra" });
@@ -66,11 +60,18 @@ export const ModalBuyNft: FC = () => {
     }
   }
 
-  useEffect(() => {
-    if (isTransferEvent) setPrice(state?.order?.price);
-    else setPrice(state?.order?.price! * (DateTimeUtils.countDays(currentDate, maxDate)));
+  const handleSelectEvent = async (value: string[]) => {
+    if (value.length > 1)
+      value.shift();
+    setEvent(value);
+  }
 
-    setSelectedToken(state?.order?.paymentType);
+  useEffect(() => {
+    if (state?.order && state?.nft) {
+      setPrice(state.order.price);
+      setPriceWithBenefits(state.order.price + MarketOrderModule.getPercentageListToken(state?.nft.totalViews) * state.order.price / 100);
+      setSelectedToken(state.order.paymentType);
+    }
   }, [state])
 
   return <Modal closeOnClickOutside={false} size="lg" centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
@@ -81,7 +82,7 @@ export const ModalBuyNft: FC = () => {
     {function () {
       if (state?.order) return <Stack gap={0}>
         <Group mb={20} justify="space-between">
-          <Title fw={500} c={theme.colors.text[1]} order={3} style={{ textAlign: "center" }}>{isTransferEvent ? 'Mua' : 'Thuê'}</Title>
+          <Title fw={500} c={theme.colors.text[1]} order={3} style={{ textAlign: "center" }}>Mua NFT</Title>
 
           <ActionIcon onClick={onClose} c={theme.colors.text[1]} variant="transparent">
             <IconX />
@@ -102,9 +103,32 @@ export const ModalBuyNft: FC = () => {
           </Group>
         </UnstyledButton>
 
+        <CheckboxGroup
+          label="Loại mua"
+          required
+          withAsterisk
+          value={event}
+          onChange={handleSelectEvent}
+          styles={{
+            label: {
+              fontWeight: 'bold',
+              marginBottom: '6px'
+            }
+          }}
+        >
+          <Group>
+            {Object.values(TransactionEvent).map((v, k) => <Checkbox
+              color={theme.colors.primary[5]}
+              key={k}
+              value={v}
+              label={MarketOrderModule.getMarketEvent(v)}
+            />)}
+          </Group>
+        </CheckboxGroup>
+
         <NumberInput
           my={10}
-          value={price}
+          value={event[0] === TransactionEvent.FULL_BENEFITS.toString() ? priceWithBenefits : price}
           label="Giá bán"
           disabled
           decimalScale={5}
@@ -119,63 +143,6 @@ export const ModalBuyNft: FC = () => {
             },
           }}
         />
-
-        {!isTransferEvent && <>
-          <TextInput
-            onFocus={() => setOpenedCalendar(!openedCalendar)}
-            my={10}
-            withAsterisk
-            label="Thời gian sử dụng"
-            readOnly
-            value={value}
-            leftSection={<IconCalendar />}
-            styles={{
-              root: {
-                width: '100%',
-              },
-              input: {
-                height: '45px',
-                borderRadius: '10px',
-                marginTop: "6px"
-              },
-            }}
-          />
-
-          <Transition
-            mounted={openedCalendar}
-            transition="scale-y"
-            duration={200}
-            timingFunction="ease"
-          >
-            {(styles) => <Card
-              shadow="md"
-              style={{
-                ...styles,
-              }}
-              radius={8}
-            >
-              <DatePicker
-                type="range"
-                color={theme.colors.primary[5]}
-                defaultChecked
-                defaultValue={dates}
-                value={dates}
-                onChange={(e) => {
-                  setDates(e);
-                  setValue(`${DateTimeUtils.formatToShow(e[0], false)} - ${DateTimeUtils.formatToShow(e[1], false)}`);
-                  setPrice(state.order.price * (DateTimeUtils.countDays(e[0], e[1])));
-                }}
-                minDate={new Date()}
-                maxDate={maxDate}
-                styles={{
-                  levelsGroup: {
-                    justifyContent: 'center'
-                  },
-                }}
-              />
-            </Card>}
-          </Transition>
-        </>}
 
         <Checkbox
           my={10}

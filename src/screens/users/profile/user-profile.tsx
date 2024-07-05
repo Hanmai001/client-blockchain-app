@@ -50,7 +50,7 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
   const [activeTab, setActiveTab] = useState<string | null>(UserTabsProfile.ALL);
   const account = useAccount();
   const theme = useMantineTheme();
-  const isSignedUser = account.information?.wallet === user.wallet;
+  const isSignedUser = account.information?.wallet === user?.wallet;
 
   return (
     <AppWrapper>
@@ -295,7 +295,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   const getFriendRequest = async () => {
     try {
-      let res = await FriendRequestModule.getListFriendRequests({ to: props.user.wallet, sort: '-createdAt' });
+      let res = await FriendRequestModule.getListFriendRequests({ to: props?.user?.wallet, sort: '-createdAt' });
       setFriendRequest(res.data.request[0]);
       setIsFriend(res.data.request[0].status === FriendRequestStatus.ISFRIEND);
       setIsPending(res.data.request[0].status === FriendRequestStatus.ISPENDING);
@@ -345,7 +345,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   const handleUnfriend = async () => {
     try {
-      await FriendRequestModule.update({ status: FriendRequestStatus.CANCELLED, to: props.user.wallet, from: account.information?.wallet, chainID: getChainId() });
+      await FriendRequestModule.update({ status: FriendRequestStatus.CANCELLED, to: props?.user?.wallet, from: account.information?.wallet, chainID: getChainId() });
       setIsFriend(false);
       setIsPending(false);
       setisRecipientFriendRequest(false);
@@ -356,7 +356,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   const handleAcceptFriendRequest = async () => {
     try {
-      await FriendRequestModule.update({ status: FriendRequestStatus.ISFRIEND, to: props.user.wallet, from: account.information?.wallet, chainID: getChainId() });
+      await FriendRequestModule.update({ status: FriendRequestStatus.ISFRIEND, to: props?.user?.wallet, from: account.information?.wallet, chainID: getChainId() });
       setIsFriend(true);
       setIsPending(false);
       setisRecipientFriendRequest(false);
@@ -367,9 +367,9 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
 
   const handleStartChat = async () => {
     try {
-      const data = await chatContext.checkIfAvailableChat(props.user.wallet!);
+      const data = await chatContext.checkIfAvailableChat(props.user?.wallet!);
       if (!data) {
-        await chatContext.createChat({ firstUser: account.information?.wallet, secondUser: props.user.wallet });
+        await chatContext.createChat({ firstUser: account.information?.wallet, secondUser: props.user?.wallet });
       } else await chatContext.handleChangeChat(data.id, data.secondUser);
 
       router.push("/users/messages");
@@ -435,7 +435,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         left: rem(110),
         top: rem(60)
       }}>
-        <Text c={theme.colors.gray[7]}>{StringUtils.compact(props.user.wallet, 6, 5)}</Text>
+        <Text c={theme.colors.gray[7]}>{StringUtils.compact(props.user?.wallet || "", 6, 5)}</Text>
         {clipboard.copied ? <ActionIcon
           c={theme.colors.gray[7]}
           variant="transparent"
@@ -444,7 +444,7 @@ const UserAvatar: FC<{ user: UserInformation }> = (props) => {
         </ActionIcon> : <ActionIcon
           c={theme.colors.gray[7]}
           variant="transparent"
-          onClick={() => clipboard.copy(props.user.wallet)}
+          onClick={() => clipboard.copy(props.user?.wallet || "")}
         >
           <IconCopy size={20} stroke={1.5} />
         </ActionIcon>}
@@ -599,7 +599,7 @@ const TabNfts: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, i
       if (filter === NftStatus.SOLD) {
         listItems = await MarketOrderModule.getTokensStatus({ status: MarketStatus.SOLD, active: isSignedUser ? null : true });
       } else {
-        listItems = await NftModule.getAllNftsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, active: isSignedUser ? null : true });
+        listItems = await NftModule.getAllNftsOfUser(user?.wallet!, { limit, offset: (activePage - 1) * limit, sort, active: isSignedUser ? null : true });
       }
 
       // if (filter === NftStatus.ISLISTING || filter === NftStatus.SOLD) {
@@ -832,7 +832,7 @@ const TabCollections: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ 
         if (status === CollectionStatus.OLDEST) sort = '+createdAt';
       }
 
-      listItems = await CollectionModule.getCollecionsOfUser(user.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter : '', active: isSignedUser ? null : true });
+      listItems = await CollectionModule.getCollecionsOfUser(user?.wallet!, { limit, offset: (activePage - 1) * limit, sort, category: filter !== CollectionType.ALL ? filter : '', active: isSignedUser ? null : true });
       if (search.length > 0 && !!listItems.data.collections) {
         const collections = listItems.data.collections.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;

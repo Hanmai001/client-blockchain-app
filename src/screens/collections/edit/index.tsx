@@ -24,15 +24,15 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
   const { isMobile } = useResponsive();
   const [bannerFile, setBannerFile] = useState<File | string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [checked, setChecked] = useState(collection.active);
+  const [checked, setChecked] = useState(collection?.active);
   const [activeTab, setActiveTab] = useState<string | null>('info');
   const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
   const [agreedPolicy, setAgreedPolicy] = useState(false);
   const [oldMetadata, setOldMetadata] = useState({
-    title: collection.title,
-    bannerURL: collection.bannerURL,
-    description: collection.description,
-    category: collection.category,
+    title: collection?.title,
+    bannerURL: collection?.bannerURL,
+    description: collection?.description,
+    category: collection?.category,
   })
   const payments = [
     { ...renderPayment(AppPayment.ETH), paymentType: AppPayment.ETH },
@@ -50,13 +50,13 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
 
   const formUpdate = useForm<CollectionUpdatePayload>({
     initialValues: {
-      collectionID: collection.collectionID,
-      chainID: collection.chainID,
-      title: collection.title,
-      bannerURL: collection.bannerURL,
-      description: collection.description,
-      category: collection.category,
-      active: collection.active,
+      collectionID: collection?.collectionID,
+      chainID: collection?.chainID,
+      title: collection?.title,
+      bannerURL: collection?.bannerURL,
+      description: collection?.description,
+      category: collection?.category,
+      active: collection?.active,
     },
     validate: {
       title: (value) => (value && value.length < 1 && 'Tên bộ sưu tập không hợp lệ'),
@@ -73,10 +73,10 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
 
   const isMetadataChanged = () => {
     return (
-      formUpdate.getInputProps('bannerURL').value !== oldMetadata.bannerURL ||
-      formUpdate.getInputProps('description').value !== oldMetadata.description ||
-      formUpdate.getInputProps('category').value !== oldMetadata.category ||
-      formUpdate.getInputProps('title').value !== oldMetadata.title
+      formUpdate.getInputProps('bannerURL').value !== oldMetadata?.bannerURL ||
+      formUpdate.getInputProps('description').value !== oldMetadata?.description ||
+      formUpdate.getInputProps('category').value !== oldMetadata?.category ||
+      formUpdate.getInputProps('title').value !== oldMetadata?.title
     );
   };
 
@@ -93,7 +93,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
 
       if (bannerFile instanceof File) {
         payload.bannerURL = await RequestModule.uploadMedia(`/api/v1/collections/image`, bannerFile as File, 400, "collectionImage");
-        formUpdate.setFieldValue('bannerURL', payload.bannerURL);
+        formUpdate.setFieldValue('bannerURL', payload?.bannerURL);
       }
 
       const checkMetadataChanged = isMetadataChanged();
@@ -113,7 +113,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
       setIsUploading(true);
       let payload = { ...values };
 
-      const res = await CollectionModule.updatePackage(collection.collectionID, payload);
+      const res = await CollectionModule.updatePackage(collection?.collectionID, payload);
       collection = res;
 
       onSuccess({ title: 'Cập nhật gói đăng kí thành công', message: '' });
@@ -131,7 +131,7 @@ export const CollectionEditScreen: FC<{ collection: Collection }> = ({ collectio
     formPackage.setValues({
       ...collection
     })
-    setBannerFile(collection.bannerURL);
+    setBannerFile(collection?.bannerURL);
   }, [collection])
 
   return (

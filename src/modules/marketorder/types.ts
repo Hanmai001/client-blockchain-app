@@ -7,8 +7,8 @@ export enum MarketStatus {
 }
 
 export enum TransactionEvent {
-  TRANSFER = 1,
-  EXPIRY = 2
+  WITHOUT_BENEFITS = 1,
+  FULL_BENEFITS = 2
 }
 
 export interface MarketOrder {
@@ -23,15 +23,11 @@ export interface MarketOrder {
   seller: string,
   buyer: string,
   status: MarketStatus,
-  startAt?: Date,
-  endAt?: Date, 
-  limitUsers?: number,
   createdAt: Date,
   updatedAt: Date,
 }
 
 export interface MarketOrderPayload {
-  event: TransactionEvent,
   chainID: string,
   tokenID?: string,
   collectionID?: string,
@@ -40,10 +36,6 @@ export interface MarketOrderPayload {
   price: number | string,
   seller: string,
   status: MarketStatus,
-  buyer?: string, //For Expiry
-  startAt?: Date, //For Expiry
-  endAt?: Date, //For Expiry
-  limitUsers?: number | string, //For Expiry,
 }
 
 export interface MarketOrderQuery extends Query {

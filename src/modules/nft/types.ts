@@ -29,7 +29,6 @@ export interface Nft {
   totalViews: number,
   totalShare: number,
   active: boolean,
-  disabled: boolean,
   createdAt: Date,
   updatedAt: Date
 }

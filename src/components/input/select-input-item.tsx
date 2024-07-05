@@ -27,3 +27,5 @@ export const SelectInputItem = forwardRef<HTMLDivElement, ItemProps>(
     )
   }
 );
+
+SelectInputItem.displayName = 'SelectInputItem';

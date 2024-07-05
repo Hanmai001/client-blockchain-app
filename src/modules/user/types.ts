@@ -13,7 +13,7 @@ export interface UserInformation {
   cover?: string,
   createdAt: number,
   active: boolean,
-  roles: Roles[]
+  role: Roles
 }
 
 export interface UserSignInResponse {

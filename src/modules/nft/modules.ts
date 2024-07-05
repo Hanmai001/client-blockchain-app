@@ -1,12 +1,8 @@
-import { error } from "console";
 import { ListLoadState } from "../../../types";
-import { getWallet } from "../account/context";
-import { RequestModule } from "../request/request";
-import { TokenModule } from "../token/modules";
-import { Nft, NftPayload, NftQuery, NftUpdatePayload } from "./types";
-import { MarketOrderModule } from "../marketorder/modules";
-import { getContracts } from "../configs/context";
 import { CoinsModule } from "../coins/modules";
+import { getContracts } from "../configs/context";
+import { RequestModule } from "../request/request";
+import { Nft, NftPayload, NftQuery, NftUpdatePayload } from "./types";
 
 export class NftModule {
   static async getList(query?: NftQuery): Promise<ListLoadState<Nft, 'tokens'>> {

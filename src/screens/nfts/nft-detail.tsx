@@ -51,7 +51,6 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [isListing, setIsListing] = useState<boolean>();
   const { isMobile, isTablet } = useResponsive();
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const isTransferEvent = marketOrder?.event === TransactionEvent.TRANSFER;
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   const handlePlayButtonClick = () => {
@@ -74,7 +73,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
       setUser(s => ({ ...s, isFetching: false, data: res }));
     } catch (error) {
       setUser(s => ({ ...s, isFetching: false }));
-      onError(error);
+      //onError(error);
     }
   }
 
@@ -113,11 +112,6 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
       if (checkListed) {
         const res = await MarketOrderModule.getListOrders({ tokenID: token.tokenID, limit: 1, offset: 0, status: MarketStatus.ISLISTING });
         const { image, symbol } = renderPayment(res.data.order[0].paymentType);
-        //If NFT is listed for rent, we'll get the user who is renting, is about to expiry nearly
-        if (res.data.order[0].event === TransactionEvent.EXPIRY) {
-          // const nearestExpiry = await MarketOrderModule.getNearToExpireOrder(res.data.order[0].id);
-          // if (nearestExpiry.data) setNearestExpiryOrder(nearestExpiry.data);
-        }
 
         setPayment({ image, symbol });
         setIsListing(true);
@@ -132,7 +126,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
         setLastSoldOrder(res.data.order[0]);
       }
     } catch (error) {
-      // onError(error);
+      //onError(error);
     }
   }
 
@@ -196,9 +190,9 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     try {
       if (token.mode.toString() === ItemMode.COMMERCIAL) {
         const license = await LicenseModule.getLicense({ tokenID: token.tokenID });
+        console.log(license)
         if (license) {
           const videoData = await LicenseModule.decrypt(license, token.source);
-          console.log(videoData)
           if (videoData) {
             const blob = new Blob([videoData], { type: 'video/mp4' });
             const url = URL.createObjectURL(blob);
@@ -301,11 +295,6 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   </Group>
                 </Group>
 
-                if (!isTransferEvent && isListing && nearestExpiryOrder) return <Group my={10} justify="space-between">
-                  <Text c={theme.colors.text[1]}>Sắp đến hạn</Text>
-                  <Text size="20px" c={theme.colors.text[1]} fw="bold">{DateTimeUtils.formatToShow(nearestExpiryOrder.endAt)}</Text>
-                </Group>
-
                 if (lastSoldOrder && !isListing) return <Group my={10} justify="space-between">
                   <Text c={theme.colors.text[1]}>Giá bán gần nhất</Text>
                   <Group gap={6}>
@@ -321,7 +310,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
               {(isNotSigned || isDifferentAccount) && isListing && <AppButton
                 async
-                onClick={() => onBuyNft({ order: marketOrder!, onUpdate: () => { setIsListing(false); token.owner = account.information!.wallet!; } })}
+                onClick={() => onBuyNft({ order: marketOrder!, nft: token, onUpdate: () => { setIsListing(false); token.owner = account.information!.wallet!; } })}
                 leftSection={<IconShoppingCartFilled />}
                 radius={theme.radius.md}
                 color={theme.colors.primary[5]}
@@ -587,11 +576,6 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     </Group>
                   </Group>
 
-                  if (!isTransferEvent && isListing && marketOrder) return <Group my={10} justify="space-between">
-                    <Text c={theme.colors.text[1]}>Sắp đến hạn</Text>
-                    <Text size="20px" c={theme.colors.text[1]} fw="bold">{DateTimeUtils.formatToShow(marketOrder.endAt)}</Text>
-                  </Group>
-
                   else if (lastSoldOrder && !isListing) return <Group my={10} justify="space-between">
                     <Text c={theme.colors.text[1]}>Giá bán gần nhất</Text>
                     <Group gap={6}>
@@ -607,13 +591,13 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
 
                 {(isNotSigned || isDifferentAccount) && isListing && <AppButton
                   async
-                  onClick={() => onBuyNft({ order: marketOrder!, onUpdate: () => { setIsListing(false); token.owner = account.information!.wallet!; } })}
+                  onClick={() => onBuyNft({ order: marketOrder!, nft: token, onUpdate: () => { setIsListing(false); token.owner = account.information!.wallet!; } })}
                   leftSection={<IconShoppingCartFilled />}
                   radius={theme.radius.md}
                   color={theme.colors.primary[5]}
                   height={48}
                 >
-                  {isTransferEvent ? 'Mua ngay' : 'Thuê'}
+                  Mua ngay
                 </AppButton>}
 
                 {!isListing && account.information?.wallet === token.owner && <AppButton
@@ -624,7 +608,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                   color={theme.colors.primary[5]}
                   height={48}
                 >
-                  Đăng bán / Cho Thuê
+                  Đăng bán
                 </AppButton>}
 
                 {isListing && account.information?.wallet === token.owner && <AppButton

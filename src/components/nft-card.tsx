@@ -1,10 +1,10 @@
 import { AppButton } from "@/components/app/app-button";
 import { useAccount } from "@/modules/account/context";
 import { Nft } from "@/modules/nft/types";
-import { ClassNames, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Card, Center, Stack, Text, Title, Tooltip, rem, useMantineTheme } from "@mantine/core";
+import { ClassNames } from "@/share/utils";
+import { ActionIcon, AspectRatio, Box, Card, Center, Stack, Text, Tooltip, rem, useMantineTheme } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
-import { IconEdit, IconPlayerPlay } from "@tabler/icons-react";
+import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC } from "react";
 import { AppRoutes } from "../../app-router";
@@ -15,9 +15,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
   const account = useAccount();
   const { hovered, ref } = useHover();
   const theme = useMantineTheme();
-  const handleContextMenu = (event: any) => {
-    event.preventDefault();
-  };
+
   const isOwner = account.information?.wallet === props.nft.owner;
 
   return (
@@ -81,6 +79,16 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
             </ActionIcon>
           </Link>
         }
+
+        {isOwner && <Card radius={8} p={8} style={{
+          position: "absolute",
+          left: 0,
+          marginLeft: rem(10),
+          zIndex: 10,
+          background: theme.colors.primary[3]
+        }}>
+          <Text c={theme.colors.text[0]} size="13px" fw='bold'>Bị vi phạm</Text>
+        </Card>}
       </Card>
     </Link>
   )

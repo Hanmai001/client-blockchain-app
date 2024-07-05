@@ -74,7 +74,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 
       if (search.length > 0 && !!listtokens.data.tokens) {
         const tokens = listtokens.data.tokens.filter((v: any, k: any) => {
-          if (v.title.includes(search) || v.description.includes(search)) return true;
+          if (v?.title.includes(search) || v?.description.includes(search)) return true;
           return false;
         })
         listtokens.data.tokens = tokens;
@@ -100,7 +100,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
       <Group mx={theme.spacing.md}>
         <img src="/images/default/note.svg" width={24} height={24} />
         <Spoiler maxHeight={120} showLabel="Xem thêm" hideLabel="Ẩn" >
-          <Text c={theme.colors.gray[7]}>{collection.description}</Text>
+          <Text c={theme.colors.gray[7]}>{collection?.description || ""}</Text>
         </Spoiler>
       </Group>
 

@@ -54,7 +54,7 @@ const SideBoxChats: FC = () => {
 
   const fetchChats = async () => {
     try {
-      const res = [];
+      const res: any = [];
       for (const v of chatContext.chats) {
         let wallet = '';
         if (account.information?.wallet === v.secondUser) wallet = v.firstUser;
@@ -138,7 +138,7 @@ const MainChat: FC = () => {
 
   const fetchMessages = async () => {
     try {
-      const res = [];
+      const res: any = [];
       for (const v of chatContext.messages) {
         const user = await UserModule.getByWallet(v.senderID);
         res.push({ ...v, sender: user });

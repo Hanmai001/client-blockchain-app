@@ -66,7 +66,7 @@ export const AppHeader: FC = () => {
               <IconMessage2 size={24} stroke={1.5} />
             </ActionIcon>
 
-            <AppNotification />
+            {/* <AppNotification /> */}
           </>}
 
           {isMobile && <HeaderSearchMobile />}

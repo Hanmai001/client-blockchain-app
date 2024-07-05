@@ -22,27 +22,27 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
   const { isMobile, isDesktop } = useResponsive();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [file, setFile] = useState<File | string | null>(null);
-  const [checked, setChecked] = useState(token.active);
+  const [checked, setChecked] = useState(token?.active);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const account = useAccount();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [oldMetadata, setOldMetadata] = useState({
-    title: token.title,
-    source: token.source,
-    description: token.description,
+    title: token?.title,
+    source: token?.source,
+    description: token?.description,
   })
 
 
   const form = useForm<NftUpdatePayload>({
     initialValues: {
-      title: token.title,
-      description: token.description,
-      collectionID: token.collectionID,
-      chainID: token.chainID,
-      contractAddress: token.contractAddress,
-      tokenID: token.tokenID,
-      source: token.source,
-      active: token.active
+      title: token?.title,
+      description: token?.description,
+      collectionID: token?.collectionID,
+      chainID: token?.chainID,
+      contractAddress: token?.contractAddress,
+      tokenID: token?.tokenID,
+      source: token?.source,
+      active: token?.active
     },
     validate: {
       title: (value) => (value.length < 1 && 'Tên bộ sưu tập không hợp lệ'),
@@ -52,9 +52,9 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
 
   const isMetadataChanged = () => {
     return (
-      form.getInputProps('source').value !== oldMetadata.source ||
-      form.getInputProps('description').value !== oldMetadata.description ||
-      form.getInputProps('title').value !== oldMetadata.title
+      form.getInputProps('source').value !== oldMetadata?.source ||
+      form.getInputProps('description').value !== oldMetadata?.description ||
+      form.getInputProps('title').value !== oldMetadata?.title
     );
   };
 
@@ -65,7 +65,7 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
 
       if (file instanceof File) {
         payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, file as File, 400, "source");
-        form.setFieldValue('source', payload.source);
+        form.setFieldValue('source', payload?.source);
       }
 
       const checkMetadataChanged = isMetadataChanged();
@@ -84,9 +84,9 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
   const decryptVideo = async () => {
     try {
       if (token.mode.toString() === ItemMode.COMMERCIAL) {
-        const license = await LicenseModule.getLicense({ tokenID: token.tokenID });
+        const license = await LicenseModule.getLicense({ tokenID: token?.tokenID });
         if (license) {
-          const videoData = await LicenseModule.decrypt(license, token.source);
+          const videoData = await LicenseModule.decrypt(license, token?.source);
           console.log(videoData)
           if (videoData) {
             const blob = new Blob([videoData], { type: 'video/mp4' });
@@ -112,9 +112,9 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
 
   useEffect(() => {
     setOldMetadata({
-      title: token.title,
-      source: token.source,
-      description: token.description,
+      title: token?.title,
+      source: token?.source,
+      description: token?.description,
     })
     setFile(token.source)
   }, [token])
@@ -164,7 +164,7 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
                       position: 'relative',
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
-                      backgroundImage: `url("${token.avatar}")`
+                      backgroundImage: `url("${token?.avatar}")`
                     }}
                     onClick={handlePlayButtonClick}
                   >

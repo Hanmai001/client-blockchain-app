@@ -1,12 +1,12 @@
 import { RequestModule } from "../request/request";
-import { NotificationQuery } from "./types";
+import { NotificationPayload, NotificationQuery } from "./types";
 
 export class NotificationModule {
   static async getListNotifications(query?: NotificationQuery): Promise<any> {
-    return RequestModule.get(``, query);
+    return RequestModule.get(`/api/v1/notifications`, query);
   }
 
-  static async addNotification(payload: any) {
-    return RequestModule.post(``, payload);
+  static async addNotification(payload: NotificationPayload) {
+    return RequestModule.post(`/api/v1/notifications`, payload);
   }
 }
