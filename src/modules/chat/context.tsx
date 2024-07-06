@@ -3,11 +3,14 @@ import { FC, PropsWithChildren, createContext, useContext, useEffect, useState }
 import io, { Socket } from "socket.io-client";
 import { ChatModule } from "./modules";
 import { ChatPropsContext, ChatStatus, Message } from "./types";
+import getNextConfig from 'next/config';
+import { getConfig } from "../configs/context";
+const { publicRuntimeConfig } = getNextConfig();
 
 export const ChatContext = createContext<ChatPropsContext>({} as any);
 
 //sever for chat
-const ENDPOINT = "http://blockclip.pro.vn:5000";
+const ENDPOINT = getConfig("SOCKET_ENDPOINT");
 var socket: Socket;
 
 export const ChatProvider: FC<PropsWithChildren> = (props) => {

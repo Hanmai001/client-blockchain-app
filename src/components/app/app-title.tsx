@@ -1,4 +1,4 @@
-import { PUBLIC_URL } from "@/modules/configs/context";
+import { getConfig } from "@/modules/configs/context";
 import { StringUtils } from "@/share/utils";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -16,8 +16,8 @@ export const AppTitle: FC<AppTitleProps> = (props) => {
 
   const configs = {
     title: props.title ? `${props.title}` : 'BlockClip',
-    webURL: `${PUBLIC_URL}${router.asPath}`,
-    thumbnailURL: props.thumbnailURL || `${PUBLIC_URL}/images/thumbnail.png`,
+    webURL: `${getConfig("PUBLIC_URL")}${router.asPath}`,
+    thumbnailURL: props.thumbnailURL || `${getConfig("PUBLIC_URL")}/images/thumbnail.png`,
     siteName: props.siteName || 'BlockClip',
     type: props.type || 'website',
   }

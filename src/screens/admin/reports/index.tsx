@@ -1,7 +1,6 @@
 import { AdminWrapper } from "@/components/admin/admin-wrapper";
 import { AppButton } from "@/components/app/app-button";
 import { EmptyMessage } from "@/components/empty-message";
-import { PUBLIC_URL } from "@/modules/configs/context";
 import { ReportModule } from "@/modules/report/modules";
 import { ReportEntity, ReportStatus } from "@/modules/report/types";
 import { getChainId, renderLinkContract } from "@/share/blockchain/context";
@@ -16,6 +15,7 @@ import { NftModule } from "@/modules/nft/modules";
 import { onViewNft } from "@/components/modals/modal-nft-detail";
 import { onError } from "@/components/modals/modal-error";
 import { useAccount } from "@/modules/account/context";
+import { getConfig } from "@/modules/configs/context";
 
 export const AdminReportsScreen: FC = () => {
   const theme = useMantineTheme();
@@ -163,7 +163,7 @@ const ReportItem: FC<{ report: ReportEntity }> = ({ report }) => {
           <Link href={`/nfts/${report.tokenID}`} target="_blank" style={{
             color: theme.colors.blue[6],
             textDecoration: 'underline'
-          }}>{`${PUBLIC_URL}/nfts/${report.tokenID}`}</Link>
+          }}>{`${getConfig('PUBLIC_URL')}/nfts/${report.tokenID}`}</Link>
         </Tooltip>
       </Table.Td>
       <Table.Td c={theme.colors.text[1]}>{DateTimeUtils.formatToShow(report.createdAt, false)}</Table.Td>

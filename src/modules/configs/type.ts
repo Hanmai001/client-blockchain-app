@@ -12,6 +12,8 @@ export type EnvConfigs = {
 export type Configs = {
   URL_CROSS_STORAGE: string,
   URL_MAIN_API: string,
+  SOCKET_ENDPOINT: string,
+  PUBLIC_URL: string,
   chains: {
     [key in ChainId]?: ChainConfig
   }

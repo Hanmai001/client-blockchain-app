@@ -2,7 +2,6 @@ import { ObjectUtils } from "@/share/utils";
 import axios, { AxiosRequestConfig } from "axios";
 import { AccountAccessToken } from "../account/acess-token";
 import { getChainId, getConfig } from "../configs/context";
-import { getAccount } from "../account/context";
 
 export class RequestModule {
   static getURL(subURL: string) {
