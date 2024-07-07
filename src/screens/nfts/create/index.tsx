@@ -149,7 +149,7 @@ export const CreateNftScreen: FC = () => {
                   </Text>
                   <Box onClick={() => setOpened(!opened)}>
                     {function () {
-                      if (collections.isFetching) return <Skeleton />
+                      if (collections.isFetching) return <Skeleton h={60} radius={8} />
 
                       if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>
 

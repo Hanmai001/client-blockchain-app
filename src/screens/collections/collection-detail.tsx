@@ -21,7 +21,7 @@ import { ActionIcon, Anchor, AspectRatio, Box, Button, Card, Grid, Group, Image,
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconBorderAll, IconEdit, IconFilter, IconMenu2, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useRouter } from "next/router";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import { NftCard } from "../../components/nft-card";
 import Link from "next/link";
@@ -45,14 +45,12 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
     base: 6
   }
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       let listtokens: any;
       let sort = '';
       //get list by filter
       if (filter !== FilterOptions.ALL) {
-        // if (filter === FilterOptions.PRICE_TO_HIGH) sort = '+price';
-        // if (filter === FilterOptions.PRICE_TO_LOW) sort = '-price';
         if (filter === FilterOptions.MOST_VIEWS) sort = '-totalViews';
         if (filter === FilterOptions.MOST_SHARES) sort = '-totalShare';
         if (filter === FilterOptions.MOST_LIKES) sort = '-listOfLikedUsers';
@@ -64,10 +62,8 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 
       if (filter === FilterOptions.PRICE_TO_HIGH) {
         listtokens = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, sort: '+price', active: isSignedUser ? null : true });
-        console.log("list tokens: ", listtokens)
       } else if (filter === FilterOptions.PRICE_TO_LOW) {
         listtokens = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, sort: '-price', active: isSignedUser ? null : true });
-        console.log("list tokens: ", listtokens)
       } else {
         listtokens = await NftModule.getList({ collectionID: collection.collectionID, sort, active: isSignedUser ? null : true });
       }
@@ -83,11 +79,11 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
     } catch (error) {
       setItems(s => ({ ...s, isFetching: false, data: { tokens: [], count: 0 } }))
     }
-  }
-
+  }, []);
+  
   useEffect(() => {
-    fetchItems();
-  }, [debounced, filter, account.information])
+    if (collection) fetchItems();
+  }, [collection, debounced, filter, account.information])
 
   return <AppWrapper>
     <Stack>
@@ -310,8 +306,10 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
   }
 
   useEffect(() => {
-    fetchItemsOfCollection();
-    updateTotalViews();
+    if (props.collection) {
+      fetchItemsOfCollection();
+      updateTotalViews();
+    }
   }, [props.collection])
 
   useEffect(() => {
@@ -393,7 +391,6 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
       if (checkListed) {
         const res = await MarketOrderModule.getListOrders({ tokenID: nft.tokenID, limit: 1, offset: 0, status: MarketStatus.ISLISTING });
         const { image, symbol } = renderPayment(res.data.order[0].paymentType);
-        console.log(symbol)
         setPayment({ image, symbol });
         setMarketOrder(res.data.order[0]);
         setLastSoldOrder(undefined);
@@ -401,7 +398,6 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
         //If NFT isn't listed, so get the nearest SOLD order
         const res = await MarketOrderModule.getListOrders({ tokenID: nft.tokenID, status: MarketStatus.SOLD, sort: '-createdAt' });
         const { image, symbol } = renderPayment(res.data.order[0].paymentType);
-        console.log(symbol)
         setPayment({ image, symbol });
         setLastSoldOrder(res.data.order[0]);
       }

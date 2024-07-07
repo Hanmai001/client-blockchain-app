@@ -58,12 +58,12 @@ export const ModalListNft: FC = () => {
         status: MarketStatus.ISLISTING
       }
       const res = await MarketOrderModule.create(payload);
+      if (res) {
+        onClose();
+        onSuccess({ title: "Đăng bán thành công" });
 
-      // console.log("res: ", res)
-      onClose();
-      onSuccess({ title: "Đăng bán thành công" });
-
-      state?.onUpdate();
+        state?.onUpdate();
+      }
     } catch (error) {
       onClose();
       onError("Đăng bán thất bại")

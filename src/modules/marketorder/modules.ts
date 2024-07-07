@@ -40,7 +40,7 @@ export class MarketOrderModule {
     return RequestModule.put(`/api/v1/orders/${id}`, payload);
   }
 
-  static async purchaseItem(order: MarketOrder, payload: {event: TransactionEvent | string, price: any, collectionId: string}) {
+  static async purchaseItem(order: MarketOrder, payload: {event: TransactionEvent | string, price: any, collectionID: string}) {
     const balances = await CoinsModule.fetchUserBalance();
     const price = payload.event === TransactionEvent.WITHOUT_BENEFITS ? order.price : payload?.price;
 
@@ -49,38 +49,45 @@ export class MarketOrderModule {
     const contractMarket = getContracts().ercs.MARKETPLACE;
     let txReceipt;
 
-     if (order.paymentType !== AppPayment.BCT) {
-        console.log("buy by ETH", order.tokenID)
-        txReceipt = await contractMarket.send({
-          method: 'buyNftbyETH',
-          args: [order.tokenID],
-          params: {
-            value: ethers.parseEther(order.price.toString()).toString()
-          }
-        });
-      } else {
-        //Approve for Operator to use Amount of tokens of user
-        await getPaymentContract(order.paymentType)?.approve({
-          operator: contractMarket.address,
-          amount: order.price
-        });
+    if (order.paymentType !== AppPayment.BCT) {
+      console.log("buy by ETH", order.tokenID)
+      txReceipt = await contractMarket.send({
+        method: 'buyNftByETH',
+        args: [order.tokenID, payload.collectionID],
+        params: {
+          value: ethers.parseEther(order.price.toString()).toString()
+        }
+      });
+    } else {
+      //Approve for Operator to use Amount of tokens of user
+      await getPaymentContract(order.paymentType)?.approve({
+        operator: contractMarket.address,
+        amount: order.price
+      });
 
-        txReceipt = await contractMarket.send({
-          method: 'buyNftbyErc20',
-          args: [order.tokenID, getContracts().erc20s.BCT.address],
-          params: {
-            value: ethers.parseEther(order.price.toString()).toString()
-          }
-        });
-      }
+      txReceipt = await contractMarket.send({
+        method: 'buyNftbyErc20',
+        args: [order.tokenID, getContracts().erc20s.BCT.address, payload.collectionID],
+        params: {
+          value: ethers.parseEther(order.price.toString()).toString()
+        }
+      });
+    }
 
-      const payloadUpdate = { 
-        event: payload.event, 
-        price, status: MarketStatus.SOLD, 
-        buyer: getWallet(), 
-        collectionID: payload.collectionId 
-      };
-      await this.update(order!.id, payloadUpdate);
+    const payloadUpdate = { 
+      event: payload.event, 
+      price, status: MarketStatus.SOLD, 
+      buyer: getWallet(), 
+      collectionID: payload.collectionID 
+    };
+    const res = await this.update(order!.id, payloadUpdate);
+    // console.log("res upadte: ", res)
+    if (res) {
+      txReceipt = await contractMarket.send({
+        method: 'updateBaseNftURI',
+        args: [res.data.tokenURI, order.tokenID],
+      });
+    }
 
     //force update balances
     await CoinsModule.fetchUserBalance();
@@ -90,6 +97,10 @@ export class MarketOrderModule {
     return RequestModule.get(`/api/v1/orders/tokens`, query);
   }
 
+  static async getListOrdersOfUser(wallet: string): Promise<ListLoadState<MarketOrder, 'orders'>> {
+    return RequestModule.get(`/api/v1/orders/${wallet}`);
+  }
+
   static getMarketStatus(status: MarketStatus) {
     if (status === MarketStatus.SOLD) return "Đã bán";
     if (status === MarketStatus.ISLISTING) return "Đang bán";
@@ -97,8 +108,9 @@ export class MarketOrderModule {
   }
 
   static getMarketEvent(status: TransactionEvent | string) {
-    if (status === TransactionEvent.WITHOUT_BENEFITS) return "Mua (Không bao gồm lượt View, Like, Share)";
-    if (status === TransactionEvent.FULL_BENEFITS) return "Mua cùng lượt View, Like, Share";
+    if (status === TransactionEvent.WITHOUT_BENEFITS.toString()) return "Mua (Không bao gồm lượt View, Like, Share)";
+    if (status === TransactionEvent.FULL_BENEFITS.toString()) return "Mua cùng lượt View, Like, Share";
+    return ""
   }
 
   static getPercentageListToken(views: number): number {

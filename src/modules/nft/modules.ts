@@ -41,6 +41,10 @@ export class NftModule {
     return RequestModule.put(`/api/v1/tokens/${id}`, payload);
   }
 
+  static async checkIsViolent(id: string): Promise<any> {
+    return RequestModule.get(`/api/v1/tokens/${id}/isDisabled`);
+  }
+
   static async getNftByID(id: string): Promise<any> {
     return RequestModule.get(`/api/v1/tokens/${id}`);
   }

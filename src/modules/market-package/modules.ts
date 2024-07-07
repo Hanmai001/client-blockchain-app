@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { AppPayment } from "../../../types";
+import { AppPayment, ListLoadState } from "../../../types";
 import { CoinsModule } from "../coins/modules";
 import { getPaymentContract } from "../coins/utils";
 import { getContracts } from "../configs/context";
@@ -47,4 +47,9 @@ export class MarketPackageModule {
     await this.create(payload);
     await CoinsModule.fetchUserBalance();
   }
+
+    static async getListPackagesOfUser(wallet: string): Promise<ListLoadState<MarketPackage, 'packages'>> {
+    return RequestModule.get(`/api/v1/packages/${wallet}`);
+  }
+
 }

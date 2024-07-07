@@ -6,17 +6,33 @@ import { ActionIcon, AspectRatio, Box, Card, Center, Stack, Text, Tooltip, rem, 
 import { useHover } from "@mantine/hooks";
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { AppRoutes } from "../../app-router";
 import classes from '../styles/collections/CollectionDetail.module.scss';
 import { AppImage } from "./app/app-image";
+import { NftModule } from "@/modules/nft/modules";
 
 export const NftCard: FC<{ nft: Nft }> = (props) => {
   const account = useAccount();
   const { hovered, ref } = useHover();
   const theme = useMantineTheme();
+  const [isViolent, setIsViolent] = useState(false);
 
   const isOwner = account.information?.wallet === props.nft.owner;
+
+  const checkIsViolent = async () => {
+    try {
+      const res = await NftModule.checkIsViolent(props.nft.tokenID);
+      console.log("is violent: ", res)
+      setIsViolent(res.data);
+    } catch (error) {
+
+    }
+  }
+
+  useEffect(() => {
+    if (props.nft) checkIsViolent();
+  }, [props.nft])
 
   return (
     <Link href={`/nfts/${props.nft.tokenID}`}>
@@ -80,7 +96,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
           </Link>
         }
 
-        {isOwner && <Card radius={8} p={8} style={{
+        {isViolent && <Card radius={8} p={8} style={{
           position: "absolute",
           left: 0,
           marginLeft: rem(10),

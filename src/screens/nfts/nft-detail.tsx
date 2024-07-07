@@ -190,7 +190,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     try {
       if (token.mode.toString() === ItemMode.COMMERCIAL) {
         const license = await LicenseModule.getLicense({ tokenID: token.tokenID });
-        console.log(license)
+        // console.log(license)
         if (license) {
           const videoData = await LicenseModule.decrypt(license, token.source);
           if (videoData) {
@@ -842,7 +842,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                       {marketOrders.map((v, k) => <Stack key={k} gap={8}>
                         <Group justify="space-between">
                           <Title order={5} c={theme.colors.text[1]}>Sự kiện</Title>
-                          <Text fw={500} c={theme.colors.text[1]}>{MarketOrderModule.getMarketEvent(v.event)}</Text>
+                          <Text fw={500} c={theme.colors.text[1]}>{MarketOrderModule.getMarketEvent(v?.event?.toString()) || "Chưa có sự kiện giao dịch"}</Text>
                         </Group>
                         <Group justify="space-between">
                           <Title order={5} c={theme.colors.text[1]}>Giá tiền</Title>
@@ -907,7 +907,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                       {marketOrders.map((v, k) => <Box key={k}>
                         <Grid>
                           <Grid.Col span={{ base: 12, md: 2, lg: 2 }}>
-                            <Text fw={500} c={theme.colors.text[1]}>{MarketOrderModule.getMarketEvent(v.event)}</Text>
+                            <Text fw={500} c={theme.colors.text[1]}>{MarketOrderModule.getMarketEvent(v?.event?.toString()) || "Chưa có sự kiện giao dịch"}</Text>
                           </Grid.Col>
                           <Grid.Col span={{ base: 12, md: 2, lg: 2 }}>
                             <Text c={theme.colors.text[1]}>{v.price}</Text>

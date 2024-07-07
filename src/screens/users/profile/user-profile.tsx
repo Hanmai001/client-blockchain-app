@@ -37,13 +37,14 @@ import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/user/UserProfile.module.scss';
 import { renderPayment } from "@/modules/coins/utils";
 import Link from "next/link";
+import { MarketPackageModule } from "@/modules/market-package/modules";
 
 enum UserTabsProfile {
   ALL = 'Video',
   CREATED_COLLECTIONS = 'Bộ sưu tập',
   SUBSCRIBED_COLLECTIONS = 'Đã đăng ký',
   FAVOURITE = 'Đã yêu thích',
-  ACTIVITY = 'Hoạt động'
+  ACTIVITY = 'Lịch sử giao dịch'
 }
 
 export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
@@ -110,6 +111,14 @@ export const UserProfileScreen: FC<{ user: UserInformation }> = ({ user }) => {
                 </Group>}
               </Tabs.Panel>
 
+              <Tabs.Panel value={UserTabsProfile.ACTIVITY}>
+                {isSignedUser ? <TabAcitvities user={user} /> : <Group mt={100} justify="center">
+                  <Stack align="center">
+                    <IconLockAccess size={48} stroke={1.5} color={theme.colors.gray[7]} />
+                    <Text fw={500} c={theme.colors.gray[7]}>Bạn không có quyền truy cập</Text>
+                  </Stack>
+                </Group>}
+              </Tabs.Panel>
             </Tabs>
           </Stack>
         </Stack>
@@ -1313,6 +1322,119 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
   )
 }
 
+
+const TabAcitvities: FC<{ user: UserInformation }> = ({ user }) => {
+  const [items, setItems] = useState<ListLoadState<MarketOrder, 'orders'>>({ isFetching: true, data: { orders: [], count: 0 } });
+
+  enum TypeActivity {
+    PACKAGE = 'Đăng kí bộ sưu tập',
+    ORDER = 'Mua/Bán NFT'
+  }
+
+  const theme = useMantineTheme();
+  const [filter, setFilter] = useState(TypeActivity.PACKAGE);
+  const [activePage, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const { isMobile, isTablet } = useResponsive();
+  const limit = isMobile ? 10 : 12;
+
+  const fetchItems = async () => {
+    try {
+      if (!user.wallet) return;
+      setItems(s => ({ ...s, isFetching: true, data: { orders: [], count: 0 } }));
+      let listItems: any;
+
+      if (filter === TypeActivity.ORDER) listItems = await MarketOrderModule.getListOrdersOfUser(user.wallet);
+      else if (filter === TypeActivity.PACKAGE) listItems = await MarketPackageModule.getListPackagesOfUser(user.wallet);
+      console.log(listItems)
+      setItems(s => ({ ...s, isFetching: false, data: { orders: listItems.data?.orders, count: listItems.data?.count } }));
+      setTotalPages(Math.ceil(listItems.data.count / limit));
+    } catch (error) {
+      setItems(s => ({ ...s, isFetching: false }));
+      // onError(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchItems();
+  }, [activePage, filter])
+
+  return (
+    <>
+      <Group my={theme.spacing.lg} gap='xs'>
+        <Text c={theme.colors.text[1]} fw={500}>{items.data?.count !== 0 ? items.data?.orders?.length : 0} {"kết quả"}</Text>
+        {Object.values(TypeActivity).map((v, k) => <AppButton
+          key={k}
+          color={theme.colors.primary[5]}
+          variant={filter === v ? "filled" : "outline"}
+          h={40}
+          radius={8}
+          onClick={() => setFilter(v)}
+        >
+          {v}
+        </AppButton>)}
+      </Group>
+
+      {function () {
+        if (items.isFetching || !items.data?.orders) return <Grid>
+          {Array(8).fill(0).map((_, key) => (
+            <Grid.Col key={key} span={{ base: 12 }}>
+              <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
+            </Grid.Col>
+          ))}
+        </Grid>
+
+        if (items.error) return <Group><ErrorMessage error={items.error} /></Group>
+
+        if (items.data?.count === 0) return <EmptyMessage />
+
+        return <ScrollArea offsetScrollbars>
+          <Table
+            miw={800}
+            highlightOnHover
+            styles={{
+              td: {
+                padding: '12px 10px'
+              },
+              th: {
+                fontSize: '16px',
+                fontWeight: 'normal'
+              },
+
+            }}
+          >
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th flex={1}>#</Table.Th>
+                <Table.Th flex={6}>Video</Table.Th>
+                <Table.Th flex={1}>Giá</Table.Th>
+                <Table.Th flex={1}>Ngày đăng</Table.Th>
+                <Table.Th flex={1} visibleFrom="sm">Lượt xem</Table.Th>
+                <Table.Th flex={2}>Người sở hữu</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {items.data.orders.map((v, k) => <></>)}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
+      }()}
+
+      <Pagination color={theme.colors.primary[5]} total={totalPages} siblings={2} value={activePage} onChange={setPage} styles={{
+        root: {
+          marginTop: '80px',
+          display: 'flex',
+          justifyContent: 'center'
+        },
+        control: {
+          padding: '20px 15px',
+        }
+      }}
+      />
+    </>
+  )
+}
+
 const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
   const theme = useMantineTheme();
   const [marketOrder, setMarketOrder] = useState<MarketOrder>();
@@ -1403,3 +1525,4 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
     </Table.Tr>
   )
 }
+
