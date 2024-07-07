@@ -5,6 +5,7 @@ import { getPaymentContract } from "../coins/utils";
 import { getContracts } from "../configs/context";
 import { RequestModule } from "../request/request";
 import { MarketPackage, MarketPackagePayload, MarketPackageQuery } from "./types";
+import { PackageType } from "../collection/types";
 
 export class MarketPackageModule {
   static async getListOfUser(query?: MarketPackageQuery): Promise<any> {
@@ -48,8 +49,14 @@ export class MarketPackageModule {
     await CoinsModule.fetchUserBalance();
   }
 
-    static async getListPackagesOfUser(wallet: string): Promise<ListLoadState<MarketPackage, 'packages'>> {
+  static async getListPackagesOfUser(wallet: string): Promise<ListLoadState<MarketPackage, 'packages'>> {
     return RequestModule.get(`/api/v1/packages/${wallet}`);
   }
 
+  static getPackageType(type: PackageType | string) {
+    if (type === PackageType.A_YEAR.toString()) return "Gói 1 năm";
+    if (type === PackageType.DAYS_30.toString()) return "Gói 30 ngày";
+    if (type === PackageType.DAYS_90.toString()) return "Gói 90 ngày";
+    return ""
+  }
 }

@@ -97,7 +97,7 @@ export class MarketOrderModule {
     return RequestModule.get(`/api/v1/orders/tokens`, query);
   }
 
-  static async getListOrdersOfUser(wallet: string): Promise<ListLoadState<MarketOrder, 'orders'>> {
+  static async getListOrdersOfUser(wallet: string): Promise<ListLoadState<MarketOrder, 'order'>> {
     return RequestModule.get(`/api/v1/orders/${wallet}`);
   }
 

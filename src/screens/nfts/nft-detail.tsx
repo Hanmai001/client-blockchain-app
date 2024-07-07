@@ -415,7 +415,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     <IconShare width={42} height={42} color={theme.colors.primary[5]} />
                   </Box>
 
-                  <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.totalShare || 0}</Text>
+                  <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.totalShares || 0}</Text>
                 </Stack>
 
                 <Stack gap={0}>
@@ -693,7 +693,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                         <IconShare width={42} height={42} color={theme.colors.primary[5]} />
                       </ActionIcon>
 
-                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.totalShare || 0}</Text>
+                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{token.totalShares || 0}</Text>
                     </Stack>
 
                     <Stack gap={0}>

@@ -13,11 +13,12 @@ import { NftCard } from "@/components/nft-card";
 import { useAccount } from "@/modules/account/context";
 import { useResponsive } from "@/modules/app/hooks";
 import { useChatContext } from "@/modules/chat/context";
-import { ChatModule } from "@/modules/chat/modules";
+import { renderPayment } from "@/modules/coins/utils";
 import { CollectionModule } from "@/modules/collection/modules";
 import { CollectionStatus, CollectionType } from "@/modules/collection/types";
 import { FriendRequestModule } from "@/modules/friend-request/modules";
 import { FriendRequest, FriendRequestStatus } from "@/modules/friend-request/types";
+import { MarketPackageModule } from "@/modules/market-package/modules";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
 import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
@@ -27,17 +28,15 @@ import { UserModule } from "@/modules/user/modules";
 import { UserInformation } from "@/modules/user/types";
 import { getChainId, renderLinkContract } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Button, Card, Grid, Group, Image, Pagination, ScrollArea, Skeleton, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, Transition, UnstyledButton, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Button, Card, Grid, Group, Image, Pagination, ScrollArea, Skeleton, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, Transition, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue, useHover } from "@mantine/hooks";
 import { IconBorderAll, IconCheck, IconCopy, IconCopyCheck, IconEdit, IconFilter, IconFriendsOff, IconLockAccess, IconMenu2, IconMessage, IconPlus, IconSearch, IconTrash, IconUpload } from "@tabler/icons-react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ListLoadState } from "../../../../types";
 import classes from '../../../styles/user/UserProfile.module.scss';
-import { renderPayment } from "@/modules/coins/utils";
-import Link from "next/link";
-import { MarketPackageModule } from "@/modules/market-package/modules";
 
 enum UserTabsProfile {
   ALL = 'Video',
@@ -611,19 +610,6 @@ const TabNfts: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ user, i
         listItems = await NftModule.getAllNftsOfUser(user?.wallet!, { limit, offset: (activePage - 1) * limit, sort, active: isSignedUser ? null : true });
       }
 
-      // if (filter === NftStatus.ISLISTING || filter === NftStatus.SOLD) {
-      //   const nfts = [];
-      //   for (const v of listItems.data.tokens) {
-      //     const checkIsSatisfied = await MarketOrderModule.checkTokenIsListed(v.tokenID, { status: filter });
-
-      //     if (checkIsSatisfied) {
-      //       nfts.push(v);
-      //     }
-      //   }
-      //   listItems.data.tokens = nfts;
-      //   listItems.data.count = nfts.length;
-      // }
-
       if (search.length > 0 && !!listItems.data.tokens) {
         const nfts = listItems.data.tokens.filter((v: any, k: any) => {
           if (v.title.includes(search) || v.description.includes(search)) return true;
@@ -855,7 +841,7 @@ const TabCollections: FC<{ user: UserInformation, isSignedUser: boolean }> = ({ 
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {
       setCollections(s => ({ ...s, isFetching: false }));
-      onError(error);
+      // onError(error);
     }
   }
 
@@ -999,7 +985,7 @@ const TabSubscribedCollections: FC<{ user: UserInformation }> = ({ user }) => {
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {
       setCollections(s => ({ ...s, isFetching: false }));
-      onError(error);
+      // onError(error);
     }
   }
 
@@ -1323,14 +1309,14 @@ const TabFavouritedNfts: FC<{ user: UserInformation }> = ({ user }) => {
 }
 
 
+enum TypeActivity {
+  PACKAGE = 'Đăng kí bộ sưu tập',
+  ORDER = 'Mua/Bán NFT'
+}
+
+
 const TabAcitvities: FC<{ user: UserInformation }> = ({ user }) => {
-  const [items, setItems] = useState<ListLoadState<MarketOrder, 'orders'>>({ isFetching: true, data: { orders: [], count: 0 } });
-
-  enum TypeActivity {
-    PACKAGE = 'Đăng kí bộ sưu tập',
-    ORDER = 'Mua/Bán NFT'
-  }
-
+  const [items, setItems] = useState<ListLoadState<any, 'order'>>({ isFetching: true, data: { order: [], count: 0 } });
   const theme = useMantineTheme();
   const [filter, setFilter] = useState(TypeActivity.PACKAGE);
   const [activePage, setPage] = useState(1);
@@ -1341,13 +1327,13 @@ const TabAcitvities: FC<{ user: UserInformation }> = ({ user }) => {
   const fetchItems = async () => {
     try {
       if (!user.wallet) return;
-      setItems(s => ({ ...s, isFetching: true, data: { orders: [], count: 0 } }));
+      setItems(s => ({ ...s, isFetching: true, data: { order: [], count: 0 } }));
       let listItems: any;
 
       if (filter === TypeActivity.ORDER) listItems = await MarketOrderModule.getListOrdersOfUser(user.wallet);
       else if (filter === TypeActivity.PACKAGE) listItems = await MarketPackageModule.getListPackagesOfUser(user.wallet);
       console.log(listItems)
-      setItems(s => ({ ...s, isFetching: false, data: { orders: listItems.data?.orders, count: listItems.data?.count } }));
+      setItems(s => ({ ...s, isFetching: false, data: { order: listItems.data?.order || listItems.data?.packages, count: listItems.data?.count } }));
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {
       setItems(s => ({ ...s, isFetching: false }));
@@ -1362,7 +1348,7 @@ const TabAcitvities: FC<{ user: UserInformation }> = ({ user }) => {
   return (
     <>
       <Group my={theme.spacing.lg} gap='xs'>
-        <Text c={theme.colors.text[1]} fw={500}>{items.data?.count !== 0 ? items.data?.orders?.length : 0} {"kết quả"}</Text>
+        <Text c={theme.colors.text[1]} fw={500}>{items.data?.count !== 0 ? items.data?.order?.length : 0} {"kết quả"}</Text>
         {Object.values(TypeActivity).map((v, k) => <AppButton
           key={k}
           color={theme.colors.primary[5]}
@@ -1376,7 +1362,7 @@ const TabAcitvities: FC<{ user: UserInformation }> = ({ user }) => {
       </Group>
 
       {function () {
-        if (items.isFetching || !items.data?.orders) return <Grid>
+        if (items.isFetching) return <Grid>
           {Array(8).fill(0).map((_, key) => (
             <Grid.Col key={key} span={{ base: 12 }}>
               <Skeleton key={key} radius={rem(10)} width='100%' height={250} />
@@ -1406,15 +1392,14 @@ const TabAcitvities: FC<{ user: UserInformation }> = ({ user }) => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th flex={1}>#</Table.Th>
-                <Table.Th flex={6}>Video</Table.Th>
+                <Table.Th flex={6}>Sự kiện</Table.Th>
                 <Table.Th flex={1}>Giá</Table.Th>
-                <Table.Th flex={1}>Ngày đăng</Table.Th>
-                <Table.Th flex={1} visibleFrom="sm">Lượt xem</Table.Th>
-                <Table.Th flex={2}>Người sở hữu</Table.Th>
+                <Table.Th flex={2}>Ngày đăng</Table.Th>
+                <Table.Th flex={2}>Ngày giao dịch</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {items.data.orders.map((v, k) => <></>)}
+              {items.data?.order.map((v, k) => <ActivityItem key={k} event={filter.toString()} order={v} />)}
             </Table.Tbody>
           </Table>
         </ScrollArea>
@@ -1521,6 +1506,46 @@ const NftItem: FC<{ nft: Nft }> = ({ nft }) => {
             <IconEdit stroke={1.5} />
           </ActionIcon>
         </Link>
+      </Table.Td>
+    </Table.Tr>
+  )
+}
+
+const ActivityItem: FC<{ order: any, event: string }> = ({ order, event }) => {
+  const theme = useMantineTheme();
+  const [payment, setPayment] = useState({ image: '', symbol: '' });
+
+  useEffect(() => {
+    if (order) {
+      const { image, symbol } = renderPayment(order.paymentType);
+      setPayment({ image, symbol })
+    }
+  }, [order])
+
+  return (
+    <Table.Tr>
+      <Table.Td>
+        <Text c={theme.colors.text[1]}>
+          {order.id}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        {event === TypeActivity.ORDER ? MarketOrderModule.getMarketEvent(order?.event?.toString()) : MarketPackageModule.getPackageType(order?.packageType?.toString())}
+      </Table.Td>
+      <Table.Td>
+        <Text fw="bold" c={theme.colors.text[1]}>
+          {order.price} {payment.symbol}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text c={theme.colors.text[1]}>
+          {DateTimeUtils.formatToShow(order.createdAt, true)}
+        </Text>
+      </Table.Td>
+      <Table.Td visibleFrom="sm">
+        <Text c={theme.colors.text[1]}>
+          {DateTimeUtils.formatToShow(order.updatedAt, true)}
+        </Text>
       </Table.Td>
     </Table.Tr>
   )

@@ -104,7 +104,7 @@ export const ExploreScreen: FC = () => {
                             </Group>
                             <Group gap={4}>
                               <IconShare size={18} />
-                              <Text size="14px" c={theme.colors.gray[5]}>{v.totalShare || 0}</Text>
+                              <Text size="14px" c={theme.colors.gray[5]}>{v.totalShares || 0}</Text>
                             </Group>
                             <Group gap={4}>
                               <IconEye size={18} />

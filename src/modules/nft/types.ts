@@ -27,7 +27,7 @@ export interface Nft {
   listOfLikedUsers: any[],
   listOfFavoriteUsers: any[],
   totalViews: number,
-  totalShare: number,
+  totalShares: number,
   active: boolean,
   createdAt: Date,
   updatedAt: Date

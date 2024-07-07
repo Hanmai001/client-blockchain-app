@@ -47,12 +47,13 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
 
   const fetchItems = useCallback(async () => {
     try {
+      setItems(s => ({ ...s, isFetching: true, data: { tokens: [], count: 0 } }))
       let listtokens: any;
       let sort = '';
       //get list by filter
       if (filter !== FilterOptions.ALL) {
         if (filter === FilterOptions.MOST_VIEWS) sort = '-totalViews';
-        if (filter === FilterOptions.MOST_SHARES) sort = '-totalShare';
+        if (filter === FilterOptions.MOST_SHARES) sort = '-totalShares';
         if (filter === FilterOptions.MOST_LIKES) sort = '-listOfLikedUsers';
         if (filter === FilterOptions.OLDEST) sort = '+createdAt';
         if (filter === FilterOptions.NEWEST) sort = '-createdAt';
@@ -79,11 +80,11 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
     } catch (error) {
       setItems(s => ({ ...s, isFetching: false, data: { tokens: [], count: 0 } }))
     }
-  }, []);
+  }, [filter, search, account.information, collection.creatorCollection, collection.collectionID]);
   
   useEffect(() => {
-    if (collection) fetchItems();
-  }, [collection, debounced, filter, account.information])
+    fetchItems();
+  }, [debounced, filter, account.information])
 
   return <AppWrapper>
     <Stack>

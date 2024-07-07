@@ -23,8 +23,7 @@ export const NftCard: FC<{ nft: Nft }> = (props) => {
   const checkIsViolent = async () => {
     try {
       const res = await NftModule.checkIsViolent(props.nft.tokenID);
-      console.log("is violent: ", res)
-      setIsViolent(res.data);
+      setIsViolent(res.data?.isDisabled);
     } catch (error) {
 
     }
