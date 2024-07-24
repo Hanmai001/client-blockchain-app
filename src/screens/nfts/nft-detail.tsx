@@ -5,8 +5,9 @@ import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { EmptyMessage } from "@/components/empty-message";
 import { onBuyNft } from "@/components/modals/modal-buy-nft";
 import { onCancel } from "@/components/modals/modal-cancel";
-import { onError } from "@/components/modals/modal-error";
+import { onError, OnErrorModal } from "@/components/modals/modal-error";
 import { onListNft } from "@/components/modals/modal-list-nft";
+import { onReport } from "@/components/modals/modal-report";
 import { onShareToken } from "@/components/modals/modal-share-nft";
 import { onSuccess } from "@/components/modals/modal-success";
 import { useAccount } from "@/modules/account/context";
@@ -16,22 +17,25 @@ import { CollectionModule } from "@/modules/collection/modules";
 import { Collection } from "@/modules/collection/types";
 import { LicenseModule } from "@/modules/license/modules";
 import { MarketOrderModule } from "@/modules/marketorder/modules";
-import { MarketOrder, MarketStatus, TransactionEvent } from "@/modules/marketorder/types";
+import { MarketOrder, MarketStatus } from "@/modules/marketorder/types";
 import { NftModule } from "@/modules/nft/modules";
 import { Nft } from "@/modules/nft/types";
 import { UserModule } from "@/modules/user/modules";
 import { renderLinkContract, useBlockChain } from "@/share/blockchain/context";
 import { DateTimeUtils, StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Avatar, Box, Card, Center, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, Title, rem, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Avatar, Box, Card, Center, Divider, Grid, Group, Image, Skeleton, Spoiler, Stack, Text, TextInput, Textarea, Title, rem, useMantineTheme } from "@mantine/core";
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
-import { IconCopy, IconCopyCheck, IconEye, IconFlag, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
+import { IconChevronDown, IconCopy, IconCopyCheck, IconEye, IconFlag, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import { DataLoadState, ItemMode } from "../../../types";
+import { DataLoadState, ItemMode, ListLoadState } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
-import { onReport } from "@/components/modals/modal-report";
+import { Comment } from "@/modules/comment/types";
+import { LoadingComponent } from "../friends";
+import { CommentModule } from "@/modules/comment/modules";
 
 export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
+  const defaultState = { isFetching: true, data: { comments: [], count: 0 } };
   const theme = useMantineTheme();
   const account = useAccount();
   const blockchain = useBlockChain();
@@ -39,9 +43,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const [payment, setPayment] = useState({ image: '', symbol: '' });
   const [isLiked, setIsLiked] = useState<boolean>();
   const [isFavourite, setIsFavourite] = useState<boolean>();
-  const [comments, setComments] = useState();
+  const [comments, setComments] = useState<ListLoadState<Comment, 'comments'>>(defaultState);
   const [marketOrder, setMarketOrder] = useState<MarketOrder>();
-  const [nearestExpiryOrder, setNearestExpiryOrder] = useState<MarketOrder>();
   const [lastSoldOrder, setLastSoldOrder] = useState<MarketOrder>();
   const [marketOrders, setMarketOrders] = useState<MarketOrder[]>([]);
   const [user, setUser] = useState<DataLoadState<any>>({ isFetching: false, data: {} });
@@ -52,6 +55,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   const { isMobile, isTablet } = useResponsive();
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [input, setInput] = useState<string>('');
+  const [pageCmt, setPageCmt] = useState(1);
 
   const handlePlayButtonClick = () => {
     setIsVideoPlaying(true);
@@ -78,7 +83,18 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   }
 
   const fetchComments = async () => {
-
+    try {
+      const res = await CommentModule.getCommentsOfToken(token.tokenID, { offset: (pageCmt - 1) * 10 });
+      setComments(prevState => ({
+        isFetching: false,
+        data: {
+          comments: [...prevState.data!.comments, ...res?.data?.comments || []],
+          count: res?.data?.count || 0,
+        }
+      }));
+    } catch (error) {
+      setComments(s => ({ ...s, isFetching: false }));
+    }
   }
 
   const fetchMarketOrders = async () => {
@@ -186,6 +202,24 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     }
   }
 
+  const handleUpComment = async () => {
+    try {
+      if (!account.information?.wallet) {
+        OnErrorModal({ error: "Vui lòng đăng nhập" });
+        return;
+      }
+      await CommentModule.createComment({
+        content: input,
+        ownerWallet: account.information?.wallet,
+        tokenID: token.tokenID
+      })
+      setInput('');
+      fetchComments();
+    } catch (error) {
+      onError(error);
+    }
+  }
+
   const decryptVideo = async () => {
     try {
       if (token.mode.toString() === ItemMode.COMMERCIAL) {
@@ -212,10 +246,9 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     fetchUser();
     checkLikeFavourite();
     fetchCollection();
-    fetchComments();
     fetchMarketOrders();
     fetchMarketOrderOfToken();
-    decryptVideo();
+    //decryptVideo();
   }, [account.information])
 
   useEffect(() => {
@@ -230,6 +263,10 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
   useEffect(() => {
     updateTotalViews();
   }, [token])
+
+  useEffect(() => {
+    fetchComments();
+  }, [pageCmt, token])
 
   return (
     <BoundaryConnectWallet>
@@ -434,7 +471,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                     </svg>
                   </Box>
 
-                  <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>0</Text>
+                  <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{comments.data?.count || 0}</Text>
                 </Stack>
               </Group>
 
@@ -709,7 +746,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                         </svg>
                       </ActionIcon>
 
-                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>0</Text>
+                      <Text fw={500} c={theme.colors.text[1]} style={{ textAlign: "center" }}>{comments.data?.count || 0}</Text>
                     </Stack>
                   </Group>
 
@@ -938,6 +975,57 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
                 </>}
               </Card.Section>
             </Card>
+
+            <Title order={5} c={theme.colors.text[1]}>Bình luận ({comments.data?.count || 0})</Title>
+
+            <Stack gap='xs'>
+              <Textarea
+                placeholder="Nhập bình luận của bạn tại đây"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+              />
+              <Group justify="end">
+                <AppButton
+                  async
+                  color={theme.colors.primary[5]}
+                  onClick={handleUpComment}
+                >
+                  Đăng
+                </AppButton>
+              </Group>
+            </Stack>
+
+            <Stack>
+              {function () {
+                if (comments.isFetching || !comments.data?.comments) return <LoadingComponent />
+
+                return <>
+                  {comments.data.comments.map((cmt, index) => <Group
+                    key={index}
+                  >
+                    <Avatar src={cmt.owner?.avatar || '/images/default/avatar.png'} size={64} style={{
+                      border: `solid 1px ${theme.colors.gray[5]}`
+                    }} />
+                    <Stack gap={6}>
+                      <Text size="14px" fw='bold'>{cmt.owner?.username || 'Unknown'}</Text>
+                      <Text size="14px">{cmt.content}</Text>
+                    </Stack>
+                  </Group>)}
+                </>
+              }()}
+            </Stack>
+
+            <Group justify="center">
+              <AppButton
+                async
+                variant="transparent"
+                c={theme.colors.primary[5]}
+                rightSection={<IconChevronDown size={18} />}
+                onClick={() => setPageCmt(pageCmt + 1)}
+              >
+                Xem thêm
+              </AppButton>
+            </Group>
           </Stack>
         </>
       }()}

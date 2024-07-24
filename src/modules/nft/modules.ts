@@ -1,4 +1,4 @@
-import { ListLoadState } from "../../../types";
+import { ItemMode, ListLoadState } from "../../../types";
 import { CoinsModule } from "../coins/modules";
 import { getContracts } from "../configs/context";
 import { RequestModule } from "../request/request";
@@ -19,10 +19,15 @@ export class NftModule {
     return RequestModule.post(`/api/v1/tokens`, payload);
   }
 
+  static async delete(id: string): Promise<any> {
+    return RequestModule.delete(`/api/v1/tokens/${id}`);
+  }
+
   static async mintNft(payload: NftPayload) {
     const contractMarket = getContracts().ercs.MARKETPLACE;
-    const feeMint = await contractMarket.call({ method: 'getFeeMint' })
-    const res = await NftModule.create(payload);
+    const feeMint = await contractMarket.call({ method: 'getFeeMint' });
+    let res: any;
+    res = await NftModule.create(payload);
 
     let txReceipt = await contractMarket.send({
       method: 'mintNft',
@@ -35,6 +40,7 @@ export class NftModule {
     const payloadUpdate = { tokenID: txReceipt.logs[2].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
     await NftModule.updateAfterMint(res.data.token.id, payloadUpdate);
     await CoinsModule.fetchUserBalance();
+    return res;
   }
 
   static async updateAfterMint(id: string, payload: any): Promise<any> {
@@ -46,10 +52,6 @@ export class NftModule {
   }
 
   static async getNftByID(id: string): Promise<any> {
-    return RequestModule.get(`/api/v1/tokens/${id}`);
-  }
-
-  static async getNftsByCollectionID(id: string): Promise<any> {
     return RequestModule.get(`/api/v1/tokens/${id}`);
   }
 
@@ -99,5 +101,11 @@ export class NftModule {
     }
 
     return res.data.token;
+  }
+
+   static getTokenMode(status: ItemMode | string) {
+    if (status === ItemMode.COMMERCIAL) return "Thương mại";
+    if (status === ItemMode.PUBLIC) return "Công khai";
+    return ""
   }
 }

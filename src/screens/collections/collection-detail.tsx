@@ -59,7 +59,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
         if (filter === FilterOptions.NEWEST) sort = '-createdAt';
       }
 
-      const isSignedUser = account.information?.wallet === collection.creatorCollection;
+      const isSignedUser = account.information?.wallet === collection?.creatorCollection;
 
       if (filter === FilterOptions.PRICE_TO_HIGH) {
         listtokens = await MarketOrderModule.getTokensStatus({ status: MarketStatus.ISLISTING, sort: '+price', active: isSignedUser ? null : true });
@@ -80,7 +80,7 @@ export const CollectionDetailScreen: FC<{ collection: Collection }> = ({ collect
     } catch (error) {
       setItems(s => ({ ...s, isFetching: false, data: { tokens: [], count: 0 } }))
     }
-  }, [filter, search, account.information, collection.creatorCollection, collection.collectionID]);
+  }, [filter, search, account.information, collection?.creatorCollection, collection?.collectionID]);
   
   useEffect(() => {
     fetchItems();
@@ -278,11 +278,11 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
   const { isMobile } = useResponsive();
   const account = useAccount();
   const [marketPackage, setMarketPackage] = useState<MarketPackage | null>(null);
-  const isSignedUser = account.information?.wallet === props.collection.creatorCollection;
+  const isSignedUser = account.information?.wallet === props.collection?.creatorCollection;
 
   const fetchItemsOfCollection = async () => {
     try {
-      const listtokens = await NftModule.getList({ collectionID: props.collection.collectionID });
+      const listtokens = await NftModule.getList({ collectionID: props.collection?.collectionID });
       setTotalItems(listtokens.data?.count || 0);
     } catch (error) {
 
@@ -291,7 +291,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
 
   const fetchMarketPackage = async () => {
     try {
-      const res = await MarketPackageModule.getListOfUser({ collectionID: props.collection.collectionID });
+      const res = await MarketPackageModule.getListOfUser({ collectionID: props.collection?.collectionID });
       setMarketPackage(res.data[0] || null);
     } catch (error) {
       setMarketPackage(null);
@@ -300,7 +300,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
 
   const updateTotalViews = async () => {
     try {
-      await CollectionModule.increaseTotalViews(props.collection.collectionID);
+      await CollectionModule.increaseTotalViews(props.collection?.collectionID);
     } catch (error) {
 
     }
@@ -339,7 +339,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
             <Title order={3} c={theme.colors.text[0]}>
               {props.collection.title}
             </Title>
-            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection.creatorCollection, 2, 5)}</Text>
+            <Text c={theme.colors.text[0]} size={theme.fontSizes.sm} fw='bold'>Tạo bởi {StringUtils.compact(props.collection?.creatorCollection, 2, 5)}</Text>
             <Group justify="space-between" mt={4}>
               <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{totalItems || 0} items</Text>
               <Text c={theme.colors.text[0]} size={theme.fontSizes.sm}>{props.collection.averagePrice} {symbol}</Text>

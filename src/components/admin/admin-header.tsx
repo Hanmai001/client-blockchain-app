@@ -3,8 +3,8 @@ import { useResponsive } from "@/modules/app/hooks";
 import { useConfig } from "@/modules/configs/context";
 import { useBlockChain } from "@/share/blockchain/context";
 import { ChainId } from "@/share/blockchain/types";
-import { Group, Menu, Skeleton, Switch, Text, TextInput, UnstyledButton, useMantineColorScheme, useMantineTheme } from "@mantine/core";
-import { IconLogout, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconWallet } from "@tabler/icons-react";
+import { Group, Menu, Skeleton, Switch, Text, UnstyledButton, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { IconLogout, IconMoonFilled, IconNetwork, IconSettings, IconWallet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import classes from '../../styles/admin/AdminHeader.module.scss';
@@ -15,12 +15,10 @@ import { ConnectWallet } from "../buttons/connect-wallet";
 import { onError } from "../modals/modal-error";
 
 export const AdminHeader: FC = () => {
-  const [search, setSearch] = useState<string>();
-  const theme = useMantineTheme();
   return <header className={classes.headerNormal}>
     <Group ml={240} grow justify="space-between" align="center" h={'100%'}>
       <Group>
-        <TextInput
+        {/* <TextInput
           onChange={(e) => setSearch(e.target.value)}
           value={search}
           // onFocus={() => setOpened(true)}
@@ -35,7 +33,7 @@ export const AdminHeader: FC = () => {
             section: {
               paddingRight: `${theme.spacing.md}`
             }
-          }} />
+          }} /> */}
       </Group>
 
       <Group justify="flex-end">

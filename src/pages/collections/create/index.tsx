@@ -1,2 +1,2 @@
-import { CollectionCreateScreen } from "@/screens/collections/create";
-export default CollectionCreateScreen;
+import { CreateCollectionScreen } from "@/screens/collections/create";
+export default CreateCollectionScreen;

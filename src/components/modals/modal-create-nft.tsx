@@ -8,12 +8,12 @@ import { onSuccess } from './modal-success'
 import { onError } from './modal-error'
 import { NftModule } from '@/modules/nft/modules'
 import { RequestModule } from '@/modules/request/request'
+import { NftPayload } from '@/modules/nft/types'
 
 interface State {
   title?: string
   message?: string
   payload: any
-  file: File | null | string
   mode: any
   onClose?: () => any
 }
@@ -29,11 +29,12 @@ export const ModalCreateNft: FC = () => {
   onCreateNft = async (s) => {
     setState(s)
     open()
+    let res;
     if (s.payload) {
       try {
-        if (s.file instanceof File)
-          s.payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, s.file as File, 400, "source", { mode: s.mode });
-        const res = await NftModule.create(s.payload);
+        if (s.payload.file instanceof File)
+          s.payload.source = await RequestModule.uploadMedia(`/api/v1/tokens/source`, s.payload.file as File, 400, "source", { mode: s.mode });
+        res = await NftModule.create(s.payload);
         if (res) setActiveStep(1);
 
         const contractMarket = getContracts().ercs.MARKETPLACE;
@@ -55,6 +56,7 @@ export const ModalCreateNft: FC = () => {
         onClose();
         onSuccess({ title: 'Tạo Video - NFT thành công', message: '' });
       } catch (error) {
+        if (res && res.data) await NftModule.delete(res.data.token.id);
         onClose();
         onError("Upload Video không thành công!");
       }
@@ -66,7 +68,7 @@ export const ModalCreateNft: FC = () => {
   }
 
   return (
-    <Modal size='lg' radius={8} title={<Title order={3} fw={500}>Tạo NFT Video</Title>} centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
+    <Modal size='lg' closeOnClickOutside={false} radius={8} title={<Title order={3} fw={500}>Tạo NFT Video</Title>} centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
       overlay: {
         zIndex: 100
       },

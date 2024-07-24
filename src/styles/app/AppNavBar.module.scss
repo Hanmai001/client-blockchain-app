@@ -35,12 +35,12 @@
   color: light-dark(var(--mantine-color-gray-9), var(--mantine-color-dark-1));
   padding: var(--mantine-spacing-md) var(--mantine-spacing-sm);
   border-radius: var(--mantine-radius-md);
-  font-weight: 500;
+  font-weight: bold;
   font-size: 15px;
   margin-bottom: var(--mantine-spacing-xs);
 
   &:hover {
-    background-color: #efe3ff;
+    background-color: var(--mantine-color-gray-0);
     color: var(--mantine-color-black);
     cursor: pointer;
 
@@ -52,11 +52,10 @@
   &[data-active] {
     &,
     &:hover {
-      background-color: #8c36fa;
-      color: var(--mantine-color-white);
+      background-color: #efe3ff;
 
       .linkIcon {
-        color: var(--mantine-color-white);
+        // color: var(--mantine-color-white);
       }
     }
   }

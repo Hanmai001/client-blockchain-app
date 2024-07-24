@@ -9,9 +9,14 @@ export class CollectionModule {
     return RequestModule.post(`/api/v1/collections`, payload);
   }
 
+  static async delete(id: string): Promise<any> {
+    return RequestModule.delete(`/api/v1/collections/${id}`);
+  }
+
   static async mintCollection(payload: CollectionPayload) {
     const contractMarket = getContracts().ercs.MARKETPLACE;
-    const res = await CollectionModule.create(payload);
+    let res: any;
+    res = await CollectionModule.create(payload);
     let txReceipt = await contractMarket.send({
       method: 'createCollection',
       args: [payload.creatorCollection, res.data.collectionURI]
@@ -20,6 +25,7 @@ export class CollectionModule {
     const payloadUpdate = { ...payload, collectionID: txReceipt.logs[0].args['0'].toString(), contractAddress: getContracts().erc721s.BLOCKCLIP_NFT.address };
     await this.updateAfterMint(res.data.collection.id, payloadUpdate);
     await CoinsModule.fetchUserBalance();
+    return res;
   }
 
   static async getList(query?: CollectionQuery): Promise<ListLoadState<Collection, 'collections'>> {

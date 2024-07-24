@@ -2,7 +2,10 @@ import { Nft } from "@/modules/nft/types";
 import { DateTimeUtils } from "@/share/utils";
 import { AspectRatio, Group, Modal, Spoiler, Stack, Text, Title, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
+import { ItemMode } from "../../../types";
+import { LicenseModule } from "@/modules/license/modules";
+import { onError } from "./modal-error";
 
 interface State {
   token: Nft,
@@ -13,15 +16,43 @@ export const ModalNftDetail: FC = () => {
   const theme = useMantineTheme();
   const [state, setState] = useState<State>();
   const [opened, { open, close }] = useDisclosure(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   onViewNft = (state) => {
     setState(state);
     open();
   }
 
+
+  const decryptVideo = async () => {
+    try {
+      if (state && state.token.mode.toString() === ItemMode.COMMERCIAL) {
+        const license = await LicenseModule.getLicense({ tokenID: state.token.tokenID });
+        // console.log(license)
+        if (license) {
+          const videoData = await LicenseModule.decrypt(license, state.token.source);
+          if (videoData) {
+            const blob = new Blob([videoData], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            setVideoUrl(url);
+
+            // Giải phóng URL khi component unmounts hoặc khi decryptedVideo thay đổi
+            return () => URL.revokeObjectURL(url);
+          }
+        }
+      }
+    } catch (error) {
+      onError(error)
+    }
+  }
+
   const onClose = () => {
     close();
   }
+
+  useEffect(() => {
+    decryptVideo();
+  }, [state?.token])
 
   return <Modal title="Chi tiết" size="lg" centered opened={opened} onClose={onClose} styles={{
     overlay: {
@@ -33,7 +64,7 @@ export const ModalNftDetail: FC = () => {
       color: theme.colors.text[1]
     }
   }}>
-    {function() {
+    {function () {
       if (state?.token) return <Stack gap={4}>
         <AspectRatio
           my={10}
@@ -45,8 +76,8 @@ export const ModalNftDetail: FC = () => {
           }}>
           <video
             controls
-            controlsList="nodownload"
-            src={state.token.source}
+            src={videoUrl || state.token.source}
+            style={{ display: 'block', objectFit: 'contain' }}
           />
         </AspectRatio>
 

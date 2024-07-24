@@ -23,7 +23,7 @@
   height: 100%;
   
   &:hover {
-    background-color: #efe3ff;
+    background-color: var(--mantine-color-gray-0);
     color: var(--mantine-color-black);
     cursor: pointer;
 
@@ -36,11 +36,10 @@
 
     &,
     &:hover {
-      background-color: #8c36fa;
-      color: var(--mantine-color-white);
+      background-color: #efe3ff;
 
       .linkIcon {
-        color: var(--mantine-color-white);
+        // color: var(--mantine-color-white);
       }
     }
   }
@@ -56,8 +55,7 @@
   font-size: 14px;
 
   &:hover {
-    background-color: #efe3ff;
-    color: var(--mantine-color-black);
+    background-color: var(--mantine-color-gray-0);
     cursor: pointer;
 
     .linkIcon {
@@ -68,11 +66,10 @@
   &[data-active] {
     &,
     &:hover {
-      background-color: #8c36fa;
-      color: var(--mantine-color-white);
+      background-color: #efe3ff;
 
       .linkIcon {
-        color: var(--mantine-color-white);
+        // color: var(--mantine-color-white);
       }
     }
   }

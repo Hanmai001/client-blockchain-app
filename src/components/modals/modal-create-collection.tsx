@@ -27,10 +27,11 @@ export const ModalCreateCollection: FC = () => {
   onCreateCollection = async (s) => {
     setState(s)
     open()
+    let res;
     if (s.payload) {
       try {
         const contractMarket = getContracts().ercs.MARKETPLACE;
-        const res = await CollectionModule.create(s.payload);
+        res = await CollectionModule.create(s.payload);
         let txReceipt = await contractMarket.send({
           method: 'createCollection',
           args: [s.payload.creatorCollection, res.data.collectionURI]
@@ -44,6 +45,7 @@ export const ModalCreateCollection: FC = () => {
         onClose();
         onSuccess({ title: 'Tạo thành công', message: '' });
       } catch (error) {
+        if (res && res.data) await CollectionModule.delete(res.data.collection.id);
         onClose();
         onError("Tạo Bộ sưu tập không thành công!");
       }
@@ -55,7 +57,7 @@ export const ModalCreateCollection: FC = () => {
   }
 
   return (
-    <Modal size='lg' radius={8} title={<Title order={3} fw={500}>Tạo bộ sưu tập</Title>} centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
+    <Modal size='lg' closeOnClickOutside={false} radius={8} title={<Title order={3} fw={500}>Tạo bộ sưu tập</Title>} centered opened={opened} onClose={onClose} withCloseButton={false} styles={{
       overlay: {
         zIndex: 100
       },

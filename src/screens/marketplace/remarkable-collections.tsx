@@ -4,7 +4,7 @@ import { CollectionModule } from "@/modules/collection/modules";
 import { CollectionType } from "@/modules/collection/types";
 import { useBlockChain } from "@/share/blockchain/context";
 import { Carousel } from "@mantine/carousel";
-import { Box, Grid, Skeleton, Stack, Title, useMantineTheme } from "@mantine/core";
+import { Box, Grid, Skeleton, Title, useMantineTheme } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../types";
 import classes from '../../styles/Marketplace.module.scss';
@@ -16,7 +16,7 @@ export const NotableCollectionsSection: FC<{ type: string | null }> = (props) =>
   const { isMobile, isTablet } = useResponsive();
 
   const gridColumns = {
-    xl: 3,
+    md: 3,
     sm: 4,
     xs: 6,
     base: 6
@@ -50,7 +50,7 @@ export const NotableCollectionsSection: FC<{ type: string | null }> = (props) =>
     </Title>
     {function () {
       if (collections.isFetching || !collections.data) return <Grid>
-        {Array(3).fill(0).map((_, key) => (
+        {Array(4).fill(0).map((_, key) => (
           <Grid.Col key={key} span={{ ...gridColumns }}>
             <Skeleton key={key} radius={10} width='100%' height={250} />
           </Grid.Col>

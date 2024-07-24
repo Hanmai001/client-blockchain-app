@@ -41,6 +41,7 @@ export interface NftPayload {
   collectionID: string,
   title: string,
   description: string
+  file: string | File | null
 }
 
 export interface NftUpdatePayload {

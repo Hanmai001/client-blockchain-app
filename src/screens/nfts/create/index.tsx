@@ -18,7 +18,7 @@ import { useForm } from "@mantine/form";
 import { IconPlus, IconUpload } from "@tabler/icons-react";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { AppRoutes } from "../../../../app-router";
 import { DataLoadState, ItemMode, ListLoadState } from "../../../../types";
 import classes from '../../../styles/nfts/NftCreate.module.scss';
@@ -32,7 +32,6 @@ export const CreateNftScreen: FC = () => {
   const [collection, setCollection] = useState<DataLoadState<Collection>>({ isFetching: true });
   const [opened, setOpened] = useState(false);
   const router = useRouter()
-  const [file, setFile] = useState<File | string | null>(null);
   const [mode, setMode] = useState<string[]>([]);
 
   const form = useForm<NftPayload>({
@@ -43,7 +42,8 @@ export const CreateNftScreen: FC = () => {
       description: '',
       collectionID: '',
       chainID: '',
-      mode: ItemMode.PUBLIC
+      mode: ItemMode.PUBLIC,
+      file: null
     },
     validate: {
       title: (value) => (value.length < 1 && 'Tên bộ sưu tập không hợp lệ'),
@@ -57,52 +57,57 @@ export const CreateNftScreen: FC = () => {
     }
   }, [collections]);
 
-  const getWallet = async () => {
+  const getWallet = useCallback(async () => {
     if (!!account.information && account.information.wallet) {
       form.setFieldValue('creator', ethers.getAddress(account.information.wallet));
       form.setFieldValue('owner', ethers.getAddress(account.information.wallet));
     }
-  }
+  }, [account.information, form]);
 
-  const handleSelectMode = async (value: string[]) => {
-    if (value.length > 1)
-      value.shift();
-    // console.log(value)
-    setMode(value);
-  }
+  const handleSelectMode = useCallback(
+    (value: string[]) => {
+      if (value.length > 1) value.shift();
+      setMode(value);
+    },
+    [setMode]
+  );
 
-  const onSubmit = form.onSubmit(async (values) => {
-    try {
-      if (!file) {
-        OnErrorModal({ title: 'Tạo Video', error: "Vui lòng chọn video để tải lên" });
-        return;
+  const onSubmit = useCallback(
+    form.onSubmit(async (values) => {
+      try {
+        if (mode.length < 1) {
+          OnErrorModal({ title: 'Tạo Video', error: 'Vui lòng chọn chế độ cho video tải lên' });
+          return;
+        }
+
+        let payload = { ...values, mode: Number(mode[0]), source: '' };
+        if (collection) {
+          payload.chainID = collection.data!.chainID;
+          payload.collectionID = collection.data!.collectionID;
+        }
+
+        await onCreateNft({ payload, mode: mode[0] });
+      } catch (error) {
+        onError(error);
       }
+    }),
+    [mode, collection, form]
+  );
 
-      if (mode.length < 1) {
-        OnErrorModal({ title: 'Tạo Video', error: "Vui lòng chọn chế độ cho video tải lên" });
-        return;
-      }
-
-      let payload = { ...values, mode: Number(mode[0]), source: '' }
-      if (collection) {
-        payload.chainID = collection.data!.chainID;
-        payload.collectionID = collection.data!.collectionID;
-      }
-
-      onCreateNft({ payload, mode: mode[0], file });
-    } catch (error) {
-      onError(error);
+  const fetchData = async () => {
+    if (account.information?.wallet && collections.isFetching) {
+      const res = await CollectionModule.getCollecionsOfUser(account.information.wallet, {
+        chainID: blockchain.chainId,
+      });
+      setCollections((s) => ({
+        ...s,
+        isFetching: false,
+        data: { collections: res.data!.collections, count: res.data!.count },
+      }));
     }
-  })
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (account.information?.wallet) {
-        const res = await CollectionModule.getCollecionsOfUser(account.information.wallet, { chainID: blockchain.chainId });
-        setCollections(s => ({ ...s, isFetching: false, data: { collections: res.data!.collections, count: res.data!.count } }));
-      }
-    };
-
     fetchData();
     getWallet();
   }, [account.information?.wallet]);
@@ -124,9 +129,8 @@ export const CreateNftScreen: FC = () => {
                 ratio={260 / 150}
                 radius={10}
                 acceptance="video"
-                value={file || undefined}
-                onChange={(file) => setFile(file)}
-                onRemove={() => setFile(null)}
+                {...form.getInputProps('file')}
+                onRemove={() => form.setFieldValue('file', null)}
                 styles={{
                   label: {
                     fontWeight: 'bold',

@@ -12,7 +12,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { IconEye, IconLock, IconLockOff, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import { ListLoadState } from "../../../../types";
+import { ItemMode, ListLoadState } from "../../../../types";
 
 export const AdminNftsScreen: FC = () => {
   const theme = useMantineTheme();
@@ -27,7 +27,7 @@ export const AdminNftsScreen: FC = () => {
       const res = await NftModule.getList({ limit, offset: (activePage - 1) * limit, search });
       setItems(s => ({ ...s, isFetching: false, data: res.data }));
     } catch (error) {
-
+      onError(error);
     }
   }
 
@@ -77,6 +77,7 @@ export const AdminNftsScreen: FC = () => {
             return <Table striped highlightOnHover withRowBorders={false}>
               <Table.Thead c={theme.colors.text[1]}>
                 <Table.Th>Tiêu đề</Table.Th>
+                <Table.Th>Chế độ</Table.Th>
                 <Table.Th>Chủ sở hữu</Table.Th>
                 <Table.Th>Người tạo</Table.Th>
                 <Table.Th>Ngày tạo</Table.Th>
@@ -89,6 +90,18 @@ export const AdminNftsScreen: FC = () => {
                     <Tooltip label={v.title}>
                       <Text>{StringUtils.limitCharacters(v.title!, 20)}</Text>
                     </Tooltip>
+                  </Table.Td>
+                  <Table.Td c={theme.colors.text[1]}>
+                    <Card
+                      bg={v.mode.toString() === ItemMode.PUBLIC ? theme.colors.blue[1] : theme.colors.yellow[5]}
+                      style={{
+                        maxWidth: 'fit-content'
+                      }}
+                      p={8}
+                      radius={'lg'}
+                    >
+                      <Text size="14px" fw='bold'>{NftModule.getTokenMode(v.mode.toString())}</Text>
+                    </Card>
                   </Table.Td>
                   <Table.Td c={theme.colors.text[1]}>
                     <Tooltip label={v.owner}>

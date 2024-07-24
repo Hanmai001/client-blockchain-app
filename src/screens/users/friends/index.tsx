@@ -4,20 +4,19 @@ import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
 import { EmptyMessage } from "@/components/empty-message";
 import { onError } from "@/components/modals/modal-error";
 import { useAccount } from "@/modules/account/context";
+import { useResponsive } from "@/modules/app/hooks";
+import { FriendRequestModule } from "@/modules/friend-request/modules";
+import { FriendRequestStatus } from "@/modules/friend-request/types";
 import { UserModule } from "@/modules/user/modules";
 import { UserInformation } from "@/modules/user/types";
+import { getChainId } from "@/share/blockchain/context";
 import { StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Card, Flex, Group, Menu, Pagination, Skeleton, Stack, Tabs, Text, TextInput, Title, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Card, Flex, Group, Image, Menu, Pagination, Skeleton, Stack, Tabs, Text, TextInput, Title, useMantineTheme } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconCheck, IconDots, IconFriendsOff, IconSearch, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../../types";
-import classes from '../../../styles/collections/CollectionDetail.module.scss';
-import { FriendRequestModule } from "@/modules/friend-request/modules";
-import { FriendRequestStatus } from "@/modules/friend-request/types";
-import { getChainId } from "@/share/blockchain/context";
-import { useResponsive } from "@/modules/app/hooks";
 
 enum UserFriendsTabs {
   FRIENDS = 'Bạn bè',
@@ -95,20 +94,16 @@ export const UserFriendsScreen: FC = () => {
               </Group>
             </Group>
 
-            <Tabs value={activeTab} miw={250} onChange={setActiveTab} classNames={{
-              root: "tab-root",
-              list: "tab-list",
-              tab: "tab-button",
-            }}>
+            <Tabs value={activeTab} miw={250} color='grape' onChange={setActiveTab} >
               <Tabs.List mb={20} grow style={{
                 maxWidth: isMobile ? '100%' : '35%'
               }}>
                 {Object.values(UserFriendsTabs).map((v, k) => (
                   <Tabs.Tab
-                    //rightSection={<Text>({users.data?.count})</Text>}
                     value={v}
-                    key={k}>
-                    {v}
+                    key={k}
+                  >
+                    <Text fw='bold'>{v}</Text>
                   </Tabs.Tab>
                 ))}
               </Tabs.List>
@@ -215,9 +210,9 @@ const FriendBox: FC<FriendBoxProps> = (props) => {
         <AspectRatio style={{
           width: '82px',
           overflow: 'hidden',
-          borderRadius: '8px'
+          borderRadius: '8px',
         }}>
-          <img src={props.user.avatar || '/images/default/ava.jpeg'} />
+          <Image src={props.user.avatar || '/images/default/ava.jpeg'} />
         </AspectRatio>
 
         <Stack gap={4}>

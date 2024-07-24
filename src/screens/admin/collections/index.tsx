@@ -27,7 +27,7 @@ export const AdminCollectionsScreen: FC = () => {
       console.log(search, res.data)
       setItems(s => ({ ...s, isFetching: false, data: res.data }));
     } catch (error) {
-
+      onError(error)
     }
   }
 
@@ -48,7 +48,7 @@ export const AdminCollectionsScreen: FC = () => {
     <AdminWrapper>
       <Stack p={20}>
         <Card radius="md" shadow="sm" withBorder>
-          <Title order={4} c={theme.colors.text[1]}>Danh sách Bộ sưu tầm</Title>
+          <Title order={4} c={theme.colors.text[1]}>Danh sách Bộ sưu tập</Title>
 
           <Divider my={10} />
 
@@ -104,7 +104,6 @@ export const AdminCollectionsScreen: FC = () => {
                         variant="outline"
                         color={theme.colors.primary[5]}
                         px={8}
-                      // onClick={() => onViewNft({ token: v })}
                       >
                         <Tooltip label="Xem chi tiết">
                           <IconEye size={18} />
