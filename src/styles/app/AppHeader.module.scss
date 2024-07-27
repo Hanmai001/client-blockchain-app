@@ -55,6 +55,52 @@ $border-color: #d3b0ff;
   animation: bounceOut 2s linear infinite;
 }
 
+.link {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  text-decoration: none;
+  color: light-dark(var(--mantine-color-gray-9), var(--mantine-color-dark-1));
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-md);
+  font-size: 15px;
+  margin-bottom: var(--mantine-spacing-xs);
+
+  &:hover {
+    background-color: var(--mantine-color-gray-0);
+    color: var(--mantine-color-black);
+    cursor: pointer;
+
+    .linkIcon {
+      color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+    }
+  }
+
+  &[data-active] {
+
+    &,
+    &:hover {
+      background-color: #efe3ff;
+    }
+  }
+
+  @include smaller-than($mantine-breakpoint-md) {
+    padding: var(--mantine-spacing-sm) 0;
+    justify-content: center;
+  }
+}
+
+.linkIcon {
+  color: light-dark(var(--mantine-color-gray-9), var(--mantine-color-dark-1));
+  margin-right: var(--mantine-spacing-sm);
+  width: rem(25px);
+  height: rem(25px);
+
+  @include smaller-than($mantine-breakpoint-md) {
+    margin-right: 0;
+  }
+}
+
 @keyframes bounceOut {
   0%,
   100% {

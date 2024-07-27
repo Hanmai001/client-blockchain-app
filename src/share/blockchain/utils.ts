@@ -186,7 +186,6 @@ export function getAvailableWeb3(chainId: ChainId, ignoreRpcUrl?: string): Promi
 //Transform logs into events
 export function parseEvent(abi: any[], address: string, receipt: TransactionReceipt | any) {
   try {
-    console.log("abi: ", abi)
     let events: any[] = []
 
     if (receipt.logs) {
@@ -221,7 +220,6 @@ export function parseEvent(abi: any[], address: string, receipt: TransactionRece
         return
       }
 
-      console.log("evnt: ", event)
       const descriptor = abi
         .filter(desc => desc.type === 'event')
         .map(desc => ({

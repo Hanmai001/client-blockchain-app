@@ -24,7 +24,6 @@ export const AdminCollectionsScreen: FC = () => {
   const fetchCollections = async () => {
     try {
       const res = await CollectionModule.getList({ limit, offset: (activePage - 1) * limit, search });
-      console.log(search, res.data)
       setItems(s => ({ ...s, isFetching: false, data: res.data }));
     } catch (error) {
       onError(error)

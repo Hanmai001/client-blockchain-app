@@ -29,9 +29,12 @@ export const AdminUsersScreen: FC = () => {
     }
   }
 
-  const handleBlockUnBlock = async (userId: string) => {
+  const handleBlockUnBlock = async (user: UserInformation) => {
     try {
-      await UserModule.blockOrUnBlock(userId);
+      if (!user.wallet) return;
+      await UserModule.updateByAdmin(user.wallet, {
+        active: !user.active
+      });
     } catch (error) {
       onError("Có lỗi xảy ra, vui lòng thử lại sau");
     }
@@ -105,7 +108,7 @@ export const AdminUsersScreen: FC = () => {
                       </Tooltip>
 
                       <Tooltip label={v.active ? "Hạn chế người dùng" : "Mở quyền"}>
-                        <ActionIcon color="danger" onClick={() => handleBlockUnBlock(v.id)}>
+                        <ActionIcon color="danger" onClick={() => handleBlockUnBlock(v)}>
                           {v.active ? <IconLock size={18} /> : <IconLockOff size={18} />}
                         </ActionIcon>
                       </Tooltip>

@@ -14,7 +14,7 @@ export const NotificationProvider: FC<PropsWithChildren> = (props) => {
   const fetchNotifications = async () => {
     try {
       const res = await NotificationModule.getListNotifications({ offset: (activePage - 1) * 10, limit })
-      console.log(res)
+      // console.log(res)
       if (res.data.notifications.length === 0) {
         setStatus(s => ({ ...s, isFetching: false, initialized: true }));
         return false;

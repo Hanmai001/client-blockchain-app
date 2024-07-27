@@ -9,9 +9,9 @@ import { UserModule } from "@/modules/user/modules";
 import { useBlockChain } from "@/share/blockchain/context";
 import { ChainId } from "@/share/blockchain/types";
 import { StringUtils } from "@/share/utils";
-import { ActionIcon, AspectRatio, Box, Burger, Card, Center, Divider, Drawer, Group, Image, Loader, Menu, Modal, Skeleton, Stack, Switch, Text, TextInput, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AspectRatio, Box, Burger, Card, Center, Divider, Drawer, Group, Image, Loader, Menu, Modal, Skeleton, Stack, Switch, Text, TextInput, Title, Transition, UnstyledButton, rem, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { useClickOutside, useDebouncedValue, useDisclosure, useWindowScroll } from "@mantine/hooks";
-import { IconFriends, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUser, IconWallet } from "@tabler/icons-react";
+import { IconBuildingStore, IconFriends, IconLogout, IconMessage2, IconMoonFilled, IconNetwork, IconSearch, IconSettings, IconUser, IconUsers, IconWallet } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
@@ -22,7 +22,6 @@ import { AccountInfo } from "../account-info";
 import { ConnectWallet } from "../buttons/connect-wallet";
 import { onError } from "../modals/modal-error";
 import { AppButton } from "./app-button";
-import { AppNotification } from "./app-notification";
 
 interface ResultProps {
   isFetching: boolean,
@@ -56,18 +55,14 @@ export const AppHeader: FC = () => {
         {!isMobile && <Balances />}
 
         <Group gap={theme.spacing.sm} justify="flex-end">
-          {isDesktop && <>
-            <ActionIcon
-              onClick={() => router.push(AppRoutes.user.messages)}
-              variant="light"
-              color={theme.colors.primary[5]}
-              size={40}
-            >
-              <IconMessage2 size={24} stroke={1.5} />
-            </ActionIcon>
-
-            {/* <AppNotification /> */}
-          </>}
+          <ActionIcon
+            onClick={() => router.push(AppRoutes.user.messages)}
+            variant="light"
+            color={theme.colors.primary[5]}
+            size={40}
+          >
+            <IconMessage2 size={24} stroke={1.5} />
+          </ActionIcon>
 
           {isMobile && <HeaderSearchMobile />}
 
@@ -271,11 +266,12 @@ export const HeaderSearchMobile: FC = () => {
 
   return (
     <>
-      <UnstyledButton onClick={open} style={{
+      <UnstyledButton onClick={open} h={40} style={{
         backgroundColor: `${theme.colors.primary[5]}20`,
         padding: `5px 8px`,
-        borderRadius: rem(10),
-        display: 'flex'
+        borderRadius: rem(4),
+        display: 'flex',
+        alignItems: 'center'
       }}>
         <IconSearch color={theme.colors.primary[5]} size={24} stroke={1.5} />
       </UnstyledButton>
@@ -390,12 +386,47 @@ export const HeaderSearchMobile: FC = () => {
 export const MenuAccountMobile: FC = () => {
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);
+  const blockchain = useBlockChain();
+  const account = useAccount();
+  const { pathname, push } = useRouter();;
+
+  const navLinks = [
+    { link: AppRoutes.root, label: 'Cửa hàng', icon: IconBuildingStore },
+    { link: AppRoutes.explore, label: 'Khám phá', icon: IconSearch },
+    { link: `${AppRoutes.user.profile}/${blockchain.wallet}`, label: 'Hồ sơ của bạn', icon: IconUser },
+    { link: AppRoutes.friends, label: 'Bạn bè có gì mới', icon: IconFriends },
+    { link: AppRoutes.user.friends, label: 'Bạn bè của bạn', icon: IconUsers },
+  ]
+
+  const links = navLinks.map((item) => (
+    <a
+      className={classes.link}
+      data-active={pathname === item.link || undefined}
+      key={item.label}
+      onClick={() => {
+        push(item.link);
+      }}
+    >
+      <item.icon className={classes.linkIcon} />
+      <span>{item.label}</span>
+    </a>
+  ));
 
   return <>
     <Burger c={theme.colors.gray[2]} onClick={open} />
 
-    <Drawer position="right" opened={opened} onClose={close} title="Menu">
-      {/* Drawer content */}
+    <Drawer position="right" h={'100%'} opened={opened} onClose={close} title={<Title order={4} fw={500}>Menu</Title>}>
+      <Stack flex={1} gap={2} justify="space-between">
+        {links}
+
+        <Divider />
+        <div className={classes.footer}>
+          <a href="#" className={classes.link} onClick={(event) => account.signOut()}>
+            <IconLogout className={classes.linkIcon} />
+            <span>Đăng xuất</span>
+          </a>
+        </div>
+      </Stack>
     </Drawer>
   </>
 }

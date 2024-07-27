@@ -87,7 +87,6 @@ export const NftEditScreen: FC<{ token: Nft }> = ({ token }) => {
         const license = await LicenseModule.getLicense({ tokenID: token?.tokenID });
         if (license) {
           const videoData = await LicenseModule.decrypt(license, token?.source);
-          console.log(videoData)
           if (videoData) {
             const blob = new Blob([videoData], { type: 'video/mp4' });
             const url = URL.createObjectURL(blob);

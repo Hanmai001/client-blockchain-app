@@ -19,6 +19,10 @@ export class UserModule {
     return RequestModule.put(`/api/v1/users`, payload)
   }
 
+  static async updateByAdmin(wallet: string, payload: any) {
+    return RequestModule.put(`/api/v1/users/${wallet}`, payload)
+  }
+
   static async blockOrUnBlock(id: string) {
     return RequestModule.put(`/api/v1/users/${id}`)
   }

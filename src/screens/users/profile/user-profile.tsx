@@ -1332,7 +1332,6 @@ const TabAcitvities: FC<{ user: UserInformation }> = ({ user }) => {
 
       if (filter === TypeActivity.ORDER) listItems = await MarketOrderModule.getListOrdersOfUser(user.wallet);
       else if (filter === TypeActivity.PACKAGE) listItems = await MarketPackageModule.getListPackagesOfUser(user.wallet);
-      console.log(listItems)
       setItems(s => ({ ...s, isFetching: false, data: { order: listItems.data?.order || listItems.data?.packages, count: listItems.data?.count } }));
       setTotalPages(Math.ceil(listItems.data.count / limit));
     } catch (error) {

@@ -112,7 +112,6 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
 
   connectChain = async (chainId: any) => {
     const chain = chains.find(v => v.chainId === chainId);
-    console.log(chainId)
     if (!chain) throw Error("Chain does not supported yet");
 
     try {
@@ -249,7 +248,6 @@ export const BlockChainProvider: FC<BlockChainProviderProps> = (props) => {
     if (provider) {
       const handleChangeAccount = (accounts: string[]) => {
         const wallet = accounts[0] ? ethers.getAddress(accounts[0]) : undefined;
-        console.log("wallet: ", wallet)
         setStatus(s => ({ ...s, wallet }));
         forceUpdate();
       }

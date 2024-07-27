@@ -208,13 +208,29 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
         OnErrorModal({ error: "Vui lòng đăng nhập" });
         return;
       }
+      const newCmt = {
+        content: input,
+        owner: {
+          avatar: account.information.avatar,
+          username: account.information.username
+        },
+        tokenID: token.tokenID
+      }
       await CommentModule.createComment({
         content: input,
         ownerWallet: account.information?.wallet,
         tokenID: token.tokenID
       })
       setInput('');
-      fetchComments();
+      setComments(s => ({
+        ...s, data: {
+          comments: [
+            newCmt,
+            ...s.data?.comments || []
+          ],
+          count: (s.data?.count || 0) + 1
+        }
+      }))
     } catch (error) {
       onError(error);
     }
@@ -248,7 +264,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     fetchCollection();
     fetchMarketOrders();
     fetchMarketOrderOfToken();
-    //decryptVideo();
+    decryptVideo();
   }, [account.information])
 
   useEffect(() => {

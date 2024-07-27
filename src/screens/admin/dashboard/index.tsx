@@ -251,7 +251,6 @@ const RevenueChart: FC = () => {
   const getOrderStatistic = async () => {
     try {
       const res = await StatisticModule.getPackageRevenueStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(12)), to: DateTimeUtils.formatDate(new Date()), payment: selectedToken })
-      console.log(res)
       setData(res.results);
     } catch (error) {
 

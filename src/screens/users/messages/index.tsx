@@ -62,7 +62,6 @@ const SideBoxChats: FC = () => {
         const user = await UserModule.getByWallet(wallet);
         res.push({ ...v, recipient: user });
       }
-      console.log("UI chats: ", res)
       setChats(res);
     } catch (error) {
       setChats([]);
