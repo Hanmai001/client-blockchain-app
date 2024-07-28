@@ -292,7 +292,7 @@ const BannerSection: FC<{ collection: Collection }> = (props) => {
   const fetchMarketPackage = async () => {
     try {
       const res = await MarketPackageModule.getListOfUser({ collectionID: props.collection?.collectionID });
-      setMarketPackage(res.data[0] || null);
+      setMarketPackage(res.data.packages[0] || null);
     } catch (error) {
       setMarketPackage(null);
     }

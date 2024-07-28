@@ -27,7 +27,6 @@ export const ModalCreateNft: FC = () => {
   const [state, setState] = useState<State>()
 
   onCreateNft = async (s) => {
-    setState(s)
     open()
     let res;
     if (s.payload) {
@@ -55,8 +54,10 @@ export const ModalCreateNft: FC = () => {
         setActiveStep(3);
         onClose();
         onSuccess({ title: 'Tạo Video - NFT thành công', message: '' });
+        setActiveStep(0);
       } catch (error) {
         if (res && res.data) await NftModule.delete(res.data.token.id);
+        setActiveStep(0);
         onClose();
         onError("Upload Video không thành công!");
       }

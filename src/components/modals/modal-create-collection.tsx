@@ -25,7 +25,6 @@ export const ModalCreateCollection: FC = () => {
   const [state, setState] = useState<State>()
 
   onCreateCollection = async (s) => {
-    setState(s)
     open()
     let res;
     if (s.payload) {
@@ -44,8 +43,10 @@ export const ModalCreateCollection: FC = () => {
         setActiveStep(2);
         onClose();
         onSuccess({ title: 'Tạo thành công', message: '' });
+        setActiveStep(0);
       } catch (error) {
         if (res && res.data) await CollectionModule.delete(res.data.collection.id);
+        setActiveStep(0);
         onClose();
         onError("Tạo Bộ sưu tập không thành công!");
       }
