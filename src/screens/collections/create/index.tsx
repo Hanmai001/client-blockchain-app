@@ -1,247 +1,266 @@
-import { AppButton } from "@/components/app/app-button";
-import { AppHeader } from "@/components/app/app-header";
-import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
-import { EmptyMessage } from "@/components/empty-message";
-import { ErrorMessage } from "@/components/error-message";
-import { MediaInput } from "@/components/input/media-input";
-import { SelectInputItem } from "@/components/input/select-input-item";
-import { onCreateNft } from "@/components/modals/modal-create-nft";
-import { OnErrorModal, onError } from "@/components/modals/modal-error";
-import { useAccount } from "@/modules/account/context";
-import { useResponsive } from "@/modules/app/hooks";
-import { CollectionModule } from "@/modules/collection/modules";
-import { Collection } from "@/modules/collection/types";
-import { NftPayload } from "@/modules/nft/types";
-import { useBlockChain } from "@/share/blockchain/context";
+import { useEffect, useState, FC } from "react";
+import { useForm } from "@mantine/form";
 import {
-  AspectRatio,
   Box,
   Card,
-  Checkbox,
-  CheckboxGroup,
-  Flex,
   Grid,
   Group,
-  Image,
-  Skeleton,
+  Select,
   Stack,
   Text,
   TextInput,
   Textarea,
+  ThemeIcon,
+  Title,
   Transition,
   useMantineTheme,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { IconPlus, IconUpload } from "@tabler/icons-react";
+import { IconEye, IconNotebook, IconPhotoVideo, IconUpload } from "@tabler/icons-react";
 import { ethers } from "ethers";
-import { useRouter } from "next/router";
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { AppRoutes } from "../../../../app-router";
-import { DataLoadState, ItemMode, ListLoadState } from "../../../../types";
-import classes from "../../../styles/nfts/NftCreate.module.scss";
+
+import { AppButton } from "@/components/app/app-button";
+import { AppHeader } from "@/components/app/app-header";
+import { BoundaryConnectWallet } from "@/components/boundary-connect-wallet";
+import { MyCombobox } from "@/components/combobox/my-combobox";
+import { MediaInput } from "@/components/input/media-input";
+import { onCreateCollection } from "@/components/modals/modal-create-collection";
+import { OnErrorModal, onError } from "@/components/modals/modal-error";
+import { useAccount } from "@/modules/account/context";
+import { useResponsive } from "@/modules/app/hooks";
+import { CoinsModule } from "@/modules/coins/modules";
+import { CollectionPayload, PackageType } from "@/modules/collection/types";
+import { getChainId } from "@/modules/configs/context";
+import { RequestModule } from "@/modules/request/request";
+import { chains } from "@/share/blockchain/chain";
+import { useBlockChain } from "@/share/blockchain/context";
+import { AppPayment } from "../../../../types";
+import classes from "../../../styles/collections/CollectionCreate.module.scss";
+
+enum CollectionType {
+  TOURISM = "Du lịch",
+  GAME = "Trò chơi",
+  LIFE = "Đời sống",
+  EDUCATION = "Giáo dục",
+  FAMILY = "Gia đình",
+  FILM = "Phim ảnh",
+  COOK = "Nấu ăn",
+}
 
 export const CreateCollectionScreen: FC = () => {
   const theme = useMantineTheme();
   const account = useAccount();
   const blockchain = useBlockChain();
-  const { isMobile, isDesktop } = useResponsive();
-  const router = useRouter();
+  const { isMobile } = useResponsive();
+  const [bannerFile, setBannerFile] = useState<File | string | null>(null);
 
-  const [collections, setCollections] = useState<ListLoadState<any, 'collections'>>({
-    isFetching: true,
-    data: { collections: [], count: 0 },
-  });
-  const [collection, setCollection] = useState<DataLoadState<Collection>>({
-    isFetching: true,
-  });
-  const [opened, setOpened] = useState(false);
-  const [mode, setMode] = useState<string[]>([]);
-
-  const form = useForm<NftPayload>({
+  const form = useForm<CollectionPayload>({
     initialValues: {
-      creator: '',
-      owner: '',
-      title: '',
-      description: '',
-      collectionID: '',
-      chainID: '',
-      mode: ItemMode.PUBLIC,
-      file: null,
+      chainID: getChainId(),
+      creatorCollection: "",
+      title: "",
+      bannerURL: "",
+      description: "",
+      category: CollectionType.TOURISM,
+      paymentType: AppPayment.ETH,
+      package: [
+        { type: PackageType.DAYS_30, price: 0 },
+        { type: PackageType.DAYS_90, price: 0 },
+        { type: PackageType.A_YEAR, price: 0 },
+      ],
     },
     validate: {
-      title: (value) => value.length < 1 && 'Tên bộ sưu tập không hợp lệ',
-      description: (value) => value.length < 1 && 'Mô tả không hợp lệ',
+      title: (value) => (value.length < 1 ? "Tên bộ sưu tập không hợp lệ" : null),
+      description: (value) => (value.length < 1 ? "Mô tả không hợp lệ" : null),
     },
   });
 
-  useEffect(() => {
-    if (collections.data?.collections && collections.data?.collections.length > 0) {
-      setCollection({ isFetching: false, data: collections.data.collections[0] });
-    }
-  }, [collections]);
+  const getPaymentType = async () => {
+    const paymentType = await CoinsModule.getPaymentType(getChainId());
+    form.setFieldValue("paymentType", paymentType);
+  };
 
-  const getWallet = useCallback(async () => {
-    if (!!account.information && account.information.wallet) {
-      form.setFieldValue('creator', ethers.getAddress(account.information.wallet));
-      form.setFieldValue('owner', ethers.getAddress(account.information.wallet));
-    }
-  }, [account.information, form]);
-
-  const handleSelectMode = useCallback((value: string[]) => {
-    if (value.length > 1) value.shift();
-    setMode(value);
-  }, []);
-
-  const onSubmit = useCallback(
-    form.onSubmit(async (values) => {
-      try {
-        if (mode.length < 1) {
-          OnErrorModal({ title: 'Tạo Video', error: 'Vui lòng chọn chế độ cho video tải lên' });
-          return;
-        }
-
-        let payload = { ...values, mode: Number(mode[0]), source: '' };
-        if (collection) {
-          payload.chainID = collection.data!.chainID;
-          payload.collectionID = collection.data!.collectionID;
-        }
-
-        await onCreateNft({ payload, mode: mode[0] });
-      } catch (error) {
-        onError(error);
-      }
-    }),
-    [mode, collection, form]
-  );
-
-  const fetchData = async () => {
-    if (account.information?.wallet && collections.isFetching) {
-      const res = await CollectionModule.getCollecionsOfUser(account.information.wallet, {
-        chainID: blockchain.chainId,
-      });
-      setCollections((s) => ({
-        ...s,
-        isFetching: false,
-        data: { collections: res.data!.collections, count: res.data!.count },
-      }));
+  const getWallet = async () => {
+    if (account.information?.wallet) {
+      form.setFieldValue("creatorCollection", ethers.getAddress(account.information.wallet));
+    } else {
+      const wallet = (await blockchain.connectWallet("metamask")).wallet;
+      form.setFieldValue("creatorCollection", ethers.getAddress(wallet));
     }
   };
 
   useEffect(() => {
-    fetchData();
+    getPaymentType();
     getWallet();
-  }, [account.information?.wallet]);
+  }, [blockchain.wallet]);
 
-  const renderCollectionSelection = useMemo(() => {
-    if (collections.isFetching) return <Skeleton h={60} radius={8} />;
-    if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>;
-    if (!collection.data) return <Group gap="lg" bg={theme.colors.gray[1]} p={15} style={{ flexWrap: "nowrap", borderRadius: '10px', height: '90px', cursor: "pointer" }} onClick={() => router.push(AppRoutes.collection.create)}><Flex justify="center" align="center" style={{ borderRadius: '10px', backgroundColor: theme.colors.gray[2], width: '60px', height: '60px' }}><IconPlus /></Flex><Text fw="bold">Tạo bộ sưu tập mới</Text></Group>;
-    return <SelectInputItem width="48" height="64" fontsize="15px" image={collection.data.bannerURL} label={collection.data.title} />;
-  }, [collections, collection, theme, router]);
+  const onSubmit = form.onSubmit(async (values) => {
+    try {
+      if (!bannerFile) {
+        OnErrorModal({ title: "Tạo BST", error: "Vui lòng chọn ảnh cho BST" });
+        return;
+      }
 
-  const renderCollectionList = useMemo(() => {
-    if (collections.isFetching) return <Skeleton h={60} radius={8} />;
-    if (collections.error) return <Group><ErrorMessage error={collections.error} /></Group>;
-    if (collections.data?.count === 0) return <EmptyMessage />;
-    if (!collection.data) return null;
-
-    return collections.data!.collections.map((v, k) => (
-      <Box
-        bg={v.collectionID === collection.data!.collectionID ? theme.colors.primary[5] : theme.white}
-        className={v.collectionID === collection.data!.collectionID ? classes.itemActive : classes.item}
-        style={{ borderRadius: '12px', padding: '12px 12px' }}
-        key={k}
-        onClick={() => {
-          setCollection(s => ({ ...s, data: v }));
-          setOpened(false);
-        }}
-      >
-        <Group>
-          <AspectRatio flex={1}>
-            <Image radius={12} src={v.bannerURL} alt={v.name} />
-          </AspectRatio>
-          <Text flex={11} c={v.collectionID === collection.data!.collectionID ? theme.colors.text[0] : theme.colors.text[1]}>{v.title}</Text>
-        </Group>
-      </Box>
-    ));
-  }, [collections, collection, theme]);
+      const payload = { ...values };
+      if (bannerFile instanceof File) {
+        payload.bannerURL = await RequestModule.uploadMedia("/api/v1/collections/image", bannerFile, 400, "collectionImage");
+      }
+      onCreateCollection({ payload });
+    } catch {
+      onError("Tạo Bộ sưu tập không thành công!");
+    }
+  });
 
   return (
     <BoundaryConnectWallet>
       <AppHeader />
       <Stack px={isMobile ? 15 : 40} mt={70} mb={100}>
         <form onSubmit={onSubmit}>
-          <Grid mt={20} gutter={isDesktop ? 40 : 0}>
-            <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-              <MediaInput
-                label="Video"
-                withAsterisk
-                width={"100%"}
-                height={500}
-                ratio={260 / 150}
-                radius={10}
-                acceptance="video"
-                {...form.getInputProps('file')}
-                onRemove={() => form.setFieldValue('file', null)}
-                styles={{ label: { fontWeight: 'bold', marginBottom: '6px' } }}
-              />
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-              <Stack pos="relative" my={isMobile ? 0 : 30} justify="center" style={{ borderRadius: '10px' }}>
-                <Stack gap={14}>
-                  <Text mt={isMobile ? 40 : 0} style={{ display: 'block', fontWeight: 'bold', fontSize: '15px', lineHeight: '12px' }}>
-                    Chọn bộ sưu tập
-                    <span style={{ color: 'red' }}>*</span>
-                  </Text>
-                  <Box onClick={() => setOpened(!opened)}>
-                    {renderCollectionSelection}
-                  </Box>
-                </Stack>
-
-                <Transition mounted={opened} transition='pop-top-right'>
-                  {(styles) => (
-                    <Box style={{ ...styles, borderRadius: '8px' }} className={classes.box}>
-                      {renderCollectionList}
-                    </Box>
-                  )}
-                </Transition>
-              </Stack>
-
-              <Stack mt={30}>
-                <TextInput
-                  placeholder="Tên video"
-                  label="Tên video"
+          <Grid mt={20} gutter="md">
+            <Grid.Col span={{ base: 12, md: 7, lg: 7 }}>
+              <Stack>
+                <MediaInput
+                  label="Hình nền"
                   withAsterisk
-                  radius={8}
-                  styles={{ input: { padding: 20, fontSize: '15px' } }}
-                  {...form.getInputProps('title')}
+                  width="100%"
+                  height={400}
+                  ratio={260 / 150}
+                  radius={10}
+                  acceptance="image"
+                  value={bannerFile || undefined}
+                  onChange={setBannerFile}
+                  onRemove={() => setBannerFile(null)}
+                  styles={{ label: { marginBottom: "6px", fontWeight: "bold" } }}
                 />
+                <Group mt={20} grow>
+                  <TextInput
+                    label="Tên bộ sưu tập"
+                    placeholder="My Collection"
+                    withAsterisk
+                    styles={{
+                      root: { width: "45%" },
+                      input: { height: "45px", borderRadius: "10px", marginTop: "6px" },
+                      label: { fontWeight: "bold" },
+                    }}
+                    {...form.getInputProps("title")}
+                  />
+                  <MyCombobox
+                    initialvalue={CollectionType.TOURISM}
+                    options={Object.values(CollectionType)}
+                    label="Thể loại"
+                    styles={{ dropdown: { maxHeight: "200px", overflowY: "auto" } }}
+                    classNames={{ dropdown: "hidden-scroll-bar" }}
+                    classnamesinput={classes.comboboxInput}
+                    classnamesroot={classes.comboboxRootInput}
+                    onChange={(value: CollectionType) => form.setFieldValue("category", value)}
+                  />
+                </Group>
                 <Textarea
-                  placeholder="Mô tả"
                   label="Mô tả"
                   withAsterisk
-                  radius={8}
+                  placeholder="Mô tả bộ sưu tập"
                   autosize
-                  minRows={4}
-                  styles={{ input: { padding: 20, fontSize: '15px' } }}
-                  {...form.getInputProps('description')}
+                  minRows={3}
+                  styles={{
+                    root: { width: "100%", borderRadius: "10px" },
+                    input: { marginTop: "6px", borderRadius: "10px" },
+                    label: { fontWeight: "bold" },
+                  }}
+                  {...form.getInputProps("description")}
                 />
-                <CheckboxGroup mt={10} value={mode} onChange={handleSelectMode}>
-                  <Checkbox value={ItemMode.PUBLIC} label="Công khai" />
-                  <Checkbox value={ItemMode.COMMERCIAL} label="Riêng tư" />
-                </CheckboxGroup>
+                <Select
+                  label="Blockchain"
+                  placeholder="Chọn chain"
+                  data={chains.map((v) => ({ label: v.name, value: v.chainId }))}
+                  styles={{
+                    dropdown: { maxHeight: "200px", overflowY: "auto" },
+                    root: { width: "100%" },
+                    input: { height: "45px", borderRadius: "10px", marginTop: "6px" },
+                    label: { fontWeight: "bold" },
+                  }}
+                  classNames={{ dropdown: "hidden-scroll-bar" }}
+                  {...form.getInputProps("chainID")}
+                />
               </Stack>
-              <Group mt={40} justify="flex-end" gap="xs">
-                <AppButton color="gray" onClick={() => router.back()}>
-                  Hủy
-                </AppButton>
-                <AppButton leftSection={<IconUpload size={14} />} type="submit">
-                  Tạo video
-                </AppButton>
-              </Group>
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 5, lg: 5 }}>
+              <Stack
+                mt={isMobile ? 0 : 30}
+                px={30}
+                py={30}
+                justify="center"
+                bg={theme.colors.gray[1]}
+                style={{ borderRadius: "10px" }}
+              >
+                <Title order={4} fw={500} c={theme.colors.text[1]}>
+                  Sau khi tạo Bộ sưu tập thành công:
+                </Title>
+                {[
+                  { icon: <IconNotebook />, title: "Quản lý bộ sưu tập", description: "Chỉnh sửa thông tin bộ sưu tập" },
+                  {
+                    icon: <IconPhotoVideo />,
+                    title: "Quản lý Video dễ dàng",
+                    description: "Xem thông tin các Video của bạn, truy cập nhanh chóng",
+                  },
+                  {
+                    icon: <IconEye />,
+                    title: "Chế độ",
+                    description:
+                      "Mọi người có thể xem được các video trong BST của bạn nếu chế độ là công khai. " +
+                      "Các video nằm trong BST có chế độ thương mại sẽ được bảo vệ khỏi quyền truy cập bất hợp pháp và mọi người chỉ được xem sau khi đã thanh toán",
+                  },
+                ].map(({ icon, title, description }) => (
+                  <Group key={title}>
+                    <ThemeIcon flex={1} variant="transparent" color={theme.colors.gray[8]}>
+                      {icon}
+                    </ThemeIcon>
+                    <Stack flex={11} gap={2}>
+                      <Text fw={500} c={theme.colors.gray[8]}>
+                        {title}
+                      </Text>
+                      <Text c={theme.colors.gray[7]}>{description}</Text>
+                    </Stack>
+                  </Group>
+                ))}
+              </Stack>
             </Grid.Col>
           </Grid>
+          <Box my={20}>
+            <Transition
+              mounted={true}
+              transition='slide-up'
+              duration={300}
+              timingFunction="ease"
+              keepMounted
+            >
+              {(transitionStyle) => (
+                <Card p={20}
+                  style={{
+                    position: 'fixed',
+                    zIndex: 10,
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    boxShadow: '0px -4px 6px rgba(0, 0, 0, 0.1), 2px 0px 4px rgba(0, 0, 0, 0.1)',
+                    ...transitionStyle
+                  }}
+                >
+                  <Group justify="flex-end">
+                    <AppButton
+                      type="submit"
+                      async
+                      width={160}
+                      height={50}
+                      radius={8}
+                      color={theme.colors.primary[5]}
+                      leftSection={<IconUpload />}
+                    >
+                      Tạo ngay
+                    </AppButton>
+                  </Group>
+                </Card>
+              )}
+            </Transition>
+          </Box>
         </form>
       </Stack>
     </BoundaryConnectWallet>
