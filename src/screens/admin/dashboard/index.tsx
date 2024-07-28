@@ -4,12 +4,11 @@ import { renderPayment } from "@/modules/coins/utils";
 import { StatisticModule } from "@/modules/statistic/modules";
 import { Statistic, StatisticType } from "@/modules/statistic/types";
 import { DateTimeUtils, NumberUtils } from "@/share/utils";
-import { ActionIcon, Avatar, Box, Card, Grid, Group, Skeleton, Stack, Text, ThemeIcon, Title, useMantineTheme } from "@mantine/core";
-import { IconArrowDown, IconArrowUp, IconChartBar, IconChartLine, IconNetwork, IconUsers, IconVideo } from "@tabler/icons-react";
+import { ActionIcon, Avatar, Card, Grid, Group, Skeleton, Stack, Text, ThemeIcon, Title, useMantineTheme } from "@mantine/core";
+import { IconArrowDown, IconArrowUp, IconChartBar, IconChartLine, IconUsers, IconVideo } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import { AppPayment, ListLoadState } from "../../../../types";
-import classes from '../../../styles/admin/AdminDashboard.module.scss';
 
 export const AdminDashBoard: FC = () => {
   const theme = useMantineTheme();
@@ -210,35 +209,13 @@ export const AdminDashBoard: FC = () => {
           <UsersChart />
         </Grid.Col>
       </Grid>
-
-      <Box>
-        <Title order={4} c={theme.colors.text[1]} mb={10}>Thông tin website</Title>
-        <Grid>
-          <Grid.Col span={{ base: 12, md: 3, lg: 3 }}>
-            <Card flex={3} radius="md" shadow="sm" className={classes.adminCard}>
-              <Group justify="space-between">
-                <Text fw={500} c={theme.colors.primary[5]}>Trang chủ</Text>
-
-                <ThemeIcon
-                  variant="gradient"
-                  gradient={{ from: 'rgba(255, 89, 33, 1)', to: 'yellow', deg: 201 }}
-                  radius='50%'
-                  size={48}
-                >
-                  <IconNetwork />
-                </ThemeIcon>
-              </Group>
-            </Card>
-          </Grid.Col>
-        </Grid>
-      </Box>
     </Stack>
   </AdminWrapper>
 }
 
 const RevenueChart: FC = () => {
   const theme = useMantineTheme();
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<any>(null);
   const [selectedToken, setSelectedToken] = useState<AppPayment>(AppPayment.ETH);
   const account = useAccount();
   //const isAdmin = account.information && account.information?.roles.includes(Roles.ADMIN);
@@ -250,6 +227,7 @@ const RevenueChart: FC = () => {
 
   const getOrderStatistic = async () => {
     try {
+      setData(null);
       const res = await StatisticModule.getPackageRevenueStatistic({ type: StatisticType.MONTH, from: DateTimeUtils.formatDate(DateTimeUtils.getDateWithOffsetMonths(12)), to: DateTimeUtils.formatDate(new Date()), payment: selectedToken })
       setData(res.results);
     } catch (error) {
@@ -279,7 +257,9 @@ const RevenueChart: FC = () => {
     </Group>
     <Card.Section py={30}>
       {function () {
-        if (data) return <LineChart width={800} height={350} data={data}>
+        if (!data) return <Skeleton h={300} />
+
+        return <LineChart width={800} height={350} data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis tickFormatter={formatXAxisLabel} dataKey="from" />
           <YAxis />
@@ -293,7 +273,7 @@ const RevenueChart: FC = () => {
 
 const UsersChart: FC = () => {
   const theme = useMantineTheme();
-  const [data, setData] = useState<any>([])
+  const [data, setData] = useState<any>(null)
   const account = useAccount();
   //const isAdmin = account.information && account.information.roles.includes(Roles.ADMIN);
 
@@ -322,7 +302,9 @@ const UsersChart: FC = () => {
 
     <Card.Section py={30}>
       {function () {
-        if (data) return <BarChart width={350} height={360} data={data}>
+        if (!data) return <Skeleton h={300} />
+
+        return <BarChart width={350} height={360} data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis tickFormatter={formatXAxisLabel} dataKey="from" />
           <YAxis allowDecimals={false} />

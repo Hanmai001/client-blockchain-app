@@ -27,7 +27,6 @@ export const AdminNftsScreen: FC = () => {
       const res = await NftModule.getList({ limit, offset: (activePage - 1) * limit, search });
       setItems(s => ({ ...s, isFetching: false, data: res.data }));
     } catch (error) {
-      onError(error);
     }
   }
 
