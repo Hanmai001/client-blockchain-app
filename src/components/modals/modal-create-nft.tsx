@@ -59,7 +59,7 @@ export const ModalCreateNft: FC = () => {
         if (res && res.data) await NftModule.delete(res.data.token.id);
         setActiveStep(0);
         onClose();
-        onError("Upload Video không thành công!");
+        onError(error);
       }
     }
   }

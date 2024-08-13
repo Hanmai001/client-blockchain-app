@@ -71,9 +71,10 @@ export const ErrorModal: FC = () => {
           }
 
           let message = `Something went wrong.`;
-          if (typeof state.error === 'object') message = state.error.message;
+          if (typeof state.error === 'object') message = state.error.response.data.message;
           if (typeof state.error === 'string') message = state.error;
 
+          console.log(state.error)
           const msgObj: any = {
             'EXIST_EMAIL': 'Email existed!',
             'INSUFFICIENT_FOUND': 'The system is under maintenance, please come back later'
