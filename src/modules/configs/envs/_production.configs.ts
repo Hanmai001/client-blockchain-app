@@ -1,19 +1,14 @@
 import { ChainId } from "@/share/blockchain/types";
 import { Configs } from "../type";
-import getNextConfig from 'next/config';
-const { publicRuntimeConfig } = getNextConfig();
 
 export const productionConfigs: Configs = {
-  // ưURL_CROSS_STORAGE: 'https://hanmai001.github.io/cross-storage/index.html',
-  URL_CROSS_STORAGE: publicRuntimeConfig.URL_CROSS_STORAGE || "http://127.0.0.1:5500/index.html",
-  URL_MAIN_API: publicRuntimeConfig.URL_MAIN_API || "http://localhost:4000",
-  SOCKET_ENDPOINT: publicRuntimeConfig.SOCKET_ENDPOINT || "http://localhost:5000",
-  PUBLIC_URL: publicRuntimeConfig.PUBLIC_URL || "http://localhost:3000",
+  URL_CROSS_STORAGE: process.env.NEXT_PUBLIC_URL_CROSS_STORAGE || '',
+  URL_MAIN_API: process.env.NEXT_PUBLIC_URL_API_MAIN || '',
+  SOCKET_ENDPOINT: process.env.NEXT_PUBLIC_SOCKET_ENDPOINT || '',
+  PUBLIC_URL: process.env.NEXT_PUBLIC_PUBLIC_URL || '',
   chains: {
     [ChainId.BSC_TESTNET]: {
       erc20s: {
-        // USDM: '0x85eB2c83f72613B7beCbd8b78f2f89df326744Bf',
-        // USDT: '0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684',
         BCT: '0x4097D3f61a51748dBB59e37BF8FfC40B804EAB5e',
       },
       erc721s: {

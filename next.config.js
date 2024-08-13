@@ -1,21 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack5: true,
   webpack: (config) => {
     config.resolve.fallback = { fs: false };
 
     return config;
   },
   images: {
-    domains: ['localhost', 'res.cloudinary.com'],
+    domains: ['localhost', 'blockclip.pro.vn', 'gateway.pinata.cloud'],
   },
-  publicRuntimeConfig: {
-    ENV: process.env["ENV"] || "PRODUCTION",
-    PUBLIC_URL: process.env["PUBLIC_URL"],
-    URL_MAIN_API: process.env["URL_MAIN_API"],
-    URL_CROSS_STORAGE: process.env["URL_CROSS_STORAGE"],
-    SOCKET_ENDPOINT: process.env["SOCKET_ENDPOINT"]
-  },
+  // publicRuntimeConfig: {
+  //   ENV: process.env["ENV"] || "PRODUCTION",
+  //   PUBLIC_URL: process.env["PUBLIC_URL"],
+  //   URL_MAIN_API: process.env["URL_MAIN_API"],
+  //   URL_CROSS_STORAGE: process.env["URL_CROSS_STORAGE"],
+  //   SOCKET_ENDPOINT: process.env["SOCKET_ENDPOINT"]
+  // },
   eslint: {
     ignoreDuringBuilds: true,
   },
