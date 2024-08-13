@@ -32,7 +32,6 @@ export const CollectionsRanking: FC<{ type: string | null }> = (props) => {
       setCollections(s => ({ ...s, isFetching: false, data: { collections: filteredRes, count: filteredRes.length } }));
     } catch (error) {
       setCollections(s => ({ ...s, isFetching: false }))
-      onError(error)
     }
   }
 

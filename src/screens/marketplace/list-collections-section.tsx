@@ -101,7 +101,6 @@ export const ListCollections: FC<{ type: string | null }> = ({ type }) => {
           setFeaturedRes(featuredCollections.map(collections => ({ isFetching: false, data: { collections, count: collections.length } })));
         }
       } catch (error) {
-        onError(error);
         setCollections({ isFetching: false, data: { collections: [], count: 0 } });
       }
     };

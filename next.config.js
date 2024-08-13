@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // webpack5: true,
-  // webpack: (config) => {
-  //   config.resolve.fallback = { fs: false };
+  webpack5: true,
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false };
 
-  //   return config;
-  // },
+    return config;
+  },
+  images: {
+    domains: ['localhost', 'res.cloudinary.com'],
+  },
   publicRuntimeConfig: {
     ENV: process.env["ENV"] || "PRODUCTION",
     PUBLIC_URL: process.env["PUBLIC_URL"],

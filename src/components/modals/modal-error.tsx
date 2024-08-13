@@ -71,7 +71,7 @@ export const ErrorModal: FC = () => {
           }
 
           let message = `Something went wrong.`;
-          if (typeof state.error === 'object') message = state.error.response.data.message;
+          if (typeof state.error === 'object') message = state.error?.response?.data?.message || state.error?.message || JSON.stringify(state.error);
           if (typeof state.error === 'string') message = state.error;
 
           console.log(state.error)
