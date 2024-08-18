@@ -6,8 +6,21 @@ export class LicenseModule {
   static saveLicense(id: string, license: string) {
     localStorage.setItem(`license_${id}`, license);
   }
+  
+  static removeAllLicenses() {
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('license_')) {
+        localStorage.removeItem(key);
+      }
+    });
+  }
 
   static async getLicense(payload: {tokenID: string}) {
+    const existingLicense = localStorage.getItem(`license_${payload.tokenID}`);
+    if (existingLicense) {
+      return existingLicense;
+    }
     const license = await RequestModule.post(`/api/v1/tokens/license`, payload);
     this.saveLicense(payload.tokenID, license.data);
     return license.data;

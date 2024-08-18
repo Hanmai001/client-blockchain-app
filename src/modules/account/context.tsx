@@ -6,6 +6,7 @@ import { UserModule } from "../user/modules";
 import { UserInformation, UserSignInPayload } from "../user/types";
 import { AccountAccessToken } from "./acess-token";
 import { AccountContext, AccountInformation, SignIn, SignOut } from "./types";
+import { LicenseModule } from "../license/modules";
 
 
 const accountContext = createContext<AccountContext>({} as any);
@@ -80,6 +81,7 @@ export const AccountProvider: FC<PropsWithChildren> = (props) => {
     if (blockchain.wallet) {
       //remove from cross-storage
       AccountAccessToken.removeByWallet(blockchain.wallet);
+      LicenseModule.removeAllLicenses();
     }
     setInformation(undefined);
   }

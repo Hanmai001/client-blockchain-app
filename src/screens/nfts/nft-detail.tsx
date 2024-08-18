@@ -27,7 +27,7 @@ import { ActionIcon, AspectRatio, Avatar, Box, Card, Center, Divider, Grid, Grou
 import { useClipboard, useDebouncedValue } from "@mantine/hooks";
 import { IconChevronDown, IconCopy, IconCopyCheck, IconEye, IconFlag, IconSearch, IconShare, IconShoppingCartCancel, IconShoppingCartFilled } from "@tabler/icons-react";
 import Link from "next/link";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { DataLoadState, ItemMode, ListLoadState } from "../../../types";
 import classes from '../../styles/nfts/NftDetail.module.scss';
 import { Comment } from "@/modules/comment/types";
@@ -236,7 +236,8 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     }
   }
 
-  const decryptVideo = async () => {
+  const decryptVideo = useCallback(async () => {
+    setVideoUrl(null);
     try {
       if (token.mode.toString() === ItemMode.COMMERCIAL) {
         const license = await LicenseModule.getLicense({ tokenID: token.tokenID });
@@ -256,7 +257,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     } catch (error) {
 
     }
-  }
+  }, [account.information])
 
   useEffect(() => {
     fetchUser();
@@ -265,7 +266,7 @@ export const NftDetailScreen: FC<{ token: Nft }> = ({ token }) => {
     fetchMarketOrders();
     fetchMarketOrderOfToken();
     decryptVideo();
-  }, [account.information])
+  }, [account.information, token])
 
   useEffect(() => {
     fetchMarketOrders();

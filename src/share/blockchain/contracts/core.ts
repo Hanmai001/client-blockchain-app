@@ -208,7 +208,7 @@ export class Contract {
         const tx = await func(...(options.args || args), {
             from: wallet,
             ...options.params,
-            gasPrice: 23000,
+            gasPrice: 25000,
             gasLimit: options.method === 'mintNft' ? 350000 : 300000,
         }) 
         const txReceipt = await tx.wait(1);

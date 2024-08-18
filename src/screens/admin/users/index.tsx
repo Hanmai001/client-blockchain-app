@@ -11,6 +11,7 @@ import { IconLock, IconLockOff, IconSearch, IconUserEdit } from "@tabler/icons-r
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { ListLoadState } from "../../../../types";
+import { AppButton } from "@/components/app/app-button";
 
 export const AdminUsersScreen: FC = () => {
   const theme = useMantineTheme();
@@ -35,6 +36,7 @@ export const AdminUsersScreen: FC = () => {
       await UserModule.updateByAdmin(user.wallet, {
         active: !user.active
       });
+      await fetchUsers();
     } catch (error) {
       onError("Có lỗi xảy ra, vui lòng thử lại sau");
     }
@@ -107,11 +109,11 @@ export const AdminUsersScreen: FC = () => {
                         }}><IconUserEdit size={18} /></Link>
                       </Tooltip>
 
-                      <Tooltip label={v.active ? "Hạn chế người dùng" : "Mở quyền"}>
-                        <ActionIcon color="danger" onClick={() => handleBlockUnBlock(v)}>
+                      <AppButton async color="danger" onClick={() => handleBlockUnBlock(v)} px={8}>
+                        <Tooltip label={v.active ? "Ẩn" : "Hiện"}>
                           {v.active ? <IconLock size={18} /> : <IconLockOff size={18} />}
-                        </ActionIcon>
-                      </Tooltip>
+                        </Tooltip>
+                      </AppButton>
                     </Group>
                   </Table.Td>
                 </Table.Tr>)}
